@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Correlate\Correlate.Core.csproj" />
+    <ProjectReference Include="..\..\src\Correlate.Core\Correlate.Core.csproj" />
   </ItemGroup>
 
 </Project>

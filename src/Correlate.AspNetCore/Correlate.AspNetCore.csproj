@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Correlate.Abstractions\Correlate.Abstractions.csproj" />
-    <ProjectReference Include="..\Correlate\Correlate.Core.csproj" />
+    <ProjectReference Include="..\Correlate.Core\Correlate.Core.csproj" />
   </ItemGroup>
 
 </Project>

@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.28307.329
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Correlate.Abstractions", "src\Correlate.Abstractions\Correlate.Abstractions.csproj", "{6F18CD1A-195E-4A8A-8C3A-5618B846CDA1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Correlate.Core", "src\Correlate\Correlate.Core.csproj", "{955B53F3-89AC-4C72-9A56-8DAA4B61ABC1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Correlate.Core", "src\Correlate.Core\Correlate.Core.csproj", "{955B53F3-89AC-4C72-9A56-8DAA4B61ABC1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Correlate.DependencyInjection", "src\Correlate.DependencyInjection\Correlate.DependencyInjection.csproj", "{7FCAE977-9449-432C-9F61-CFDD1EF07CE2}"
 EndProject
