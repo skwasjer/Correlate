@@ -127,13 +127,21 @@ namespace Correlate.AspNetCore
 				logEvents
 					.Take(1)
 					.Union(logEvents.TakeLast(1))
-					.Should()
-					.Contain(le => le.Properties.ContainsKey("CorrelationId") && ((ScalarValue)le.Properties["CorrelationId"]).Value == null, "the first and last log item are logged by the WebHost before the middleware");
+					.ToList()
+					.ForEach(le => le.Properties
+						.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
+						.Should().ContainKey("CorrelationId")
+						.WhichValue.Should().BeOfType<ScalarValue>()
+						.Which.Value.Should().BeNull());
 				logEvents
 					.Skip(1)
 					.SkipLast(1)
-					.Should()
-					.Contain(le => le.Properties.ContainsKey("CorrelationId") && (string)((ScalarValue)le.Properties["CorrelationId"]).Value == correlationId, "all log items except the first and last are logged after the middleware");
+					.ToList()
+					.ForEach(le => le.Properties
+						.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
+						.Should().ContainKey("CorrelationId")
+						.WhichValue.Should().BeOfType<ScalarValue>()
+						.Which.Value.Should().Be(correlationId));
 			}
 		}
 	}

@@ -99,7 +99,7 @@ namespace Correlate.AspNetCore
 							continue;
 						}
 
-						_logger.LogDebug("Setting correlation id to '{CorrelationId}' from request header {HeaderName}.", correlationId, headerName);
+						_logger.LogDebug("Request header '{HeaderName}' found with correlation id '{CorrelationId}'.", headerName, correlationId);
 						break;
 					}
 				}
