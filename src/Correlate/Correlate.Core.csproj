@@ -9,6 +9,7 @@
   <Import Project="..\Package.props" />
 
   <PropertyGroup>
+    <PackageId>Correlate</PackageId>
     <Description>The core package for Correlate.</Description>
     <PackageProjectUrl>https://github.com/skwasjer/Correlate</PackageProjectUrl>
     <PackageTags>correlationid, correlation, correlate, causation, aspnet, middleware, httpclient, httpclientfactory</PackageTags>
