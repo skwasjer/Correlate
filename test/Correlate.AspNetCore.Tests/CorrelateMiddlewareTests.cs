@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Correlate.AspNetCore.Fixtures;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using RichardSzalay.MockHttp;
 using Serilog.Events;
 using Serilog.Sinks.TestCorrelator;
 using Xunit;
@@ -19,14 +21,17 @@ namespace Correlate.AspNetCore
 	{
 		private readonly WebApplicationFactory<Startup> _factory;
 		private readonly CorrelateOptions _options;
+		private readonly MockHttpMessageHandler _mockHttp;
 
 		public CorrelateMiddlewareTests(TestAppFactory<Startup> factory)
 		{
 			_options = new CorrelateOptions();
+			_mockHttp = new MockHttpMessageHandler();
 
 			_factory = factory.WithWebHostBuilder(builder => builder
 				.ConfigureTestServices(services =>
 				{
+					services.AddTransient(_ => _mockHttp);
 					services.AddSingleton<IOptions<CorrelateOptions>>(new OptionsWrapper<CorrelateOptions>(_options));
 				})
 			);
@@ -56,11 +61,11 @@ namespace Correlate.AspNetCore
 			const string headerName = CorrelationHttpHeaders.CorrelationId;
 			const string correlationId = "my-correlation-id";
 
-			HttpClient client = _factory.CreateClient();
 			var request = new HttpRequestMessage();
 			request.Headers.Add(headerName, correlationId);
 
 			// Act
+			HttpClient client = _factory.CreateClient();
 			HttpResponseMessage response = await client.SendAsync(request);
 
 			// Assert
@@ -75,9 +80,8 @@ namespace Correlate.AspNetCore
 			const string headerName = "my-header";
 			_options.RequestHeaders = new[] { headerName };
 
-			HttpClient client = _factory.CreateClient();
-
 			// Act
+			HttpClient client = _factory.CreateClient();
 			HttpResponseMessage response = await client.GetAsync("");
 
 			// Assert
@@ -93,9 +97,8 @@ namespace Correlate.AspNetCore
 		{
 			_options.IncludeInResponse = false;
 
-			HttpClient client = _factory.CreateClient();
-
 			// Act
+			HttpClient client = _factory.CreateClient();
 			HttpResponseMessage response = await client.GetAsync("");
 
 			// Assert
@@ -110,13 +113,13 @@ namespace Correlate.AspNetCore
 			const string headerName = CorrelationHttpHeaders.CorrelationId;
 			const string correlationId = "my-correlation-id";
 
-			HttpClient client = _factory.CreateClient();
 			var request = new HttpRequestMessage();
 			request.Headers.Add(headerName, correlationId);
 
 			using (TestCorrelator.CreateContext())
 			{
 				// Act
+				HttpClient client = _factory.CreateClient();
 				await client.SendAsync(request);
 
 				// Assert
@@ -143,6 +146,37 @@ namespace Correlate.AspNetCore
 						.WhichValue.Should().BeOfType<ScalarValue>()
 						.Which.Value.Should().Be(correlationId));
 			}
+		}
+
+		[Fact]
+		public async Task When_calling_external_service_in_microservice_should_forward_correlationId()
+		{
+			const string headerName = CorrelationHttpHeaders.CorrelationId;
+			const string correlationId = "my-correlation-id";
+
+			var request = new HttpRequestMessage(HttpMethod.Get, "correlate_client_request");
+			request.Headers.Add(headerName, correlationId);
+
+			_mockHttp
+				.Expect("/correlated_external_call")
+				.WithHeaders($"{headerName}: {correlationId}")
+				.Respond(HttpStatusCode.Accepted);
+
+			// Act
+			HttpClient client = _factory.CreateClient();
+			HttpResponseMessage response = await client.SendAsync(request);
+
+			// Assert
+			string errorMessage = null;
+			if (!response.IsSuccessStatusCode)
+			{
+				errorMessage = await response.Content.ReadAsStringAsync();
+			}
+
+			errorMessage.Should().BeNullOrEmpty();
+			response.StatusCode.Should().Be(HttpStatusCode.Accepted);
+
+			_mockHttp.VerifyNoOutstandingExpectation();
 		}
 	}
 }

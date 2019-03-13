@@ -1,8 +1,9 @@
-﻿using Correlate.DependencyInjection;
+﻿using System;
+using Correlate.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using RichardSzalay.MockHttp;
 
 namespace Correlate.AspNetCore.Fixtures
 {
@@ -12,7 +13,10 @@ namespace Correlate.AspNetCore.Fixtures
 		{
 			services.AddCorrelate();
 
-			services.AddTransient<TestController>();
+			services
+				.AddHttpClient<TestController>(client => client.BaseAddress = new Uri("http://0.0.0.0"))
+				.ConfigurePrimaryHttpMessageHandler(s => s.GetRequiredService<MockHttpMessageHandler>())
+				.CorrelateRequests();
 
 			services
 				.AddMvcCore()
@@ -24,24 +28,6 @@ namespace Correlate.AspNetCore.Fixtures
 		{
 			app.UseCorrelate();
 			app.UseMvc();
-		}
-	}
-
-	[Route("")]
-	public class TestController : Controller
-	{
-		private readonly ILogger<TestController> _logger;
-
-		public TestController(ILogger<TestController> logger)
-		{
-			_logger = logger;
-		}
-
-		[HttpGet]
-		public IActionResult Get()
-		{
-			_logger.LogInformation("controller action: ok");
-			return Ok("ok");
 		}
 	}
 }
