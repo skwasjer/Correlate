@@ -2,9 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-
+    <IsTestProject>true</IsTestProject>
     <IsPackable>false</IsPackable>
-
     <RootNamespace>Correlate</RootNamespace>
   </PropertyGroup>
 

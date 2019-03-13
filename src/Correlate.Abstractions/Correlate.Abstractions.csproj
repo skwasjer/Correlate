@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard1.0</TargetFramework>
+    <IsTestProject>false</IsTestProject>
   </PropertyGroup>
 
   <Import Project="..\Package.props" />
