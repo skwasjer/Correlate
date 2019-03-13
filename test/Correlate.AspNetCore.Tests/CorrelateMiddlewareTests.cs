@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Serilog.Events;
+using Serilog.Sinks.TestCorrelator;
 using Xunit;
 
 namespace Correlate.AspNetCore
@@ -22,8 +24,8 @@ namespace Correlate.AspNetCore
 		{
 			_options = new CorrelateOptions();
 
-			_factory = factory.WithWebHostBuilder(builder => 
-				builder.ConfigureTestServices(services =>
+			_factory = factory.WithWebHostBuilder(builder => builder
+				.ConfigureTestServices(services =>
 				{
 					services.AddSingleton<IOptions<CorrelateOptions>>(new OptionsWrapper<CorrelateOptions>(_options));
 				})
@@ -40,10 +42,12 @@ namespace Correlate.AspNetCore
 
 			// Assert
 			response.Headers
-				.Should().ContainCorrelationId()
+				.Should()
+				.ContainCorrelationId()
 				.WhichValue.Should()
 				.ContainSingle()
-				.Which.Should().NotBeEmpty();
+				.Which.Should()
+				.NotBeEmpty();
 		}
 
 		[Fact]
@@ -98,6 +102,39 @@ namespace Correlate.AspNetCore
 			response.Headers
 				.OfType<IEnumerable>()
 				.Should().BeEmpty();
+		}
+
+		[Fact]
+		public async Task When_logging_should_have_correlationId_for_all_logged_events_except_host_start_and_finish()
+		{
+			const string headerName = "X-Correlation-ID";
+			const string correlationId = "my-correlation-id";
+
+			HttpClient client = _factory.CreateClient();
+			var request = new HttpRequestMessage();
+			request.Headers.Add(headerName, correlationId);
+
+			using (TestCorrelator.CreateContext())
+			{
+				// Act
+				await client.SendAsync(request);
+
+				// Assert
+				// ReSharper disable once SuggestVarOrType_Elsewhere
+				var logEvents = TestCorrelator.GetLogEventsFromCurrentContext().ToList();
+				logEvents.Should().HaveCountGreaterThan(2);
+
+				logEvents
+					.Take(1)
+					.Union(logEvents.TakeLast(1))
+					.Should()
+					.Contain(le => le.Properties.ContainsKey("CorrelationId") && ((ScalarValue)le.Properties["CorrelationId"]).Value == null, "the first and last log item are logged by the WebHost before the middleware");
+				logEvents
+					.Skip(1)
+					.SkipLast(1)
+					.Should()
+					.Contain(le => le.Properties.ContainsKey("CorrelationId") && (string)((ScalarValue)le.Properties["CorrelationId"]).Value == correlationId, "all log items except the first and last are logged after the middleware");
+			}
 		}
 	}
 }

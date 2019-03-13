@@ -31,68 +31,54 @@ namespace Correlate.AspNetCore
 		}
 
 		/// <summary>
-		/// Invokes the middleware for the current <paramref name="context"/>.
+		/// Invokes the middleware for the current <paramref name="httpContext"/>.
 		/// </summary>
-		/// <param name="context">The current <see cref="HttpContext"/>.</param>
+		/// <param name="httpContext">The current <see cref="HttpContext"/>.</param>
 		/// <param name="correlationContextFactory">The <see cref="ICorrelationContextFactory"/> used to create a <see cref="CorrelationContext"/> for the current request chain.</param>
 		/// <returns>An awaitable to wait for to complete the request.</returns>
-		public async Task Invoke(HttpContext context, ICorrelationContextFactory correlationContextFactory)
+		public async Task Invoke(HttpContext httpContext, ICorrelationContextFactory correlationContextFactory)
 		{
-			string correlationId = null;
-			string headerName = null;
-
+			IDisposable logScope = null;
 			bool diagnosticListenerEnabled = _diagnosticListener.IsEnabled();
 			bool loggingEnabled = _logger.IsEnabled(LogLevel.Critical);
 
-			IDisposable logScope = null;
 			if (diagnosticListenerEnabled || loggingEnabled)
 			{
-				(correlationId, headerName) = GetCorrelationId(context.Request);
+				(string correlationId, string headerName) = GetCorrelationId(httpContext.Request);
 				correlationContextFactory.Create(correlationId);
 
 				if (diagnosticListenerEnabled)
 				{
-					//// TODO: abstract to ICorrelatedActivityProvider?
+					//// TODO: add Activity support
 					//var activity = new Activity("Correlated-Request");
 					//activity.SetParentId(correlationId);
-					//DiagnosticListener dl;
-					//dl.IsEnabled()
-					//dl.StartActivity(activity, new
-					//{
-					//});
-					//dl.StopActivity();
+					//_diagnosticListener.StartActivity(activity, new {})
 				}
 
 				if (loggingEnabled)
 				{
-					logScope = _logger.BeginScope("should be dictionary with traceid, request path and correlation id");
+					logScope = _logger.BeginRequestScope(httpContext, correlationId);
 				}
 
 				if (_options.IncludeInResponse)
 				{
-					context.Response.OnStarting(() =>
+					httpContext.Response.OnStarting(() =>
 					{
-						if (!context.Response.Headers.ContainsKey(headerName))
+						if (!httpContext.Response.Headers.ContainsKey(headerName))
 						{
-							context.Response.Headers.Add(headerName, correlationId);
+							httpContext.Response.Headers.Add(headerName, correlationId);
 						}
 
 						return Task.CompletedTask;
 					});
 				}
-
-				context.Response.OnCompleted(() =>
-				{
-	//				activity.Stop();
-
-					correlationContextFactory.Dispose();
-					logScope?.Dispose();
-
-					return Task.CompletedTask;
-				});
 			}
 
-			await _next(context);
+			await _next(httpContext);
+
+			//_diagnosticListener.StopActivity(activity, new {})
+			logScope?.Dispose();
+			correlationContextFactory.Dispose();
 		}
 
 		private (string CorrelationId, string HeaderName) GetCorrelationId(HttpRequest httpRequest)

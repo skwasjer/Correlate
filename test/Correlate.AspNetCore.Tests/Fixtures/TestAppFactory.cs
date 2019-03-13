@@ -1,6 +1,7 @@
-using Microsoft.AspNetCore;
+﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Serilog;
 
 namespace Correlate.AspNetCore.Fixtures
 {
@@ -10,7 +11,13 @@ namespace Correlate.AspNetCore.Fixtures
 		protected override IWebHostBuilder CreateWebHostBuilder()
 		{
 			return WebHost.CreateDefaultBuilder()
-				.UseStartup<TStartup>();
+				.UseStartup<TStartup>()
+				.UseSerilog((context, configuration) =>
+				{
+					configuration
+						.MinimumLevel.Information()
+						.WriteTo.TestCorrelator();
+				});
 		}
 
 		protected override void ConfigureWebHost(IWebHostBuilder builder)
