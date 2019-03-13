@@ -41,45 +41,49 @@ namespace Correlate.AspNetCore
 			IDisposable logScope = null;
 			bool diagnosticListenerEnabled = _diagnosticListener.IsEnabled();
 			bool loggingEnabled = _logger.IsEnabled(LogLevel.Critical);
-
-			if (diagnosticListenerEnabled || loggingEnabled)
+			try
 			{
-				(string correlationId, string headerName) = GetCorrelationId(httpContext.Request);
-				correlationContextFactory.Create(correlationId);
-
-				if (diagnosticListenerEnabled)
+				if (diagnosticListenerEnabled || loggingEnabled)
 				{
-					//// TODO: add Activity support
-					//var activity = new Activity("Correlated-Request");
-					//activity.SetParentId(correlationId);
-					//_diagnosticListener.StartActivity(activity, new {})
-				}
+					(string correlationId, string headerName) = GetCorrelationId(httpContext.Request);
+					correlationContextFactory.Create(correlationId);
 
-				if (loggingEnabled)
-				{
-					logScope = _logger.BeginRequestScope(httpContext, correlationId);
-				}
-
-				if (_options.IncludeInResponse)
-				{
-					httpContext.Response.OnStarting(() =>
+					if (diagnosticListenerEnabled)
 					{
-						// If already set, ignore.
-						if (!httpContext.Response.Headers.ContainsKey(headerName))
+						//// TODO: add Activity support
+						//var activity = new Activity("Correlated-Request");
+						//activity.SetParentId(correlationId);
+						//_diagnosticListener.StartActivity(activity, new {})
+					}
+
+					if (loggingEnabled)
+					{
+						logScope = _logger.BeginRequestScope(httpContext, correlationId);
+					}
+
+					if (_options.IncludeInResponse)
+					{
+						httpContext.Response.OnStarting(() =>
 						{
-							httpContext.Response.Headers.Add(headerName, correlationId);
-						}
+							// If already set, ignore.
+							if (!httpContext.Response.Headers.ContainsKey(headerName))
+							{
+								httpContext.Response.Headers.Add(headerName, correlationId);
+							}
 
-						return Task.CompletedTask;
-					});
+							return Task.CompletedTask;
+						});
+					}
 				}
+
+				await _next(httpContext);
 			}
-
-			await _next(httpContext);
-
-			//_diagnosticListener.StopActivity(activity, new {})
-			logScope?.Dispose();
-			correlationContextFactory.Dispose();
+			finally
+			{
+				//_diagnosticListener.StopActivity(activity, new {})
+				logScope?.Dispose();
+				correlationContextFactory.Dispose();
+			}
 		}
 
 		private (string CorrelationId, string HeaderName) GetCorrelationId(HttpRequest httpRequest)
