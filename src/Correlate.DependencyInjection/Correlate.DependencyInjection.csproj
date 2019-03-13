@@ -4,12 +4,20 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
+  <Import Project="..\Package.props" />
+
+  <PropertyGroup>
+    <Description>Correlate .NET Core dependency injection extensions.</Description>
+    <PackageProjectUrl>https://github.com/skwasjer/Correlate</PackageProjectUrl>
+    <PackageTags>CorrelationId, Correlation, Causation, ASP.NET Core, Middleware, HttpClient, HttpClientFactory</PackageTags>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="[2.1.0,2.2.0]" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Correlate\Correlate.csproj" />
+    <ProjectReference Include="..\Correlate\Correlate.Core.csproj" />
   </ItemGroup>
 
 </Project>

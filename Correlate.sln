@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.28307.329
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Correlate.Abstractions", "src\Correlate.Abstractions\Correlate.Abstractions.csproj", "{6F18CD1A-195E-4A8A-8C3A-5618B846CDA1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Correlate", "src\Correlate\Correlate.csproj", "{955B53F3-89AC-4C72-9A56-8DAA4B61ABC1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Correlate.Core", "src\Correlate\Correlate.Core.csproj", "{955B53F3-89AC-4C72-9A56-8DAA4B61ABC1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Correlate.DependencyInjection", "src\Correlate.DependencyInjection\Correlate.DependencyInjection.csproj", "{7FCAE977-9449-432C-9F61-CFDD1EF07CE2}"
 EndProject
@@ -15,7 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{45C7B4DF-E
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Correlate.AspNetCore", "src\Correlate.AspNetCore\Correlate.AspNetCore.csproj", "{48126C88-7118-44E8-9577-AA71BEEC231F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Correlate.AspNetCore.Tests", "test\Correlate.AspNetCore.Tests\Correlate.AspNetCore.Tests.csproj", "{2A68DA42-69BC-4317-930D-B879E65F1C58}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Correlate.AspNetCore.Tests", "test\Correlate.AspNetCore.Tests\Correlate.AspNetCore.Tests.csproj", "{2A68DA42-69BC-4317-930D-B879E65F1C58}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

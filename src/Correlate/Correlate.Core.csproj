@@ -1,15 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.0</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
+	  <RootNamespace>Correlate</RootNamespace>
   </PropertyGroup>
 
   <Import Project="..\Package.props" />
 
   <PropertyGroup>
-    <Description>Correlate .NET Core abstractions.</Description>
+    <Description>The core package for Correlate.</Description>
     <PackageProjectUrl>https://github.com/skwasjer/Correlate</PackageProjectUrl>
     <PackageTags>CorrelationId, Correlation, Causation, ASP.NET Core, Middleware, HttpClient, HttpClientFactory</PackageTags>
   </PropertyGroup>
-  
+
+  <ItemGroup>
+    <ProjectReference Include="..\Correlate.Abstractions\Correlate.Abstractions.csproj" />
+  </ItemGroup>
+
 </Project>

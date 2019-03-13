@@ -4,6 +4,14 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
+  <Import Project="..\Package.props" />
+
+  <PropertyGroup>
+    <Description>Provides middleware for CorrelationId in .NET Core</Description>
+    <PackageProjectUrl>https://github.com/skwasjer/Correlate</PackageProjectUrl>
+    <PackageTags>CorrelationId, Correlation, Causation, ASP.NET Core, Middleware, HttpClient, HttpClientFactory</PackageTags>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="[2.1.0,2.2.0]" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="[2.1.0,2.2.0]" />
@@ -13,7 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Correlate.Abstractions\Correlate.Abstractions.csproj" />
-    <ProjectReference Include="..\Correlate\Correlate.csproj" />
+    <ProjectReference Include="..\Correlate\Correlate.Core.csproj" />
   </ItemGroup>
 
 </Project>
