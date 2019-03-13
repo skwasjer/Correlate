@@ -9,7 +9,7 @@
   <PropertyGroup>
     <Description>Provides middleware for CorrelationId in .NET Core</Description>
     <PackageProjectUrl>https://github.com/skwasjer/Correlate</PackageProjectUrl>
-    <PackageTags>CorrelationId, Correlation, Causation, ASP.NET Core, Middleware, HttpClient, HttpClientFactory</PackageTags>
+    <PackageTags>correlationid, correlation, correlate, causation, aspnet, middleware, httpclient, httpclientfactory</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

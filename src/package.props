@@ -1,4 +1,4 @@
-<Project>
+﻿<Project>
 
   <PropertyGroup>
     <Version>1.0.0</Version>
@@ -15,6 +15,7 @@
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/skwasjer/Correlate</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <PackageIconUrl>https://github.com/skwasjer/Correlate/Correlate64.png</PackageIconUrl>
   </PropertyGroup>
 
 </Project>
