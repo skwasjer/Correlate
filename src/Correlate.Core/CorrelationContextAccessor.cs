@@ -1,5 +1,4 @@
 ﻿using System.Threading;
-using Correlate.Abstractions;
 
 namespace Correlate
 {

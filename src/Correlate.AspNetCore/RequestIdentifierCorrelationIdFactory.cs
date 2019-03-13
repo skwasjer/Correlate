@@ -1,7 +1,6 @@
-﻿using Correlate.Abstractions;
-using Microsoft.AspNetCore.Http.Features;
+﻿using Microsoft.AspNetCore.Http.Features;
 
-namespace Correlate.AspNetCore
+namespace Correlate
 {
 	/// <summary>
 	/// Produces a base32 encoded correlation id, similar to the <see cref="IHttpRequestIdentifierFeature.TraceIdentifier"/>

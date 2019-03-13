@@ -1,4 +1,4 @@
-﻿namespace Correlate.Abstractions
+﻿namespace Correlate
 {
 	/// <summary>
 	/// Provides access to the <see cref="CorrelationContext"/>.

@@ -1,4 +1,4 @@
-﻿namespace Correlate.Abstractions
+﻿namespace Correlate
 {
 	/// <summary>
 	/// Describes a way of generating new correlation ids.

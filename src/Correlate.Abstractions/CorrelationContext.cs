@@ -1,4 +1,4 @@
-﻿namespace Correlate.Abstractions
+﻿namespace Correlate
 {
 	/// <summary>
 	/// Represents the correlation context.

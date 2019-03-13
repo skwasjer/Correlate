@@ -1,5 +1,4 @@
 ﻿using System;
-using Correlate.Abstractions;
 
 namespace Correlate
 {

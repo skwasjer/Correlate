@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using Xunit;
 
-namespace Correlate.AspNetCore
+namespace Correlate
 {
 	public class RequestIdentifierCorrelationIdFactoryTests
 	{

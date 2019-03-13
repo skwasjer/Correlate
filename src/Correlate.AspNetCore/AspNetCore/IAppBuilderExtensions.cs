@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Correlate.AspNetCore.Middleware;
+using Microsoft.AspNetCore.Builder;
 
 namespace Correlate.AspNetCore
 {

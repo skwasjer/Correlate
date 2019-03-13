@@ -3,7 +3,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Correlate.Abstractions;
 using Microsoft.Extensions.Options;
 using RichardSzalay.MockHttp;
 using Xunit;

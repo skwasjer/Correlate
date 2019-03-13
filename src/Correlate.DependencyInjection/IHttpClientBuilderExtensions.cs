@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net.Http;
-using Correlate.Abstractions;
 using Correlate.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

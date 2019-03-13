@@ -1,4 +1,4 @@
-﻿namespace Correlate.Abstractions
+﻿namespace Correlate
 {
 	/// <summary>
 	/// Describes how to create/clean up a <see cref="CorrelationContext"/>.

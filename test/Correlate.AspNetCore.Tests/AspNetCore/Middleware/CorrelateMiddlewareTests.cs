@@ -15,7 +15,7 @@ using Serilog.Events;
 using Serilog.Sinks.TestCorrelator;
 using Xunit;
 
-namespace Correlate.AspNetCore
+namespace Correlate.AspNetCore.Middleware
 {
 	public class CorrelateMiddlewareTests : IClassFixture<TestAppFactory<Startup>>
 	{
