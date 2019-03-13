@@ -8,6 +8,9 @@ using Microsoft.Extensions.Options;
 
 namespace Correlate.DependencyInjection
 {
+	/// <summary>
+	/// Registration extensions for <see cref="IHttpClientBuilder"/>.
+	/// </summary>
 	// ReSharper disable once InconsistentNaming
 	public static class IHttpClientBuilderExtensions
 	{

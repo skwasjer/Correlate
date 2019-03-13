@@ -5,6 +5,9 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Correlate.DependencyInjection
 {
+	/// <summary>
+	/// Registration extensions for <see cref="IServiceCollection"/>.
+	/// </summary>
 	// ReSharper disable once InconsistentNaming
 	public static class IServiceCollectionExtensions
 	{

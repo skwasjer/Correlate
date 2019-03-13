@@ -1,5 +1,8 @@
 ﻿namespace Correlate
 {
+	/// <summary>
+	/// Options for handling correlation id on incoming requests.
+	/// </summary>
 	public class CorrelateOptions
 	{
 		/// <summary>

@@ -20,6 +20,14 @@ namespace Correlate.AspNetCore.Middleware
 		private readonly ICorrelationIdFactory _correlationIdFactory;
 		private readonly CorrelateOptions _options;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="CorrelateMiddleware"/> class.
+		/// </summary>
+		/// <param name="next">The next request delegate to invoke in the request execution pipeline.</param>
+		/// <param name="options">The options.</param>
+		/// <param name="logger">The logger.</param>
+		/// <param name="diagnosticListener">The diagnostics listener.</param>
+		/// <param name="correlationIdFactory">The correlation id factory to create new correlation ids.</param>
 		public CorrelateMiddleware(RequestDelegate next, IOptions<CorrelateOptions> options, ILogger<CorrelateMiddleware> logger, DiagnosticListener diagnosticListener, ICorrelationIdFactory correlationIdFactory)
 		{
 			_next = next ?? throw new ArgumentNullException(nameof(next));
