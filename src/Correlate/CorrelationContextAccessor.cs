@@ -15,13 +15,13 @@ namespace Correlate
 				CorrelationContextHolder holder = CurrentContext.Value;
 				if (holder != null)
 				{
-					// Clear current HttpContext trapped in the AsyncLocals, as its done.
+					// Clear current CorrelationContext trapped in the AsyncLocals, as its done.
 					holder.Context = null;
 				}
 
 				if (value != null)
 				{
-					// Use an object indirection to hold the HttpContext in the AsyncLocal,
+					// Use an object indirection to hold the CorrelationContext in the AsyncLocal,
 					// so it can be cleared in all ExecutionContexts when its cleared.
 					CurrentContext.Value = new CorrelationContextHolder
 					{
