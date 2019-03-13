@@ -53,7 +53,7 @@ namespace Correlate.AspNetCore
 		[Fact]
 		public async Task Given_request_contains_requestId_when_executing_request_the_response_should_contain_header_with_requestId()
 		{
-			const string headerName = "X-Request-ID";
+			const string headerName = CorrelationHttpHeaders.RequestId;
 			const string correlationId = "my-correlation-id";
 
 			HttpClient client = _factory.CreateClient();
@@ -107,7 +107,7 @@ namespace Correlate.AspNetCore
 		[Fact]
 		public async Task When_logging_should_have_correlationId_for_all_logged_events_except_host_start_and_finish()
 		{
-			const string headerName = "X-Correlation-ID";
+			const string headerName = CorrelationHttpHeaders.CorrelationId;
 			const string correlationId = "my-correlation-id";
 
 			HttpClient client = _factory.CreateClient();

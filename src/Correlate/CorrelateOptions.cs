@@ -5,10 +5,6 @@ namespace Correlate
 {
 	public class CorrelateOptions
 	{
-		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-		[EditorBrowsable(EditorBrowsableState.Never)]
-		internal const string DefaultHeaderName = "X-Correlation-ID";
-
 		/// <summary>
 		/// Gets or sets the request headers to retrieve the correlation id from.
 		/// </summary>
@@ -16,8 +12,8 @@ namespace Correlate
 		/// The first matching header will be used.
 		/// </remarks>
 		public string[] RequestHeaders { get; set; } = {
-			DefaultHeaderName,
-			"X-Request-ID"
+			CorrelationHttpHeaders.CorrelationId,
+			CorrelationHttpHeaders.RequestId
 		};
 
 		/// <summary>

@@ -107,7 +107,7 @@ namespace Correlate.AspNetCore
 
 			return (
 				string.IsNullOrWhiteSpace(correlationId) ? _correlationIdFactory.Create() : correlationId,
-				headerName ?? _options.RequestHeaders?.FirstOrDefault() ?? CorrelateOptions.DefaultHeaderName
+				headerName ?? _options.RequestHeaders?.FirstOrDefault() ?? CorrelationHttpHeaders.CorrelationId
 			);
 		}
 	}

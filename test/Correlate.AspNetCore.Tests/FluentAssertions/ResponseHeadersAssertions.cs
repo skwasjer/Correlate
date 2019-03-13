@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net.Http.Headers;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
@@ -14,7 +14,7 @@ namespace Correlate.AspNetCore.FluentAssertions
 
 		protected override string Identifier => "ResponseHeaders";
 
-		public WhichValueConstraint<ResponseHeadersAssertions, IEnumerable<string>> ContainCorrelationId(string headerName = "X-Correlation-ID", string because = "", params object[] becauseArgs)
+		public WhichValueConstraint<ResponseHeadersAssertions, IEnumerable<string>> ContainCorrelationId(string headerName = CorrelationHttpHeaders.CorrelationId, string because = "", params object[] becauseArgs)
 		{
 			Execute.Assertion
 				.BecauseOf(because, becauseArgs)
