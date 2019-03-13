@@ -20,6 +20,7 @@ namespace Correlate
 		/// <summary>
 		/// Initializes a new instance of the <see cref="CorrelationContextFactory"/> class using specified context accessor.
 		/// </summary>
+		/// <param name="correlationContextAccessor">The correlation context accessor.</param>
 		public CorrelationContextFactory(ICorrelationContextAccessor correlationContextAccessor)
 			: this()
 		{
