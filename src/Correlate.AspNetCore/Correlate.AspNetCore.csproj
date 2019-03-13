@@ -9,7 +9,7 @@
   <Import Project="..\Package.props" />
 
   <PropertyGroup>
-    <Description>Provides middleware for CorrelationId in .NET Core</Description>
+    <Description>ASP.NET Core middleware component to correlate requests between microservices using correlation id request headers.</Description>
     <PackageProjectUrl>https://github.com/skwasjer/Correlate</PackageProjectUrl>
     <PackageTags>correlationid, correlation, correlate, causation, aspnet, middleware, httpclient, httpclientfactory</PackageTags>
   </PropertyGroup>

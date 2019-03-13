@@ -9,7 +9,7 @@
   <Import Project="..\Package.props" />
 
   <PropertyGroup>
-    <Description>Correlate .NET Core abstractions.</Description>
+    <Description>Provides abtractions to correlate requests between microservices.</Description>
     <PackageProjectUrl>https://github.com/skwasjer/Correlate</PackageProjectUrl>
     <PackageTags>correlationid, correlation, correlate, causation, aspnet, middleware, httpclient, httpclientfactory</PackageTags>
   </PropertyGroup>
