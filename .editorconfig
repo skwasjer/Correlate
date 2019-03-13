@@ -14,12 +14,14 @@ indent_style = space
 indent_size = 4
 insert_final_newline = false
 
-[*.{cs,csproj,tt}]
+[*.{cs,tt}]
 charset = utf-8-bom
 end_of_line = crlf
 indent_style = tab
 
-[*.csproj]
+[*.{csproj,props}]
+charset = utf-8-bom
+end_of_line = crlf
 indent_size = 2
 
 # Misc
