@@ -3,10 +3,14 @@ using Correlate.Abstractions;
 
 namespace Correlate
 {
+	/// <summary>
+	/// Provides access to the <see cref="CorrelationContext"/>.
+	/// </summary>
 	public class CorrelationContextAccessor : ICorrelationContextAccessor
 	{
 		private static readonly AsyncLocal<CorrelationContextHolder> CurrentContext = new AsyncLocal<CorrelationContextHolder>();
 
+		/// <inheritdoc />
 		public CorrelationContext CorrelationContext
 		{
 			get => CurrentContext.Value?.Context;
