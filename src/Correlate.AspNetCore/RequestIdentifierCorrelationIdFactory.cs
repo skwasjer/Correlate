@@ -21,6 +21,7 @@ namespace Correlate.AspNetCore
 		/// <inheritdoc />
 		public string Create()
 		{
+			// Set to null, so the next 'get' will produce a new id.
 			_httpRequestIdentifierFeature.TraceIdentifier = null;
 			return _httpRequestIdentifierFeature.TraceIdentifier;
 		}
