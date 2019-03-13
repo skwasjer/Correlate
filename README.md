@@ -7,7 +7,7 @@
 Correlate provides flexible .NET Core support for correlation ID in ASP.NET Core and HttpClient.
 
 | Package | Description | 
-|---|---|---|
+|---|---|
 | Correlate.Abstractions | Abstractions library. |
 | Correlate.Core | Core library, including a `DelegatingHandler` for `HttpClient`. |
 | Correlate.AspNetCore | ASP.NET Core middleware. |
