@@ -64,6 +64,7 @@ namespace Correlate.AspNetCore
 				{
 					httpContext.Response.OnStarting(() =>
 					{
+						// If already set, ignore.
 						if (!httpContext.Response.Headers.ContainsKey(headerName))
 						{
 							httpContext.Response.Headers.Add(headerName, correlationId);
@@ -94,13 +95,11 @@ namespace Correlate.AspNetCore
 					{
 						headerName = requestHeaderName;
 						correlationId = value.FirstOrDefault();
-						if (string.IsNullOrEmpty(correlationId))
+						if (!string.IsNullOrEmpty(correlationId))
 						{
-							continue;
+							_logger.LogDebug("Request header '{HeaderName}' found with correlation id '{CorrelationId}'.", headerName, correlationId);
+							break;
 						}
-
-						_logger.LogDebug("Request header '{HeaderName}' found with correlation id '{CorrelationId}'.", headerName, correlationId);
-						break;
 					}
 				}
 			}

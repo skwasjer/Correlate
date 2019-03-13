@@ -1,7 +1,4 @@
-﻿using System.ComponentModel;
-using System.Diagnostics;
-
-namespace Correlate
+﻿namespace Correlate
 {
 	public class CorrelateOptions
 	{
@@ -12,8 +9,7 @@ namespace Correlate
 		/// The first matching header will be used.
 		/// </remarks>
 		public string[] RequestHeaders { get; set; } = {
-			CorrelationHttpHeaders.CorrelationId,
-			CorrelationHttpHeaders.RequestId
+			CorrelationHttpHeaders.CorrelationId
 		};
 
 		/// <summary>

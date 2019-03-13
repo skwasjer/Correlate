@@ -51,9 +51,9 @@ namespace Correlate.AspNetCore
 		}
 
 		[Fact]
-		public async Task Given_request_contains_requestId_when_executing_request_the_response_should_contain_header_with_requestId()
+		public async Task Given_request_contains_correlationId_when_executing_request_the_response_should_contain_header_with_correlationId()
 		{
-			const string headerName = CorrelationHttpHeaders.RequestId;
+			const string headerName = CorrelationHttpHeaders.CorrelationId;
 			const string correlationId = "my-correlation-id";
 
 			HttpClient client = _factory.CreateClient();
