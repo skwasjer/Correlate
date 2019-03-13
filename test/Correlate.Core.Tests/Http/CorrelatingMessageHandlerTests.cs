@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Correlate.Abstractions;
+using Microsoft.Extensions.Options;
 using RichardSzalay.MockHttp;
 using Xunit;
 
@@ -15,6 +16,7 @@ namespace Correlate.Http
 		private readonly CorrelatingHttpMessageHandler _sut;
 		private readonly HttpClient _httpClient;
 		private readonly MockHttpMessageHandler _mockHttp;
+		private readonly CorrelateClientOptions _correlateClientOptions = new CorrelateClientOptions();
 
 		private static readonly Uri BaseUri = new Uri("http://0.0.0.0/");
 
@@ -30,7 +32,7 @@ namespace Correlate.Http
 
 			_mockHttp = new MockHttpMessageHandler();
 
-			_sut = new CorrelatingHttpMessageHandler(_contextAccessor, _mockHttp);
+			_sut = new CorrelatingHttpMessageHandler(_contextAccessor, new OptionsWrapper<CorrelateClientOptions>(_correlateClientOptions), _mockHttp);
 			_httpClient = new HttpClient(_sut)
 			{
 				BaseAddress = BaseUri
@@ -44,7 +46,7 @@ namespace Correlate.Http
 
 			_mockHttp
 				.Expect(HttpMethod.Get, BaseUri + "*")
-				.WithHeaders($"{CorrelationHttpHeaders.CorrelationId}: {correlationId}")
+				.WithHeaders($"{_correlateClientOptions.RequestHeader}: {correlationId}")
 				.Respond(HttpStatusCode.OK);
 
 			// Act
@@ -78,14 +80,32 @@ namespace Correlate.Http
 
 			_mockHttp
 				.Expect(HttpMethod.Get, BaseUri + "*")
-				.WithHeaders($"{CorrelationHttpHeaders.CorrelationId}: {existingCorrelationId}")
+				.WithHeaders($"{_correlateClientOptions.RequestHeader}: {existingCorrelationId}")
 				.Respond(HttpStatusCode.OK);
 
 			// Act
 			await _httpClient.SendAsync(new HttpRequestMessage
 			{
-				Headers = { { CorrelationHttpHeaders.CorrelationId, existingCorrelationId } }
+				Headers = { { _correlateClientOptions.RequestHeader, existingCorrelationId } }
 			});
+
+			// Assert
+			_mockHttp.VerifyNoOutstandingExpectation();
+		}
+
+		[Fact]
+		public async Task Given_headerName_is_overridden_should_not_use_default_headerName()
+		{
+			_correlateClientOptions.RequestHeader = "custom-header";
+			string correlationId = _contextAccessor.CorrelationContext.CorrelationId;
+
+			_mockHttp
+				.Expect(HttpMethod.Get, BaseUri + "*")
+				.WithHeaders($"{_correlateClientOptions.RequestHeader}: {correlationId}")
+				.Respond(HttpStatusCode.OK);
+
+			// Act
+			await _httpClient.GetAsync("");
 
 			// Assert
 			_mockHttp.VerifyNoOutstandingExpectation();

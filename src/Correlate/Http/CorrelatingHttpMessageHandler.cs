@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Correlate.Abstractions;
+using Microsoft.Extensions.Options;
 
 namespace Correlate.Http
 {
@@ -11,26 +12,31 @@ namespace Correlate.Http
 	public class CorrelatingHttpMessageHandler : DelegatingHandler
 	{
 		private readonly ICorrelationContextAccessor _correlationContextAccessor;
+		private readonly CorrelateClientOptions _options;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="CorrelationContextFactory"/> class using specified context accessor.
 		/// </summary>
 		/// <param name="correlationContextAccessor">The correlation context accessor.</param>
-		public CorrelatingHttpMessageHandler(ICorrelationContextAccessor correlationContextAccessor)
+		/// <param name="options">The client correlation options.</param>
+		public CorrelatingHttpMessageHandler(ICorrelationContextAccessor correlationContextAccessor, IOptions<CorrelateClientOptions> options)
 			: base()
 		{
 			_correlationContextAccessor = correlationContextAccessor;
+			_options = options?.Value ?? new CorrelateClientOptions();
 		}
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="CorrelationContextFactory"/> class using specified context accessor.
 		/// </summary>
 		/// <param name="correlationContextAccessor">The correlation context accessor.</param>
+		/// <param name="options">The client correlation options.</param>
 		/// <param name="innerHandler">The inner handler.</param>
-		public CorrelatingHttpMessageHandler(ICorrelationContextAccessor correlationContextAccessor, HttpMessageHandler innerHandler)
+		public CorrelatingHttpMessageHandler(ICorrelationContextAccessor correlationContextAccessor, IOptions<CorrelateClientOptions> options, HttpMessageHandler innerHandler)
 			: base(innerHandler)
 		{
 			_correlationContextAccessor = correlationContextAccessor;
+			_options = options?.Value ?? new CorrelateClientOptions();
 		}
 
 		/// <inheritdoc />
@@ -39,9 +45,9 @@ namespace Correlate.Http
 			string correlationId = _correlationContextAccessor?.CorrelationContext?.CorrelationId;
 			if (correlationId != null)
 			{
-				if (!request.Headers.Contains(CorrelationHttpHeaders.CorrelationId))
+				if (!request.Headers.Contains(_options.RequestHeader))
 				{
-					request.Headers.TryAddWithoutValidation(CorrelationHttpHeaders.CorrelationId, correlationId);
+					request.Headers.TryAddWithoutValidation(_options.RequestHeader, correlationId);
 				}
 			}
 
