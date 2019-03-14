@@ -50,6 +50,7 @@ namespace Correlate.DependencyInjection
 			services.TryAddSingleton<ICorrelationContextAccessor, CorrelationContextAccessor>();
 			services.TryAddTransient<ICorrelationContextFactory, CorrelationContextFactory>();
 			services.TryAddSingleton<ICorrelationIdFactory, GuidCorrelationIdFactory>();
+			services.TryAddSingleton<CorrelationManager>();
 
 			return services;
 		}

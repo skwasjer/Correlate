@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -20,6 +21,7 @@ namespace Correlate.AspNetCore.Middleware
 	public class CorrelateMiddlewareTests : IClassFixture<TestAppFactory<Startup>>
 	{
 		private readonly WebApplicationFactory<Startup> _factory;
+		private readonly TestAppFactory<Startup> _rootFactory;
 		private readonly CorrelateOptions _options;
 		private readonly MockHttpMessageHandler _mockHttp;
 
@@ -27,6 +29,9 @@ namespace Correlate.AspNetCore.Middleware
 		{
 			_options = new CorrelateOptions();
 			_mockHttp = new MockHttpMessageHandler();
+
+			_rootFactory = factory;
+			_rootFactory.LoggingEnabled = true;
 
 			_factory = factory.WithWebHostBuilder(builder => builder
 				.ConfigureTestServices(services =>
@@ -177,6 +182,22 @@ namespace Correlate.AspNetCore.Middleware
 			response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
 			_mockHttp.VerifyNoOutstandingExpectation();
+		}
+
+		[Fact]
+		public void When_logging_and_diagnostics_is_disabled_should_throw_in_controller()
+		{
+			_rootFactory.LoggingEnabled = false;
+
+			// Act
+			HttpClient client = _factory.CreateClient();
+			Func<Task> act = () => client.GetAsync("");
+
+			// Assert
+			act.Should().Throw<NullReferenceException>()
+				.Which.StackTrace
+				.Should()
+				.StartWith("   at Correlate.AspNetCore.Fixtures.TestController.Get() ");
 		}
 	}
 }

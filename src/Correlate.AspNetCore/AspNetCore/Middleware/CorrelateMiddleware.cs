@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -15,10 +14,10 @@ namespace Correlate.AspNetCore.Middleware
 	public class CorrelateMiddleware
 	{
 		private readonly RequestDelegate _next;
-		private readonly ILogger<CorrelateMiddleware> _logger;
-		private readonly DiagnosticListener _diagnosticListener;
-		private readonly ICorrelationIdFactory _correlationIdFactory;
 		private readonly CorrelateOptions _options;
+		private readonly ILogger<CorrelateMiddleware> _logger;
+		private readonly ICorrelationIdFactory _correlationIdFactory;
+		private readonly CorrelationManager _correlationManager;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="CorrelateMiddleware"/> class.
@@ -26,71 +25,37 @@ namespace Correlate.AspNetCore.Middleware
 		/// <param name="next">The next request delegate to invoke in the request execution pipeline.</param>
 		/// <param name="options">The options.</param>
 		/// <param name="logger">The logger.</param>
-		/// <param name="diagnosticListener">The diagnostics listener.</param>
 		/// <param name="correlationIdFactory">The correlation id factory to create new correlation ids.</param>
-		public CorrelateMiddleware(RequestDelegate next, IOptions<CorrelateOptions> options, ILogger<CorrelateMiddleware> logger, DiagnosticListener diagnosticListener, ICorrelationIdFactory correlationIdFactory)
+		/// <param name="correlationManager">The correlation manager.</param>
+		public CorrelateMiddleware(
+			RequestDelegate next,
+			IOptions<CorrelateOptions> options,
+			ILogger<CorrelateMiddleware> logger,
+			ICorrelationIdFactory correlationIdFactory,
+			CorrelationManager correlationManager)
 		{
 			_next = next ?? throw new ArgumentNullException(nameof(next));
 			_options = options?.Value ?? throw new ArgumentNullException(nameof(options));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_diagnosticListener = diagnosticListener ?? throw new ArgumentNullException(nameof(diagnosticListener));
 			_correlationIdFactory = correlationIdFactory ?? throw new ArgumentNullException(nameof(correlationIdFactory));
+			_correlationManager = correlationManager ?? throw new ArgumentNullException(nameof(correlationManager));
 		}
 
 		/// <summary>
 		/// Invokes the middleware for the current <paramref name="httpContext"/>.
 		/// </summary>
 		/// <param name="httpContext">The current <see cref="HttpContext"/>.</param>
-		/// <param name="correlationContextFactory">The <see cref="ICorrelationContextFactory"/> used to create a <see cref="CorrelationContext"/> for the current request chain.</param>
 		/// <returns>An awaitable to wait for to complete the request.</returns>
-		public async Task Invoke(HttpContext httpContext, ICorrelationContextFactory correlationContextFactory)
+		public Task Invoke(HttpContext httpContext)
 		{
-			IDisposable logScope = null;
-			bool diagnosticListenerEnabled = _diagnosticListener.IsEnabled();
-			bool loggingEnabled = _logger.IsEnabled(LogLevel.Critical);
-			try
-			{
-				if (diagnosticListenerEnabled || loggingEnabled)
-				{
-					(string correlationId, string headerName) = GetCorrelationId(httpContext.Request);
-					correlationContextFactory.Create(correlationId);
+			(string correlationId, string headerName) = GetCorrelationId(httpContext.Request);
 
-					if (diagnosticListenerEnabled)
-					{
-						//// TODO: add Activity support
-						//var activity = new Activity("Correlated-Request");
-						//activity.SetParentId(correlationId);
-						//_diagnosticListener.StartActivity(activity, new {})
-					}
-
-					if (loggingEnabled)
-					{
-						logScope = _logger.BeginRequestScope(httpContext, correlationId);
-					}
-
-					if (_options.IncludeInResponse)
-					{
-						httpContext.Response.OnStarting(() =>
-						{
-							// If already set, ignore.
-							if (!httpContext.Response.Headers.ContainsKey(headerName))
-							{
-								httpContext.Response.Headers.Add(headerName, correlationId);
-							}
-
-							return Task.CompletedTask;
-						});
-					}
-				}
-
-				await _next(httpContext);
-			}
-			finally
-			{
-				//_diagnosticListener.StopActivity(activity, new {})
-				logScope?.Dispose();
-				correlationContextFactory.Dispose();
-			}
+			var correlatedHttpRequest = new HttpRequestActivity(httpContext, _options, _logger, headerName);
+			return _correlationManager.CorrelateInternalAsync(
+				correlationId, 
+				correlatedHttpRequest, 
+				() => _next(httpContext)
+			);
 		}
 
 		private (string CorrelationId, string HeaderName) GetCorrelationId(HttpRequest httpRequest)

@@ -16,9 +16,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="[2.1.0,2.2.0]" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="[2.1.0,2.2.0]" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="[2.1.0,2.2.0]" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="[4.5.0,4.5.1]" />
   </ItemGroup>
 
   <ItemGroup>
