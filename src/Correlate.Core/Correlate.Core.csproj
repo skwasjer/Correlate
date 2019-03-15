@@ -3,17 +3,18 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <IsTestProject>false</IsTestProject>
-	  <RootNamespace>Correlate</RootNamespace>
+    <RootNamespace>Correlate</RootNamespace>
   </PropertyGroup>
-
-  <Import Project="..\Package.props" />
 
   <PropertyGroup>
     <PackageId>Correlate</PackageId>
     <Description>Correlate requests between microservices using a correlation id.</Description>
     <PackageProjectUrl>https://github.com/skwasjer/Correlate</PackageProjectUrl>
     <PackageTags>correlationid, correlation, correlate, causation, aspnet, middleware, httpclient, httpclientfactory</PackageTags>
+    <AssemblyName>Correlate</AssemblyName>
   </PropertyGroup>
+
+  <Import Project="..\Package.props" />
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="[2.1.0,2.2.0]" />
