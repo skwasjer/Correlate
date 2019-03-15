@@ -3,7 +3,7 @@ using System.Net.Http.Headers;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
 
-namespace Correlate.AspNetCore.FluentAssertions
+namespace Correlate.FluentAssertions
 {
 	public class ResponseHeadersAssertions : ReferenceTypeAssertions<HttpResponseHeaders, ResponseHeadersAssertions>
 	{

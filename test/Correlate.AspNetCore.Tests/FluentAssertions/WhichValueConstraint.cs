@@ -1,6 +1,6 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 
-namespace Correlate.AspNetCore.FluentAssertions
+namespace Correlate.FluentAssertions
 {
 	public class WhichValueConstraint<TParentConstraint, TValue> : AndConstraint<TParentConstraint>
 	{

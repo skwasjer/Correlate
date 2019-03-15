@@ -1,6 +1,6 @@
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 
-namespace Correlate.AspNetCore.FluentAssertions
+namespace Correlate.FluentAssertions
 {
 	public static class HttpResponseHeadersExtensions
 	{
