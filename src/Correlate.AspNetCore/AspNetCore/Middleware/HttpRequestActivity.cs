@@ -36,7 +36,7 @@ namespace Correlate.AspNetCore.Middleware
 					// If already set, ignore.
 					if (!_httpContext.Response.Headers.ContainsKey(_responseHeaderName))
 					{
-						_logger.LogTrace("Setting response header '{HeaderName}' to correlation id '{CorrelationId}'.");
+						_logger.LogTrace("Setting response header '{HeaderName}' to correlation id '{CorrelationId}'.", _responseHeaderName, correlationContext.CorrelationId);
 						_httpContext.Response.Headers.Add(_responseHeaderName, correlationContext.CorrelationId);
 					}
 
