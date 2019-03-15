@@ -19,11 +19,10 @@ In a typical ASP.NET Core (MVC) application, register the middleware and require
 
 ### Example ###
 
-Add the packages:
+For an MVC application, add the package:
 
 ```
 dotnet add package Correlate.AspNetCore 
-dotnet add package Correlate.DependencyInjection 
 ```
 
 Configure your application:
@@ -72,7 +71,7 @@ public class Startup
 
 The Correlate middleware takes care of processing each incoming request for a correlation id. If no correlation is provided, one will be generated. Before the request continues down the pipeline, a log scope is created with a `CorrelationId` property, containing the correlation id.
 
-## ICorrelationContextAccessor - Accessing the correlation id
+## ICorrelationContextAccessor - Getting/setting the correlation id from anywhere
 
 To access the correlation id anywhere in code, inject an instance of `ICorrelationContextAccessor` in your constructor. 
 
@@ -88,48 +87,41 @@ public class MyService
 }
 ```
 
-> Note: `correlationContextAccessor.CorrelationContext` will be null, when `MyService` is not scoped to a request. Thus, when used outside of ASP.NET (not using the middleware component), you are yourself responsible for creating the context  using `ICorrelationContextFactory`.
+> Note: `correlationContextAccessor.CorrelationContext` will be null, when `MyService` is not scoped to a request. Thus, when used outside of ASP.NET (not using the middleware component), you are yourself responsible for creating the context using `ICorrelationContextFactory` or `CorrelationManager`.
 
 ## ICorrelationContextFactory
 
 This factory creates the correlation context and then sets it in the `ICorrelationContextAccessor`. If you wish to use the Correlate framework in for example a backend worker task (outside of ASP.NET Core pipeline), you can use this factory to scope individual tasks each with their own correlation context.
+
+## CorrelationManager
+
+For more advanced use cases and to simplify managing correlation contexts, a manager can be used instead that takes care of alot of the logic to create the context properly. This is especially useful when running background tasks that interact with external services.
 
 ### Example
 
 ```csharp
 public class MyWorker
 {
-    private readonly ICorrelationContextFactory _correlationContextFactory;
-    private readonly ICorrelationIdFactory _correlationIdFactory;
+    private readonly CorrelationManager _correlationManager;
 
-    public MyWorker(ICorrelationContextFactory correlationContextFactory, ICorrelationIdFactory correlationIdFactory)
+    public MyWorker(CorrelationManager correlationManager)
     {
-        _correlationContextFactory = correlationContextFactory;
-        _correlationIdFactory = correlationIdFactory;
+        _correlationManager = correlationManager;
     }
 
     public async Task RunAsync()
     {
         while (true)
         {
-            string newCorrelationId = _correlationIdFactory.Create();
-            _correlationContextFactory.Create(newCorrelationId);
-            try
-            {
-                await ExecuteAsync();
-            }
-            finally
-            {
-                _correlationContextFactory.Dispose();
-            }
+            await _correlationManager.CorrelateAsync(async () => {
+                // Do work in a scoped correlation context with its own correlation id.
+            });
 
             await Task.Delay(5000);
         }
     }
 }
 ```
-
-> For parallel tasks a slightly different approach is necessary. Ensure that the context is created in each task individually instead of the above simplified example.
 
 ## ICorrelationIdFactory
 
