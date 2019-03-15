@@ -73,9 +73,14 @@ namespace Correlate
 
 			correlation.Start(correlationId ?? _correlationIdFactory.Create());
 
-			await correlatedTask();
-
-			correlation.Stop();
+			try
+			{
+				await correlatedTask();
+			}
+			finally
+			{
+				correlation.Stop();
+			}
 		}
 	}
 }
