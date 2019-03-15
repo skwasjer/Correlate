@@ -36,11 +36,24 @@ namespace Correlate
 		}
 
 		/// <summary>
-		/// 
+		/// Executes the <paramref name="correlatedTask"/> with its own <see cref="CorrelationContext"/>.
 		/// </summary>
-		/// <param name="correlationId"></param>
-		/// <param name="correlatedTask"></param>
-		/// <returns></returns>
+		/// <param name="correlatedTask">The task to execute.</param>
+		/// <returns>An awaitable that completes once the <paramref name="correlatedTask"/> has executed and the correlation context has disposed.</returns>
+		/// <remarks>
+		/// When logging and tracing are both disabled, no correlation context is created and the task simply executed as it normally would.
+		/// </remarks>
+		public Task CorrelateAsync(Func<Task> correlatedTask)
+		{
+			return CorrelateAsync(null, correlatedTask);
+		}
+
+		/// <summary>
+		/// Executes the <paramref name="correlatedTask"/> with its own <see cref="CorrelationContext"/>.
+		/// </summary>
+		/// <param name="correlationId">The correlation id to use, or null to generate a new one.</param>
+		/// <param name="correlatedTask">The task to execute.</param>
+		/// <returns>An awaitable that completes once the <paramref name="correlatedTask"/> has executed and the correlation context has disposed.</returns>
 		/// <remarks>
 		/// When logging and tracing are both disabled, no correlation context is created and the task simply executed as it normally would.
 		/// </remarks>

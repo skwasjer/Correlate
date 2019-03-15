@@ -14,7 +14,7 @@ namespace Correlate.Http
 		private readonly CorrelateClientOptions _options;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="CorrelationContextFactory"/> class using specified context accessor.
+		/// Initializes a new instance of the <see cref="CorrelatingHttpMessageHandler"/> class using specified context accessor.
 		/// </summary>
 		/// <param name="correlationContextAccessor">The correlation context accessor.</param>
 		/// <param name="options">The client correlation options.</param>
@@ -26,7 +26,7 @@ namespace Correlate.Http
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="CorrelationContextFactory"/> class using specified context accessor.
+		/// Initializes a new instance of the <see cref="CorrelatingHttpMessageHandler"/> class using specified context accessor.
 		/// </summary>
 		/// <param name="correlationContextAccessor">The correlation context accessor.</param>
 		/// <param name="options">The client correlation options.</param>
