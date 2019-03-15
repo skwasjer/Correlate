@@ -20,7 +20,7 @@ namespace Correlate
 		{
 			_correlationContextFactory = correlationContextFactory ?? throw new ArgumentNullException(nameof(correlationContextFactory));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_diagnosticListener = diagnosticListener ?? throw new ArgumentNullException(nameof(diagnosticListener));
+			_diagnosticListener = diagnosticListener;
 			_activity = activity;
 		}
 
@@ -36,7 +36,7 @@ namespace Correlate
 				throw new ArgumentNullException(nameof(correlationId));
 			}
 
-			bool isDiagnosticsEnabled = _diagnosticListener.IsEnabled();
+			bool isDiagnosticsEnabled = _diagnosticListener?.IsEnabled() ?? false;
 			bool isLoggingEnabled = _logger.IsEnabled(LogLevel.Critical);
 
 			if (isDiagnosticsEnabled || isLoggingEnabled)
