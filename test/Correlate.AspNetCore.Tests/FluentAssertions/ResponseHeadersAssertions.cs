@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Net.Http.Headers;
+using Correlate.Http;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
 

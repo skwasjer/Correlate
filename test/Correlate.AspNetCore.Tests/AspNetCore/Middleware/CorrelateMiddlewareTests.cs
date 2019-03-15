@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Correlate.AspNetCore.Fixtures;
 using Correlate.FluentAssertions;
+using Correlate.Http;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;

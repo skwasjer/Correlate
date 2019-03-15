@@ -1,4 +1,4 @@
-﻿namespace Correlate
+﻿namespace Correlate.Http
 {
 	/// <summary>
 	/// Common correlation HTTP request headers.
