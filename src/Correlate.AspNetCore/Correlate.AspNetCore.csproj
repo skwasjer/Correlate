@@ -16,12 +16,12 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="[2.1.0,2.2.0]" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="[2.1.0,2.2.0]" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Correlate.Abstractions\Correlate.Abstractions.csproj" />
     <ProjectReference Include="..\Correlate.Core\Correlate.Core.csproj" />
+    <ProjectReference Include="..\Correlate.DependencyInjection\Correlate.DependencyInjection.csproj" />
   </ItemGroup>
 
 </Project>
