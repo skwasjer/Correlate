@@ -15,7 +15,6 @@ namespace Correlate.AspNetCore.Middleware
 		private readonly RequestDelegate _next;
 		private readonly CorrelateOptions _options;
 		private readonly ILogger<CorrelateMiddleware> _logger;
-		private readonly ICorrelationIdFactory _correlationIdFactory;
 		private readonly CorrelationManager _correlationManager;
 
 		/// <summary>
@@ -24,19 +23,16 @@ namespace Correlate.AspNetCore.Middleware
 		/// <param name="next">The next request delegate to invoke in the request execution pipeline.</param>
 		/// <param name="options">The options.</param>
 		/// <param name="logger">The logger.</param>
-		/// <param name="correlationIdFactory">The correlation id factory to create new correlation ids.</param>
 		/// <param name="correlationManager">The correlation manager.</param>
 		public CorrelateMiddleware(
 			RequestDelegate next,
 			IOptions<CorrelateOptions> options,
 			ILogger<CorrelateMiddleware> logger,
-			ICorrelationIdFactory correlationIdFactory,
 			CorrelationManager correlationManager)
 		{
 			_next = next ?? throw new ArgumentNullException(nameof(next));
 			_options = options?.Value ?? throw new ArgumentNullException(nameof(options));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_correlationIdFactory = correlationIdFactory ?? throw new ArgumentNullException(nameof(correlationIdFactory));
 			_correlationManager = correlationManager ?? throw new ArgumentNullException(nameof(correlationManager));
 		}
 
@@ -55,7 +51,7 @@ namespace Correlate.AspNetCore.Middleware
 
 			var correlatedHttpRequest = new HttpRequestActivity(httpContext, _options, _logger, header.Key);
 			return _correlationManager.CorrelateInternalAsync(
-				header.Value ?? _correlationIdFactory.Create(),
+				header.Value,
 				correlatedHttpRequest, 
 				() => _next(httpContext)
 			);
