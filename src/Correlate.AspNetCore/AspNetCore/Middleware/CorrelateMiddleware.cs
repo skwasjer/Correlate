@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
 using Correlate.Http.Extensions;
 using Microsoft.AspNetCore.Http;
@@ -16,6 +19,7 @@ namespace Correlate.AspNetCore.Middleware
 		private readonly CorrelateOptions _options;
 		private readonly ILogger<CorrelateMiddleware> _logger;
 		private readonly CorrelationManager _correlationManager;
+		private readonly ImmutableArray<string> _acceptedRequestHeaders;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="CorrelateMiddleware"/> class.
@@ -34,6 +38,14 @@ namespace Correlate.AspNetCore.Middleware
 			_options = options?.Value ?? throw new ArgumentNullException(nameof(options));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_correlationManager = correlationManager ?? throw new ArgumentNullException(nameof(correlationManager));
+
+			if (_options.RequestHeaders == null || !_options.RequestHeaders.Any())
+			{
+				throw new ArgumentException("Configuration error, at least one request header should be specified.", nameof(options));
+			}
+
+			// Ensure array never change during the lifetime of middleware.
+			_acceptedRequestHeaders = _options.RequestHeaders.ToImmutableArray();
 		}
 
 		/// <summary>
@@ -43,7 +55,7 @@ namespace Correlate.AspNetCore.Middleware
 		/// <returns>An awaitable to wait for to complete the request.</returns>
 		public Task Invoke(HttpContext httpContext)
 		{
-			var header = httpContext.Request.GetCorrelationIdHeader(_options.RequestHeaders);
+			KeyValuePair<string, string> header = httpContext.Request.Headers.GetCorrelationIdHeader(_acceptedRequestHeaders);
 			if (header.Value != null)
 			{
 				_logger.LogTrace("Request header '{HeaderName}' found with correlation id '{CorrelationId}'.", header.Key, header.Value);
