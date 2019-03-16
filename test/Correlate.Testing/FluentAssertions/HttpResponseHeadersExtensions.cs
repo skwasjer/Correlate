@@ -1,6 +1,6 @@
 ﻿using System.Net.Http.Headers;
 
-namespace Correlate.FluentAssertions
+namespace Correlate.Testing.FluentAssertions
 {
 	public static class HttpResponseHeadersExtensions
 	{

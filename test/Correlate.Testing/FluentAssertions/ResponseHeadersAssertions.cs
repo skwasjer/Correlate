@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Net.Http.Headers;
-using Correlate.Http;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
 
-namespace Correlate.FluentAssertions
+namespace Correlate.Testing.FluentAssertions
 {
 	public class ResponseHeadersAssertions : ReferenceTypeAssertions<HttpResponseHeaders, ResponseHeadersAssertions>
 	{
@@ -15,7 +14,7 @@ namespace Correlate.FluentAssertions
 
 		protected override string Identifier => "ResponseHeaders";
 
-		public WhichValueConstraint<ResponseHeadersAssertions, IEnumerable<string>> ContainCorrelationId(string headerName = CorrelationHttpHeaders.CorrelationId, string because = "", params object[] becauseArgs)
+		public WhichValueConstraint<ResponseHeadersAssertions, IEnumerable<string>> ContainCorrelationId(string headerName = "X-Correlation-ID", string because = "", params object[] becauseArgs)
 		{
 			Execute.Assertion
 				.BecauseOf(because, becauseArgs)
