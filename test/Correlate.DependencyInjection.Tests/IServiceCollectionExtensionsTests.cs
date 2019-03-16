@@ -48,7 +48,7 @@ namespace Correlate.DependencyInjection
 				yield return new ExpectedRegistration<ICorrelationContextAccessor, CorrelationContextAccessor>(ServiceLifetime.Singleton);
 				yield return new ExpectedRegistration<ICorrelationContextFactory, CorrelationContextFactory>(ServiceLifetime.Transient);
 				yield return new ExpectedRegistration<ICorrelationIdFactory, GuidCorrelationIdFactory>(ServiceLifetime.Singleton);
-				yield return new ExpectedRegistration<CorrelationManager, CorrelationManager>(ServiceLifetime.Singleton);
+				yield return new ExpectedRegistration<CorrelationManager, CorrelationManager>(ServiceLifetime.Transient);
 			}
 
 			IEnumerator IEnumerable.GetEnumerator()
