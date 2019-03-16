@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
-using Correlate.Http;
+using Correlate.Http.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
 
 namespace Correlate.AspNetCore.Middleware
 {
@@ -49,41 +47,17 @@ namespace Correlate.AspNetCore.Middleware
 		/// <returns>An awaitable to wait for to complete the request.</returns>
 		public Task Invoke(HttpContext httpContext)
 		{
-			(string correlationId, string headerName) = GetCorrelationId(httpContext.Request);
-
-			var correlatedHttpRequest = new HttpRequestActivity(httpContext, _options, _logger, headerName);
-			return _correlationManager.CorrelateInternalAsync(
-				correlationId, 
-				correlatedHttpRequest, 
-				() => _next(httpContext)
-			);
-		}
-
-		private (string CorrelationId, string HeaderName) GetCorrelationId(HttpRequest httpRequest)
-		{
-			string correlationId = null;
-			string headerName = null;
-
-			if (_options.RequestHeaders != null)
+			var header = httpContext.Request.GetCorrelationIdHeader(_options.RequestHeaders);
+			if (header.Value != null)
 			{
-				foreach (string requestHeaderName in _options.RequestHeaders)
-				{
-					if (httpRequest.Headers.TryGetValue(requestHeaderName, out StringValues value))
-					{
-						headerName = requestHeaderName;
-						correlationId = value.FirstOrDefault();
-						if (!string.IsNullOrEmpty(correlationId))
-						{
-							_logger.LogDebug("Request header '{HeaderName}' found with correlation id '{CorrelationId}'.", headerName, correlationId);
-							break;
-						}
-					}
-				}
+				_logger.LogTrace("Request header '{HeaderName}' found with correlation id '{CorrelationId}'.", header.Key, header.Value);
 			}
 
-			return (
-				string.IsNullOrWhiteSpace(correlationId) ? _correlationIdFactory.Create() : correlationId,
-				headerName ?? _options.RequestHeaders?.FirstOrDefault() ?? CorrelationHttpHeaders.CorrelationId
+			var correlatedHttpRequest = new HttpRequestActivity(httpContext, _options, _logger, header.Key);
+			return _correlationManager.CorrelateInternalAsync(
+				header.Value ?? _correlationIdFactory.Create(),
+				correlatedHttpRequest, 
+				() => _next(httpContext)
 			);
 		}
 	}
