@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -199,6 +200,29 @@ namespace Correlate.AspNetCore.Middleware
 				.Which.StackTrace
 				.Should()
 				.StartWith("   at Correlate.AspNetCore.Fixtures.TestController.Get() ");
+		}
+
+		[Fact]
+		public async Task When_executing_multiple_requests_the_response_should_contain_new_correlationIds_for_each_response()
+		{
+			HttpClient client = _factory.CreateClient();
+			var requestTasks = Enumerable.Range(0, 50)
+				.Select(_ => client.GetAsync(""));
+
+			// Act
+			List<HttpResponseMessage> responses = (await Task.WhenAll(requestTasks)).ToList();
+
+			// Assert
+			string[] correlationIds = responses
+				.Select(r => r.Headers.SingleOrDefault(h => h.Key == CorrelationHttpHeaders.CorrelationId).Value?.FirstOrDefault())
+				.ToArray();
+
+			var distinctCorrelationIds = new HashSet<string>(correlationIds);
+			correlationIds
+				.Should()
+				.HaveCount(distinctCorrelationIds.Count)
+				.And
+				.BeEquivalentTo(distinctCorrelationIds, "each request should have a different correlation id");
 		}
 	}
 }
