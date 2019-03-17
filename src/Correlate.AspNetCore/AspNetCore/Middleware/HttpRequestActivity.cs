@@ -10,15 +10,15 @@ namespace Correlate.AspNetCore.Middleware
 		private readonly HttpContext _httpContext;
 		private readonly ILogger _logger;
 		private readonly string _responseHeaderName;
-		private readonly CorrelateOptions _options;
+		private readonly bool _includeInResponse;
 		private IDisposable _logScope;
 
-		internal HttpRequestActivity(HttpContext httpContext, CorrelateOptions options, ILogger logger, string responseHeaderName)
+		internal HttpRequestActivity(ILogger logger, HttpContext httpContext, string responseHeaderName)
 		{
-			_httpContext = httpContext;
-			_options = options;
 			_logger = logger;
+			_httpContext = httpContext;
 			_responseHeaderName = responseHeaderName;
+			_includeInResponse = !string.IsNullOrWhiteSpace(responseHeaderName);
 		}
 
 		public void Start(CorrelationContext correlationContext)
@@ -29,7 +29,7 @@ namespace Correlate.AspNetCore.Middleware
 				_logScope = _logger.BeginRequestScope(_httpContext, correlationContext.CorrelationId);
 			}
 
-			if (_options.IncludeInResponse)
+			if (_includeInResponse)
 			{
 				_httpContext.Response.OnStarting(() =>
 				{

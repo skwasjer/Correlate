@@ -55,15 +55,16 @@ namespace Correlate.AspNetCore.Middleware
 		/// <returns>An awaitable to wait for to complete the request.</returns>
 		public Task Invoke(HttpContext httpContext)
 		{
-			KeyValuePair<string, string> header = httpContext.Request.Headers.GetCorrelationIdHeader(_acceptedRequestHeaders);
-			if (header.Value != null)
+			KeyValuePair<string, string> requestHeader = httpContext.Request.Headers.GetCorrelationIdHeader(_acceptedRequestHeaders);
+			if (requestHeader.Value != null)
 			{
-				_logger.LogTrace("Request header '{HeaderName}' found with correlation id '{CorrelationId}'.", header.Key, header.Value);
+				_logger.LogTrace("Request header '{HeaderName}' found with correlation id '{CorrelationId}'.", requestHeader.Key, requestHeader.Value);
 			}
 
-			var correlatedHttpRequest = new HttpRequestActivity(httpContext, _options, _logger, header.Key);
+			string responseHeaderName = _options.IncludeInResponse ? requestHeader.Key : null;
+			var correlatedHttpRequest = new HttpRequestActivity(_logger, httpContext, responseHeaderName);
 			return _correlationManager.CorrelateInternalAsync(
-				header.Value,
+				requestHeader.Value,
 				correlatedHttpRequest, 
 				() => _next(httpContext)
 			);
