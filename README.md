@@ -71,6 +71,13 @@ public class Startup
 
 The Correlate middleware takes care of processing each incoming request for a correlation id. If no correlation is provided, one will be generated. Before the request continues down the pipeline, a log scope is created with a `CorrelationId` property, containing the correlation id.
 
+Most popular log providers will be able to log the correlation id with minimal set up required.
+
+For example:
+
+- Serilog: `new LoggerConfiguration().Enrich.FromLogContext()` https://github.com/serilog/serilog/wiki/Enrichment#the-logcontext
+- NLog: https://github.com/NLog/NLog/wiki/EventProperties-Layout-Renderer
+
 ## ICorrelationContextAccessor - Getting/setting the correlation id from anywhere
 
 To access the correlation id anywhere in code, inject an instance of `ICorrelationContextAccessor` in your constructor. 
