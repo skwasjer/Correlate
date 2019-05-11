@@ -90,7 +90,7 @@ namespace Correlate
 
 			try
 			{
-				await correlatedTask();
+				await correlatedTask().ConfigureAwait(false);
 			}
 			finally
 			{
