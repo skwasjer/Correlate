@@ -63,7 +63,7 @@ namespace Correlate.AspNetCore.Middleware
 		[Fact]
 		public async Task When_context_has_started_should_create_logScope_with_correlationId()
 		{
-			const string expectedLogProperty = "CorrelationId";
+			const string expectedLogProperty = CorrelateConstants.CorrelationIdKey;
 
 			// Act
 			using (TestCorrelator.CreateContext())

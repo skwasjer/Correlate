@@ -41,11 +41,12 @@ namespace Correlate.AspNetCore.Middleware
 
 			if (_options.RequestHeaders == null || !_options.RequestHeaders.Any())
 			{
-				throw new ArgumentException("Configuration error, at least one request header should be specified.", nameof(options));
+				_acceptedRequestHeaders = ImmutableArray<string>.Empty;
 			}
-
-			// Ensure array never change during the lifetime of middleware.
-			_acceptedRequestHeaders = _options.RequestHeaders.ToImmutableArray();
+			else
+			{
+				_acceptedRequestHeaders = _options.RequestHeaders.ToImmutableArray();
+			}
 		}
 
 		/// <summary>

@@ -46,15 +46,14 @@ namespace Correlate.Http.Extensions
 		[Fact]
 		public void When_using_empty_accepted_headers_should_throw()
 		{
+			_sut.Add(CorrelationHttpHeaders.CorrelationId, new StringValues(CorrelationId));
+			var expectedHeader = new KeyValuePair<string, string>(CorrelationHttpHeaders.CorrelationId, null);
+
 			// Act
-			Action act = () => _sut.GetCorrelationIdHeader(new string[0]);
+			KeyValuePair<string, string> header = _sut.GetCorrelationIdHeader(new string[0]);
 
 			// Assert
-			act.Should()
-				.Throw<ArgumentException>()
-				.WithMessage("At least one header should be specified.*")
-				.Which.ParamName.Should()
-				.Be("acceptedHeaders");
+			header.Should().BeEquivalentTo(expectedHeader, "it should not take correlation id from header dictionary but still return header key");
 		}
 
 		[Fact]

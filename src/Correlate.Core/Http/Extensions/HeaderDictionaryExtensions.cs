@@ -16,7 +16,7 @@ namespace Correlate.Http.Extensions
 
 			if (!acceptedHeaders.Any())
 			{
-				throw new ArgumentException("At least one header should be specified.", nameof(acceptedHeaders));
+				return new KeyValuePair<string, string>(CorrelationHttpHeaders.CorrelationId, null);
 			}
 
 			string correlationId = null;

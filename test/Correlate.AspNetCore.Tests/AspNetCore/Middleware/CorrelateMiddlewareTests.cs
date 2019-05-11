@@ -100,6 +100,23 @@ namespace Correlate.AspNetCore.Middleware
 		}
 
 		[Fact]
+		public async Task Given_no_headers_are_defined_when_executing_request_the_response_should_contain_default_header()
+		{
+			_options.RequestHeaders = new string[0];
+
+			// Act
+			HttpClient client = _factory.CreateClient();
+			HttpResponseMessage response = await client.GetAsync("");
+
+			// Assert
+			response.Headers
+				.Should().ContainCorrelationId()
+				.WhichValue.Should()
+				.ContainSingle()
+				.Which.Should().NotBeEmpty();
+		}
+
+		[Fact]
 		public async Task Given_response_is_disabled_when_executing_request_the_response_should_not_contain_correlation_id()
 		{
 			_options.IncludeInResponse = false;
@@ -140,7 +157,7 @@ namespace Correlate.AspNetCore.Middleware
 					.ToList()
 					.ForEach(le => le.Properties
 						.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
-						.Should().ContainKey("CorrelationId")
+						.Should().ContainKey(CorrelateConstants.CorrelationIdKey)
 						.WhichValue.Should().BeOfType<ScalarValue>()
 						.Which.Value.Should().BeNull());
 				logEvents
@@ -149,7 +166,7 @@ namespace Correlate.AspNetCore.Middleware
 					.ToList()
 					.ForEach(le => le.Properties
 						.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
-						.Should().ContainKey("CorrelationId")
+						.Should().ContainKey(CorrelateConstants.CorrelationIdKey)
 						.WhichValue.Should().BeOfType<ScalarValue>()
 						.Which.Value.Should().Be(correlationId));
 			}

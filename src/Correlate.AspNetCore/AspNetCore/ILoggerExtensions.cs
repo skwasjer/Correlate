@@ -59,7 +59,7 @@ namespace Correlate.AspNetCore
 
 					if (index == 2)
 					{
-						return new KeyValuePair<string, object>("CorrelationId", _correlationId);
+						return new KeyValuePair<string, object>(CorrelateConstants.CorrelationIdKey, _correlationId);
 					}
 
 					throw new ArgumentOutOfRangeException(nameof(index));
