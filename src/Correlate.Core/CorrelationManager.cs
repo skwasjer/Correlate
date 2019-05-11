@@ -77,16 +77,23 @@ namespace Correlate
 			return CorrelateInternalAsync(correlationId, null, correlatedTask);
 		}
 
-		internal async Task CorrelateInternalAsync(string correlationId, IActivity innerActivity, Func<Task> correlatedTask)
+		internal Task CorrelateInternalAsync(string correlationId, IActivity innerActivity, Func<Task> correlatedTask)
 		{
 			if (correlatedTask == null)
 			{
 				throw new ArgumentNullException(nameof(correlatedTask));
 			}
 
-			var correlation = new RootActivity(_correlationContextFactory, _logger, _diagnosticListener, innerActivity);
+			return CorrelateAsync(
+				correlationId,
+				new RootActivity(_correlationContextFactory, _logger, _diagnosticListener, innerActivity),
+				correlatedTask
+			);
+		}
 
-			correlation.Start(correlationId ?? _correlationIdFactory.Create());
+		private async Task CorrelateAsync(string correlationId, RootActivity activity, Func<Task> correlatedTask)
+		{
+			CorrelationContext correlationContext = activity.Start(correlationId ?? _correlationIdFactory.Create());
 
 			try
 			{
@@ -94,7 +101,7 @@ namespace Correlate
 			}
 			finally
 			{
-				correlation.Stop();
+				activity.Stop();
 			}
 		}
 	}
