@@ -1,7 +1,5 @@
-﻿using System;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions.Internal;
 
 namespace Correlate.Testing
 {
@@ -9,12 +7,12 @@ namespace Correlate.Testing
 	{
 		public static IServiceCollection ForceEnableLogging(this IServiceCollection services)
 		{
-			return services.AddLogging(logging => logging.AddProvider(new DummyProvider()));
+			return services.AddLogging(logging => logging.AddProvider(new TestLoggerProvider()));
 		}
 
-		private class DummyProvider : ILoggerProvider
+		private class TestLoggerProvider : ILoggerProvider
 		{
-			private DummyLogger _dummyLogger;
+			private TestLogger _testLogger;
 
 			public void Dispose()
 			{
@@ -22,24 +20,7 @@ namespace Correlate.Testing
 
 			public ILogger CreateLogger(string categoryName)
 			{
-				return _dummyLogger ?? (_dummyLogger = new DummyLogger());
-			}
-		}
-
-		private class DummyLogger : ILogger
-		{
-			public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
-			{
-			}
-
-			public bool IsEnabled(LogLevel logLevel)
-			{
-				return true;
-			}
-
-			public IDisposable BeginScope<TState>(TState state)
-			{
-				return NullScope.Instance;
+				return _testLogger ?? (_testLogger = new TestLogger());
 			}
 		}
 	}
