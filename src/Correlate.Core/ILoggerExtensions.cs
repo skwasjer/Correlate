@@ -44,7 +44,7 @@ namespace Correlate
 				{
 					if (index == 0)
 					{
-						return new KeyValuePair<string, object>("CorrelationId", _correlationId);
+						return new KeyValuePair<string, object>(CorrelateConstants.CorrelationIdKey, _correlationId);
 					}
 
 					throw new ArgumentOutOfRangeException(nameof(index));

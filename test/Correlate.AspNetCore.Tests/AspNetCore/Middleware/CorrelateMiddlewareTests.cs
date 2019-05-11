@@ -157,7 +157,7 @@ namespace Correlate.AspNetCore.Middleware
 					.ToList()
 					.ForEach(le => le.Properties
 						.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
-						.Should().ContainKey("CorrelationId")
+						.Should().ContainKey(CorrelateConstants.CorrelationIdKey)
 						.WhichValue.Should().BeOfType<ScalarValue>()
 						.Which.Value.Should().BeNull());
 				logEvents
@@ -166,7 +166,7 @@ namespace Correlate.AspNetCore.Middleware
 					.ToList()
 					.ForEach(le => le.Properties
 						.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
-						.Should().ContainKey("CorrelationId")
+						.Should().ContainKey(CorrelateConstants.CorrelationIdKey)
 						.WhichValue.Should().BeOfType<ScalarValue>()
 						.Which.Value.Should().Be(correlationId));
 			}
