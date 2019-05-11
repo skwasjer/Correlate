@@ -92,5 +92,33 @@ namespace Correlate
 				.Which.ParamName.Should()
 				.Be("correlatedTask");
 		}
+
+		[Fact]
+		public void When_provided_task_throws_should_not_wrap_exception()
+		{
+			var exception = new Exception();
+			Task ThrowingTask() => throw exception;
+
+			// Act
+			Func<Task> act = () => _sut.CorrelateAsync(null, ThrowingTask);
+
+			// Assert
+			act.Should().Throw<Exception>().Which.Should().Be(exception);
+		}
+
+		[Fact]
+		public void When_provided_task_throws_should_enrich_exception_with_correlationId()
+		{
+			var exception = new Exception();
+			Task ThrowingTask() => throw exception;
+
+			// Act
+			Func<Task> act = () => _sut.CorrelateAsync(null, ThrowingTask);
+
+			// Assert
+			IDictionary exceptionData = act.Should().Throw<Exception>().Which.Data;
+			exceptionData.Keys.Should().Contain(CorrelateConstants.CorrelationIdKey);
+			exceptionData[CorrelateConstants.CorrelationIdKey].Should().Be(GeneratedCorrelationId);
+		}
 	}
 }

@@ -99,6 +99,16 @@ namespace Correlate
 			{
 				await correlatedTask().ConfigureAwait(false);
 			}
+			catch (Exception ex)
+			{
+				if (correlationContext?.CorrelationId != null && !ex.Data.Contains(CorrelateConstants.CorrelationIdKey))
+				{
+					// Because we're about to lose context scope, enrich exception with correlation id for reference by calling code.
+					ex.Data.Add(CorrelateConstants.CorrelationIdKey, correlationContext.CorrelationId);
+				}
+
+				throw;
+			}
 			finally
 			{
 				activity.Stop();
