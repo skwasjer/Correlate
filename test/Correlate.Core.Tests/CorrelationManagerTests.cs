@@ -84,7 +84,7 @@ namespace Correlate
 		public void When_not_providing_task_when_starting_correlation_should_throw()
 		{
 			// Act
-			Func<Task> act = () => _sut.CorrelateAsync(null, null);
+			Func<Task> act = () => _sut.CorrelateAsync(null, null, null);
 
 			// Assert
 			act.Should()
@@ -119,6 +119,43 @@ namespace Correlate
 			IDictionary exceptionData = act.Should().Throw<Exception>().Which.Data;
 			exceptionData.Keys.Should().Contain(CorrelateConstants.CorrelationIdKey);
 			exceptionData[CorrelateConstants.CorrelationIdKey].Should().Be(GeneratedCorrelationId);
+		}
+
+		[Fact]
+		public void When_handling_exception_with_delegate_should_not_throw()
+		{
+			var exception = new Exception();
+			const bool handlesException = true;
+
+			// Act
+			Func<Task> act = () => _sut.CorrelateAsync(
+				null,
+				() => throw exception,
+				(ctx, ex) =>
+				{
+					ctx.CorrelationId.Should().Be(GeneratedCorrelationId);
+					ex.Should().Be(exception);
+					return handlesException;
+				});
+
+			// Assert
+			act.Should().NotThrow();
+		}
+
+		[Fact]
+		public void When_not_handling_exception_with_delegate_should_still_throw()
+		{
+			var exception = new Exception();
+			const bool handlesException = false;
+
+			// Act
+			Func<Task> act = () => _sut.CorrelateAsync(
+				() => throw exception,
+				(ctx, ex) => handlesException
+			);
+
+			// Assert
+			act.Should().Throw<Exception>().Which.Should().Be(exception);
 		}
 	}
 }
