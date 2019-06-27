@@ -5,7 +5,7 @@ namespace Correlate.Testing
 {
 	public static class LoggingExtensions
 	{
-#if NETSTANDARD1_3
+#if NETSTANDARD1_3 || NETFRAMEWORK
 		public static IServiceCollection ForceEnableLogging(this IServiceCollection services)
 		{
 			return services

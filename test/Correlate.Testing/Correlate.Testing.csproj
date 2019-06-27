@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard1.3</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netstandard1.3;net46</TargetFrameworks>
     <IsTestProject>false</IsTestProject>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
@@ -11,7 +11,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.1.0" />
   </ItemGroup>
 
-  <ItemGroup Condition="$(TargetFramework.StartsWith('netstandard1'))">
+  <ItemGroup Condition="$(TargetFramework.StartsWith('netstandard1')) Or $(TargetFramework.StartsWith('net46'))">
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="1.1.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="1.1.0" />
   </ItemGroup>
