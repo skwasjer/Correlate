@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if NETSTANDARD2_0
+using System;
 using System.Net.Http;
 using Correlate.Http;
 using Microsoft.Extensions.Configuration;
@@ -63,3 +64,4 @@ namespace Correlate.DependencyInjection
 		}
 	}
 }
+#endif

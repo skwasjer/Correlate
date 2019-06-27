@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Linq;
+#if NETSTANDARD1_3
+using System.Reflection;
+#endif
 using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;

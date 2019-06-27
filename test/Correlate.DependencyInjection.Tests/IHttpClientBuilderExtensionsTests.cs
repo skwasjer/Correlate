@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !NETCOREAPP1_1
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -115,3 +116,4 @@ namespace Correlate.DependencyInjection
 		}
 	}
 }
+#endif
