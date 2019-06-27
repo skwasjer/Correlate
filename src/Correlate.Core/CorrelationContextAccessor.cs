@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 
 namespace Correlate
 {
@@ -16,13 +17,18 @@ namespace Correlate
 			set
 			{
 				CorrelationContextHolder holder = CurrentContext.Value;
-				if (holder != null)
+				if (value == null)
 				{
-					// Clear current CorrelationContext trapped in the AsyncLocals, as its done.
-					holder.Context = null;
+					if (holder != null)
+					{
+						// Clear current CorrelationContext trapped in the AsyncLocals, as its done.
+						holder.Context = null;
+					}
+
+					return;
 				}
 
-				if (value != null)
+				if (holder == null)
 				{
 					// Use an object indirection to hold the CorrelationContext in the AsyncLocal,
 					// so it can be cleared in all ExecutionContexts when its cleared.
@@ -31,12 +37,47 @@ namespace Correlate
 						Context = value
 					};
 				}
+				else
+				{
+					holder.Context = value;
+				}
 			}
 		}
 
 		private class CorrelationContextHolder
 		{
-			public CorrelationContext Context;
+			private Stack<CorrelationContext> _contextStack;
+			private CorrelationContext _currentContext;
+
+			public CorrelationContext Context
+			{
+				get => _currentContext;
+				set
+				{
+					if (value == null)
+					{
+						_currentContext = _contextStack?.Count > 0 ? _contextStack.Pop() : null;
+						if (_currentContext == null)
+						{
+							_contextStack = null;
+						}
+					}
+					else
+					{
+						if (_currentContext != null)
+						{
+							if (_contextStack == null)
+							{
+								_contextStack = new Stack<CorrelationContext>();
+							}
+
+							_contextStack.Push(_currentContext);
+						}
+
+						_currentContext = value;
+					}
+				}
+			}
 		}
 	}
 }
