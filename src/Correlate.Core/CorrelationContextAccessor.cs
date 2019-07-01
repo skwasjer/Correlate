@@ -17,14 +17,8 @@ namespace Correlate
 			set
 			{
 				CorrelationContextHolder holder = CurrentContext.Value;
-				if (value == null)
+				if (value == null && holder == null)
 				{
-					if (holder != null)
-					{
-						// Clear current CorrelationContext trapped in the AsyncLocals, as its done.
-						holder.Context = null;
-					}
-
 					return;
 				}
 

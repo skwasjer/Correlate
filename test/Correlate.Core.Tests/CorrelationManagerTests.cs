@@ -198,7 +198,8 @@ namespace Correlate
 					() =>
 					{
 						CorrelationContext innerContext = _correlationContextAccessor.CorrelationContext;
-						innerContext.Should().Be(parentContext);
+						innerContext.Should()
+							.NotBe(parentContext).And.BeEquivalentTo(parentContext);
 
 						return Task.CompletedTask;
 					});
@@ -215,7 +216,8 @@ namespace Correlate
 				await _sut.CorrelateAsync(() =>
 					{
 						CorrelationContext innerContext = _correlationContextAccessor.CorrelationContext;
-						innerContext.Should().Be(parentContext);
+						innerContext.Should()
+							.NotBe(parentContext).And.BeEquivalentTo(parentContext);
 
 						return Task.CompletedTask;
 					});

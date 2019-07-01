@@ -29,12 +29,6 @@ namespace Correlate
 		/// <inheritdoc />
 		CorrelationContext ICorrelationContextFactory.Create(string correlationId)
 		{
-			CorrelationContext currentContext = _correlationContextAccessor?.CorrelationContext;
-			if (currentContext != null && currentContext.CorrelationId == correlationId)
-			{
-				return currentContext;
-			}
-
 			CorrelationContext correlationContext = Create(correlationId);
 			if (_correlationContextAccessor != null)
 			{
