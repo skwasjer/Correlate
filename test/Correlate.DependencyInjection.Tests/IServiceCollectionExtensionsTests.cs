@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Correlate.Testing.FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Correlate.DependencyInjection
@@ -49,6 +50,7 @@ namespace Correlate.DependencyInjection
 				yield return new ExpectedRegistration<ICorrelationContextFactory, CorrelationContextFactory>(ServiceLifetime.Transient);
 				yield return new ExpectedRegistration<ICorrelationIdFactory, GuidCorrelationIdFactory>(ServiceLifetime.Singleton);
 				yield return new ExpectedRegistration<CorrelationManager, CorrelationManager>(ServiceLifetime.Transient);
+				yield return new ExpectedRegistration<ILoggerFactory, LoggerFactory>(ServiceLifetime.Singleton);
 			}
 
 			IEnumerator IEnumerable.GetEnumerator()

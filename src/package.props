@@ -15,7 +15,7 @@
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/skwasjer/Correlate</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageIconUrl>https://raw.githubusercontent.com/skwasjer/Correlate/master/Correlate64.png</PackageIconUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/skwasjer/Correlate/master/assets/Correlate64.png</PackageIconUrl>
   </PropertyGroup>
 
   <PropertyGroup>

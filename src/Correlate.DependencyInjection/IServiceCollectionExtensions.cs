@@ -16,6 +16,8 @@ namespace Correlate.DependencyInjection
 		/// <returns>The <see cref="IServiceCollection"/> so that additional calls can be chained.</returns>
 		public static IServiceCollection AddCorrelate(this IServiceCollection services)
 		{
+			services.AddLogging();
+
 			services.TryAddSingleton<ICorrelationContextAccessor, CorrelationContextAccessor>();
 			services.TryAddTransient<ICorrelationContextFactory, CorrelationContextFactory>();
 			services.TryAddSingleton<ICorrelationIdFactory, GuidCorrelationIdFactory>();

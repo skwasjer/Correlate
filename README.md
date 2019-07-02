@@ -178,11 +178,14 @@ services.AddSingleton<ICorrelationIdFactory, RequestIdentifierCorrelationIdFacto
 
 ### Supported .NET targets
 - .NET Standard 2.0
+- .NET Standard 1.3
 - ASP.NET Core 2.1/2.2
+- .NET 4.6
 
 ### Build requirements
 - Visual Studio 2017
-- .NET Core 2.2 SDK
+- .NET Core 2.2/2.1 SDK
+- .NET 4.6 targetting pack
 
 #### Contributions
 PR's are welcome. Please rebase before submitting, provide test coverage, and ensure the AppVeyor build passes. I will not consider PR's otherwise.
