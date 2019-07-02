@@ -168,11 +168,13 @@ namespace Correlate
 			return _sut.CorrelateAsync(parentContextId, async () =>
 			{
 				CorrelationContext parentContext = _correlationContextAccessor.CorrelationContext;
+				parentContext.Should().NotBeNull();
 				parentContext.CorrelationId.Should().Be(parentContextId);
 
 				await _sut.CorrelateAsync(innerContextId, () =>
 					{
 						CorrelationContext innerContext = _correlationContextAccessor.CorrelationContext;
+						innerContext.Should().NotBeNull();
 						innerContext.Should().NotBe(parentContext);
 						innerContext.CorrelationId.Should().Be(innerContextId);
 
@@ -221,6 +223,34 @@ namespace Correlate
 
 						return Task.CompletedTask;
 					});
+			});
+		}
+
+		[Fact]
+		public Task When_starting_correlationContext_with_legacy_ctor_when_another_context_is_active_should_not_throw()
+		{
+			const string parentContextId = nameof(parentContextId);
+
+			var sut = new CorrelationManager(
+				new CorrelationContextFactory(_correlationContextAccessor),
+				_correlationIdFactoryMock.Object,
+				new TestLogger<CorrelationManager>()
+			);
+
+			return sut.CorrelateAsync(parentContextId, async() =>
+			{
+				CorrelationContext parentContext = _correlationContextAccessor.CorrelationContext;
+				parentContext.Should().NotBeNull();
+				parentContext.CorrelationId.Should().Be(parentContextId);
+
+				await sut.CorrelateAsync(() =>
+				{
+					CorrelationContext innerContext = _correlationContextAccessor.CorrelationContext;
+					innerContext.Should().NotBeNull().And.NotBe(parentContext);
+					innerContext.CorrelationId.Should().NotBe(parentContextId);
+
+					return Task.CompletedTask;
+				});
 			});
 		}
 	}
