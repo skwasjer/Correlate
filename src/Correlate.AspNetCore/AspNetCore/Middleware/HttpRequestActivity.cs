@@ -11,7 +11,6 @@ namespace Correlate.AspNetCore.Middleware
 		private readonly ILogger _logger;
 		private readonly string _responseHeaderName;
 		private readonly bool _includeInResponse;
-		private IDisposable _logScope;
 
 		internal HttpRequestActivity(ILogger logger, HttpContext httpContext, string responseHeaderName)
 		{
@@ -23,12 +22,6 @@ namespace Correlate.AspNetCore.Middleware
 
 		public void Start(CorrelationContext correlationContext)
 		{
-			bool isLoggingEnabled = _logger.IsEnabled(LogLevel.Critical);
-			if (isLoggingEnabled)
-			{
-				_logScope = _logger.BeginRequestScope(_httpContext, correlationContext.CorrelationId);
-			}
-
 			if (_includeInResponse)
 			{
 				_httpContext.Response.OnStarting(() =>
@@ -47,7 +40,6 @@ namespace Correlate.AspNetCore.Middleware
 
 		public void Stop()
 		{
-			_logScope?.Dispose();
 		}
 	}
 }
