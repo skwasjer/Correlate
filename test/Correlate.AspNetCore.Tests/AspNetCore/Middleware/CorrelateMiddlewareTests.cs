@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using RichardSzalay.MockHttp;
+using MockHttp;
 using Serilog.Events;
 using Serilog.Sinks.TestCorrelator;
 using Xunit;
@@ -25,12 +25,12 @@ namespace Correlate.AspNetCore.Middleware
 		private readonly WebApplicationFactory<Startup> _factory;
 		private readonly TestAppFactory<Startup> _rootFactory;
 		private readonly CorrelateOptions _options;
-		private readonly MockHttpMessageHandler _mockHttp;
+		private readonly MockHttpHandler _mockHttp;
 
 		public CorrelateMiddlewareTests(TestAppFactory<Startup> factory)
 		{
 			_options = new CorrelateOptions();
-			_mockHttp = new MockHttpMessageHandler();
+			_mockHttp = new MockHttpHandler();
 
 			_rootFactory = factory;
 			_rootFactory.LoggingEnabled = true;
@@ -182,9 +182,12 @@ namespace Correlate.AspNetCore.Middleware
 			request.Headers.Add(headerName, correlationId);
 
 			_mockHttp
-				.Expect("/correlated_external_call")
-				.WithHeaders($"{headerName}: {correlationId}")
-				.Respond(HttpStatusCode.Accepted);
+				.When(matching => matching
+					.Url("**/correlated_external_call")
+					.Headers($"{headerName}: {correlationId}")
+				)
+				.Respond(HttpStatusCode.Accepted)
+				.Verifiable();
 
 			// Act
 			HttpClient client = _factory.CreateClient();
@@ -200,7 +203,8 @@ namespace Correlate.AspNetCore.Middleware
 			errorMessage.Should().BeNullOrEmpty();
 			response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
-			_mockHttp.VerifyNoOutstandingExpectation();
+			_mockHttp.Verify();
+			_mockHttp.VerifyNoOtherCalls();
 		}
 
 		[Fact]

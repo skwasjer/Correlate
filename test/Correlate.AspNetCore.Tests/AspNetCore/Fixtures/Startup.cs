@@ -3,7 +3,7 @@ using Correlate.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using RichardSzalay.MockHttp;
+using MockHttp;
 
 namespace Correlate.AspNetCore.Fixtures
 {
@@ -15,7 +15,7 @@ namespace Correlate.AspNetCore.Fixtures
 
 			services
 				.AddHttpClient<TestController>(client => client.BaseAddress = new Uri("http://0.0.0.0"))
-				.ConfigurePrimaryHttpMessageHandler(s => s.GetRequiredService<MockHttpMessageHandler>())
+				.ConfigurePrimaryHttpMessageHandler(s => s.GetRequiredService<MockHttpHandler>())
 				.CorrelateRequests();
 
 			services

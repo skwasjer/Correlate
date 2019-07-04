@@ -1,4 +1,6 @@
-﻿#if !NETCOREAPP1_1 && !NETFRAMEWORK
+﻿
+using MockHttp;
+#if !NETCOREAPP1_1 && !NETFRAMEWORK
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -11,7 +13,6 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Options;
-using RichardSzalay.MockHttp;
 using Xunit;
 
 namespace Correlate.DependencyInjection
@@ -20,7 +21,7 @@ namespace Correlate.DependencyInjection
 	{
 		private readonly IServiceCollection _services;
 		private readonly IHttpClientBuilder _sut;
-		private readonly MockHttpMessageHandler _mockHttp;
+		private readonly MockHttpHandler _mockHttp;
 
 		private class MyService
 		{
@@ -34,7 +35,7 @@ namespace Correlate.DependencyInjection
 
 		public When_adding_correlation_delegating_handler_to_httpClient()
 		{
-			_mockHttp = new MockHttpMessageHandler();
+			_mockHttp = new MockHttpHandler();
 			_services = new ServiceCollection()
 				.ForceEnableLogging();
 			_sut = _services
@@ -74,9 +75,12 @@ namespace Correlate.DependencyInjection
 			};
 
 			_mockHttp
-				.Expect("/test/")
-				.With(message => message.Headers.Contains(expectedOptions.RequestHeader))
-				.Respond(HttpStatusCode.OK);
+				.When(matching => matching
+					.Url("**/test/")
+					.When(message => message.Headers.Contains(expectedOptions.RequestHeader))
+				)
+				.Respond(HttpStatusCode.OK)
+				.Verifiable();
 
 			_sut.CorrelateRequests(expectedOptions.RequestHeader);
 			IServiceProvider services = _services.BuildServiceProvider();
@@ -91,7 +95,8 @@ namespace Correlate.DependencyInjection
 			});
 
 			// Assert
-			_mockHttp.VerifyNoOutstandingExpectation();
+			_mockHttp.Verify();
+			_mockHttp.VerifyNoOtherCalls();
 			services.GetService<IOptions<CorrelateClientOptions>>()
 				.Value
 				.RequestHeader.Should()

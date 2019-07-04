@@ -19,7 +19,7 @@
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.7.0" />
     <PackageReference Include="Moq" Version="4.10.1" />
-    <PackageReference Include="RichardSzalay.MockHttp" Version="5.0.0" />
+    <PackageReference Include="skwas.MockHttp" Version="1.0.0" />
   </ItemGroup>
 
 </Project>
