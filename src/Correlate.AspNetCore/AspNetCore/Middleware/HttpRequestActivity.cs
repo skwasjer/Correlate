@@ -22,7 +22,7 @@ namespace Correlate.AspNetCore.Middleware
 
 		public void Start(CorrelationContext correlationContext)
 		{
-			if (_includeInResponse)
+			if (_includeInResponse && correlationContext != null)
 			{
 				_httpContext.Response.OnStarting(() =>
 				{
