@@ -8,7 +8,7 @@ namespace Correlate
 	/// <summary>
 	/// The correlation manager runs activities in its own <see cref="CorrelationContext"/> allowing correlation with external services.
 	/// </summary>
-	public class CorrelationManager : IAsyncCorrelationManager
+	public class CorrelationManager : IAsyncCorrelationManager, ICorrelationManager
 	{
 		private readonly ICorrelationContextFactory _correlationContextFactory;
 		private readonly ICorrelationIdFactory _correlationIdFactory;
@@ -172,30 +172,109 @@ namespace Correlate
 			{
 				await correlatedTask().ConfigureAwait(false);
 			}
-			catch (Exception ex)
+			catch (Exception ex) when (HandlesException(onException, correlationContext, ex))
 			{
-				if (correlationContext != null && !ex.Data.Contains(CorrelateConstants.CorrelationIdKey))
-				{
-					// Because we're about to lose context scope, enrich exception with correlation id for reference by calling code.
-					ex.Data.Add(CorrelateConstants.CorrelationIdKey, correlationContext.CorrelationId);
-				}
-
-				if (onException == null)
-				{
-					throw;
-				}
-
-				// Allow caller to handle exception inline before losing context scope.
-				bool isHandled = onException(correlationContext, ex);
-				if (!isHandled)
-				{
-					throw;
-				}
 			}
 			finally
 			{
 				activity.Stop();
 			}
+		}
+
+		/// <summary>
+		/// Executes the <paramref name="correlatedAction"/> with its own <see cref="CorrelationContext"/>.
+		/// </summary>
+		/// <param name="correlatedAction">The action to execute.</param>
+		/// <remarks>
+		/// When logging and tracing are both disabled, no correlation context is created and the action simply executed as it normally would.
+		/// </remarks>
+		public void Correlate(Action correlatedAction)
+		{
+			Correlate(correlatedAction, null);
+		}
+
+		/// <summary>
+		/// Executes the <paramref name="correlatedAction"/> with its own <see cref="CorrelationContext"/>.
+		/// </summary>
+		/// <param name="correlatedAction">The action to execute.</param>
+		/// <param name="onException">A delegate to handle the exception inside the correlation scope, before it is disposed. Returns <see langword="true" /> to consider the exception handled, or <see langword="false" /> to throw.</param>
+		/// <remarks>
+		/// When logging and tracing are both disabled, no correlation context is created and the action simply executed as it normally would.
+		/// </remarks>
+		public void Correlate(Action correlatedAction, OnException onException)
+		{
+			Correlate(null, correlatedAction, onException);
+		}
+
+		/// <summary>
+		/// Executes the <paramref name="correlatedAction"/> with its own <see cref="CorrelationContext"/>.
+		/// </summary>
+		/// <param name="correlationId">The correlation id to use, or null to generate a new one.</param>
+		/// <param name="correlatedAction">The action to execute.</param>
+		/// <remarks>
+		/// When logging and tracing are both disabled, no correlation context is created and the action simply executed as it normally would.
+		/// </remarks>
+		public void Correlate(string correlationId, Action correlatedAction)
+		{
+			Correlate(correlationId, correlatedAction, null);
+		}
+
+		/// <summary>
+		/// Executes the <paramref name="correlatedAction"/> with its own <see cref="CorrelationContext"/>.
+		/// </summary>
+		/// <param name="correlationId">The correlation id to use, or null to generate a new one.</param>
+		/// <param name="correlatedAction">The action to execute.</param>
+		/// <param name="onException">A delegate to handle the exception inside the correlation scope, before it is disposed. Returns <see langword="true" /> to consider the exception handled, or <see langword="false" /> to throw.</param>
+		/// <remarks>
+		/// When logging and tracing are both disabled, no correlation context is created and the action simply executed as it normally would.
+		/// </remarks>
+		public void Correlate(string correlationId, Action correlatedAction, OnException onException)
+		{
+			throw new NotImplementedException();
+		}
+
+		internal void CorrelateInternal(string correlationId, IActivity innerActivity, Action correlatedAction, OnException onException = null)
+		{
+			if (correlatedAction == null)
+			{
+				throw new ArgumentNullException(nameof(correlatedAction));
+			}
+
+			Execute(
+				correlationId,
+				new RootActivity(_correlationContextFactory, _logger, _diagnosticListener, innerActivity),
+				correlatedAction,
+				onException
+			);
+		}
+
+		private void Execute(string correlationId, RootActivity activity, Action correlatedAction, OnException onException)
+		{
+			CorrelationContext correlationContext = activity.Start(correlationId ?? _correlationContextAccessor?.CorrelationContext?.CorrelationId ?? _correlationIdFactory.Create());
+
+			try
+			{
+				correlatedAction();
+			}
+			catch (Exception ex) when (HandlesException(onException, correlationContext, ex))
+			{
+			}
+			finally
+			{
+				activity.Stop();
+			}
+		}
+
+		private static bool HandlesException(OnException onException, CorrelationContext correlationContext, Exception ex)
+		{
+			if (correlationContext != null && !ex.Data.Contains(CorrelateConstants.CorrelationIdKey))
+			{
+				// Because we're about to lose context scope, enrich exception with correlation id for reference by calling code.
+				ex.Data.Add(CorrelateConstants.CorrelationIdKey, correlationContext.CorrelationId);
+			}
+
+			// Allow caller to handle exception inline before losing context scope.
+			return onException != null && onException(correlationContext, ex);
 		}
 	}
 }
