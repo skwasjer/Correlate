@@ -85,10 +85,10 @@ namespace Correlate.DependencyInjection
 			_sut.CorrelateRequests(expectedOptions.RequestHeader);
 			IServiceProvider services = _services.BuildServiceProvider();
 			var service = services.GetService<MyService>();
-			var correlationManager = services.GetService<CorrelationManager>();
+			var asyncCorrelationManager = services.GetService<IAsyncCorrelationManager>();
 
 			// Act
-			await correlationManager.CorrelateAsync(async () =>
+			await asyncCorrelationManager.CorrelateAsync(async () =>
 			{
 				// Act
 				await service.HttpClient.GetAsync("http://0.0.0.0/test/");
