@@ -217,6 +217,7 @@ namespace Correlate.AspNetCore.Middleware
 			Func<Task> act = () => client.GetAsync("");
 
 			// Assert
+			act.Should().NotThrow<AggregateException>();
 			act.Should().Throw<NullReferenceException>()
 				.Which.StackTrace
 				.Should()

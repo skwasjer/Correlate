@@ -98,7 +98,11 @@ namespace Correlate
 		public void When_provided_task_throws_should_not_wrap_exception()
 		{
 			var exception = new Exception();
-			Task ThrowingTask() => throw exception;
+			async Task ThrowingTask()
+			{
+				await Task.Yield();
+				throw exception;
+			}
 
 			// Act
 			Func<Task> act = () => _sut.CorrelateAsync(null, ThrowingTask);

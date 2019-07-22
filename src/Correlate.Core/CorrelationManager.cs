@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
@@ -96,47 +97,6 @@ namespace Correlate
 		/// <summary>
 		/// Executes the <paramref name="correlatedTask"/> with its own <see cref="CorrelationContext"/>.
 		/// </summary>
-		/// <param name="correlatedTask">The task to execute.</param>
-		/// <returns>An awaitable that completes once the <paramref name="correlatedTask"/> has executed and the correlation context has disposed.</returns>
-		/// <remarks>
-		/// When logging and tracing are both disabled, no correlation context is created and the task simply executed as it normally would.
-		/// </remarks>
-		public Task CorrelateAsync(Func<Task> correlatedTask)
-		{
-			return CorrelateAsync(null, correlatedTask);
-		}
-
-		/// <summary>
-		/// Executes the <paramref name="correlatedTask"/> with its own <see cref="CorrelationContext"/>.
-		/// </summary>
-		/// <param name="correlatedTask">The task to execute.</param>
-		/// <param name="onException">A delegate to handle the exception inside the correlation scope, before it is disposed. Returns <see langword="true" /> to consider the exception handled, or <see langword="false" /> to throw.</param>
-		/// <returns>An awaitable that completes once the <paramref name="correlatedTask"/> has executed and the correlation context has disposed.</returns>
-		/// <remarks>
-		/// When logging and tracing are both disabled, no correlation context is created and the task simply executed as it normally would.
-		/// </remarks>
-		public Task CorrelateAsync(Func<Task> correlatedTask, OnException onException)
-		{
-			return CorrelateAsync(null, correlatedTask, onException);
-		}
-
-		/// <summary>
-		/// Executes the <paramref name="correlatedTask"/> with its own <see cref="CorrelationContext"/>.
-		/// </summary>
-		/// <param name="correlationId">The correlation id to use, or null to generate a new one.</param>
-		/// <param name="correlatedTask">The task to execute.</param>
-		/// <returns>An awaitable that completes once the <paramref name="correlatedTask"/> has executed and the correlation context has disposed.</returns>
-		/// <remarks>
-		/// When logging and tracing are both disabled, no correlation context is created and the task simply executed as it normally would.
-		/// </remarks>
-		public Task CorrelateAsync(string correlationId, Func<Task> correlatedTask)
-		{
-			return CorrelateAsync(correlationId, correlatedTask, null);
-		}
-
-		/// <summary>
-		/// Executes the <paramref name="correlatedTask"/> with its own <see cref="CorrelationContext"/>.
-		/// </summary>
 		/// <param name="correlationId">The correlation id to use, or null to generate a new one.</param>
 		/// <param name="correlatedTask">The task to execute.</param>
 		/// <param name="onException">A delegate to handle the exception inside the correlation scope, before it is disposed. Returns <see langword="true" /> to consider the exception handled, or <see langword="false" /> to throw.</param>
@@ -151,6 +111,34 @@ namespace Correlate
 				throw new ArgumentNullException(nameof(correlatedTask));
 			}
 
+			return CorrelateAsync(
+				correlationId,
+				async () =>
+				{
+					await correlatedTask().ConfigureAwait(false);
+					return (object)null;
+				},
+				onException
+			);
+		}
+
+		/// <summary>
+		/// Executes the <paramref name="correlatedTask"/> with its own <see cref="CorrelationContext"/>.
+		/// </summary>
+		/// <param name="correlationId">The correlation id to use, or null to generate a new one.</param>
+		/// <param name="correlatedTask">The task to execute.</param>
+		/// <param name="onException">A delegate to handle the exception inside the correlation scope, before it is disposed. Returns <see langword="true" /> to consider the exception handled, or <see langword="false" /> to throw.</param>
+		/// <returns>An awaitable that completes once the <paramref name="correlatedTask"/> has executed and the correlation context has disposed.</returns>
+		/// <remarks>
+		/// When logging and tracing are both disabled, no correlation context is created and the task simply executed as it normally would.
+		/// </remarks>
+		public Task<T> CorrelateAsync<T>(string correlationId, Func<Task<T>> correlatedTask, OnException onException)
+		{
+			if (correlatedTask == null)
+			{
+				throw new ArgumentNullException(nameof(correlatedTask));
+			}
+
 			return ExecuteAsync(
 				correlationId,
 				new RootActivity(_correlationContextFactory, _logger, _diagnosticListener),
@@ -159,61 +147,25 @@ namespace Correlate
 			);
 		}
 
-		private async Task ExecuteAsync(string correlationId, RootActivity activity, Func<Task> correlatedTask, OnException onException)
+		private async Task<T> ExecuteAsync<T>(string correlationId, RootActivity activity, Func<Task<T>> correlatedTask, OnException onException)
 		{
 			CorrelationContext correlationContext = activity.Start(correlationId ?? _correlationContextAccessor?.CorrelationContext?.CorrelationId ?? _correlationIdFactory.Create());
 
 			try
 			{
-				await correlatedTask().ConfigureAwait(false);
+				return await correlatedTask().ConfigureAwait(false);
 			}
 			catch (Exception ex) when (HandlesException(onException, correlationContext, ex))
 			{
+				// TODO: allow handler to provide result via ExceptionContext.
+				return default(T);
 			}
 			finally
 			{
 				activity.Stop();
 			}
 		}
-
-		/// <summary>
-		/// Executes the <paramref name="correlatedAction"/> with its own <see cref="CorrelationContext"/>.
-		/// </summary>
-		/// <param name="correlatedAction">The action to execute.</param>
-		/// <remarks>
-		/// When logging and tracing are both disabled, no correlation context is created and the action simply executed as it normally would.
-		/// </remarks>
-		public void Correlate(Action correlatedAction)
-		{
-			Correlate(correlatedAction, null);
-		}
-
-		/// <summary>
-		/// Executes the <paramref name="correlatedAction"/> with its own <see cref="CorrelationContext"/>.
-		/// </summary>
-		/// <param name="correlatedAction">The action to execute.</param>
-		/// <param name="onException">A delegate to handle the exception inside the correlation scope, before it is disposed. Returns <see langword="true" /> to consider the exception handled, or <see langword="false" /> to throw.</param>
-		/// <remarks>
-		/// When logging and tracing are both disabled, no correlation context is created and the action simply executed as it normally would.
-		/// </remarks>
-		public void Correlate(Action correlatedAction, OnException onException)
-		{
-			Correlate(null, correlatedAction, onException);
-		}
-
-		/// <summary>
-		/// Executes the <paramref name="correlatedAction"/> with its own <see cref="CorrelationContext"/>.
-		/// </summary>
-		/// <param name="correlationId">The correlation id to use, or null to generate a new one.</param>
-		/// <param name="correlatedAction">The action to execute.</param>
-		/// <remarks>
-		/// When logging and tracing are both disabled, no correlation context is created and the action simply executed as it normally would.
-		/// </remarks>
-		public void Correlate(string correlationId, Action correlatedAction)
-		{
-			Correlate(correlationId, correlatedAction, null);
-		}
-
+		
 		/// <summary>
 		/// Executes the <paramref name="correlatedAction"/> with its own <see cref="CorrelationContext"/>.
 		/// </summary>
@@ -230,24 +182,42 @@ namespace Correlate
 				throw new ArgumentNullException(nameof(correlatedAction));
 			}
 
-			Execute(
-				correlationId,
-				new RootActivity(_correlationContextFactory, _logger, _diagnosticListener),
-				correlatedAction,
-				onException
-			);
+			Correlate(correlationId,
+				() =>
+				{
+					correlatedAction();
+					return 0;
+				},
+				onException);
 		}
 
-		private void Execute(string correlationId, RootActivity activity, Action correlatedAction, OnException onException)
+		/// <summary>
+		/// Executes the <paramref name="correlatedFunc"/> with its own <see cref="CorrelationContext"/>.
+		/// </summary>
+		/// <param name="correlationId">The correlation id to use, or null to generate a new one.</param>
+		/// <param name="correlatedFunc">The func to execute.</param>
+		/// <param name="onException">A delegate to handle the exception inside the correlation scope, before it is disposed. Returns <see langword="true" /> to consider the exception handled, or <see langword="false" /> to throw.</param>
+		/// <remarks>
+		/// When logging and tracing are both disabled, no correlation context is created and the action simply executed as it normally would.
+		/// </remarks>
+		public T Correlate<T>(string correlationId, Func<T> correlatedFunc, OnException onException)
 		{
+			if (correlatedFunc == null)
+			{
+				throw new ArgumentNullException(nameof(correlatedFunc));
+			}
+
+			var activity = new RootActivity(_correlationContextFactory, _logger, _diagnosticListener);
 			CorrelationContext correlationContext = activity.Start(correlationId ?? _correlationContextAccessor?.CorrelationContext?.CorrelationId ?? _correlationIdFactory.Create());
 
 			try
 			{
-				correlatedAction();
+				return correlatedFunc();
 			}
 			catch (Exception ex) when (HandlesException(onException, correlationContext, ex))
 			{
+				// TODO: allow handler to provide result via ExceptionContext.
+				return default(T);
 			}
 			finally
 			{
