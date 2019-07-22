@@ -9,19 +9,16 @@ namespace Correlate
 		private readonly ICorrelationContextFactory _correlationContextFactory;
 		private readonly ILogger _logger;
 		private readonly DiagnosticListener _diagnosticListener;
-		private readonly IActivity _activity;
 		private IDisposable _logScope;
 
 		public RootActivity(
 			ICorrelationContextFactory correlationContextFactory,
 			ILogger logger,
-			DiagnosticListener diagnosticListener,
-			IActivity activity)
+			DiagnosticListener diagnosticListener)
 		{
 			_correlationContextFactory = correlationContextFactory ?? throw new ArgumentNullException(nameof(correlationContextFactory));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_diagnosticListener = diagnosticListener;
-			_activity = activity;
 		}
 
 		/// <summary>
@@ -56,8 +53,6 @@ namespace Correlate
 					_logScope = _logger.BeginCorrelatedScope(correlationId);
 				}
 
-				_activity?.Start(context);
-
 				return context;
 			}
 
@@ -74,8 +69,6 @@ namespace Correlate
 		/// </summary>
 		public void Stop()
 		{
-			_activity?.Stop();
-
 			//_diagnosticListener.StopActivity(activity, new {})
 			_logScope?.Dispose();
 			_correlationContextFactory.Dispose();

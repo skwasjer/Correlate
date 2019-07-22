@@ -131,7 +131,7 @@ namespace Correlate
 		/// </remarks>
 		public Task CorrelateAsync(string correlationId, Func<Task> correlatedTask)
 		{
-			return CorrelateInternalAsync(correlationId, null, correlatedTask, null);
+			return CorrelateAsync(correlationId, correlatedTask, null);
 		}
 
 		/// <summary>
@@ -146,11 +146,6 @@ namespace Correlate
 		/// </remarks>
 		public Task CorrelateAsync(string correlationId, Func<Task> correlatedTask, OnException onException)
 		{
-			return CorrelateInternalAsync(correlationId, null, correlatedTask, onException);
-		}
-
-		internal Task CorrelateInternalAsync(string correlationId, IActivity innerActivity, Func<Task> correlatedTask, OnException onException = null)
-		{
 			if (correlatedTask == null)
 			{
 				throw new ArgumentNullException(nameof(correlatedTask));
@@ -158,7 +153,7 @@ namespace Correlate
 
 			return ExecuteAsync(
 				correlationId,
-				new RootActivity(_correlationContextFactory, _logger, _diagnosticListener, innerActivity),
+				new RootActivity(_correlationContextFactory, _logger, _diagnosticListener),
 				correlatedTask,
 				onException
 			);
@@ -230,11 +225,6 @@ namespace Correlate
 		/// </remarks>
 		public void Correlate(string correlationId, Action correlatedAction, OnException onException)
 		{
-			throw new NotImplementedException();
-		}
-
-		internal void CorrelateInternal(string correlationId, IActivity innerActivity, Action correlatedAction, OnException onException = null)
-		{
 			if (correlatedAction == null)
 			{
 				throw new ArgumentNullException(nameof(correlatedAction));
@@ -242,7 +232,7 @@ namespace Correlate
 
 			Execute(
 				correlationId,
-				new RootActivity(_correlationContextFactory, _logger, _diagnosticListener, innerActivity),
+				new RootActivity(_correlationContextFactory, _logger, _diagnosticListener),
 				correlatedAction,
 				onException
 			);
