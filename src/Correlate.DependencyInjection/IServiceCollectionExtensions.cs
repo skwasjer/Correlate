@@ -22,6 +22,7 @@ namespace Correlate.DependencyInjection
 			services.TryAddTransient<ICorrelationContextFactory, CorrelationContextFactory>();
 			services.TryAddSingleton<ICorrelationIdFactory, GuidCorrelationIdFactory>();
 			services.TryAddTransient<CorrelationManager>();
+			services.TryAddTransient<IAsyncCorrelationManager, CorrelationManager>();
 
 			return services;
 		}
