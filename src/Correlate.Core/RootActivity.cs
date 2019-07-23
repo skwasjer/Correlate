@@ -66,6 +66,7 @@ namespace Correlate
 		{
 			//_diagnosticListener.StopActivity(activity, new {})
 			_logScope?.Dispose();
+			_logScope = null;
 			_correlationContextFactory.Dispose();
 		}
 	}
