@@ -112,21 +112,26 @@ public class MyService
 }
 ```
 
-> Note: `correlationContextAccessor.CorrelationContext` can be null, when `MyService` is not scoped to a request. Thus, when used outside of ASP.NET (not using the middleware component), you should create the context using `ICorrelationContextFactory` or `CorrelationManager` for each unique subprocess.
+> Note: `correlationContextAccessor.CorrelationContext` can be null, when `MyService` is not scoped to a request. Thus, when used outside of ASP.NET (not using the middleware component), you should create the context using `CorrelationManager` or `IActivityFactory` respectively (depending on the use case) for each unique subprocess.
 
 ## CorrelationManager
 
-To simplify managing correlation contexts, the `CorrelationManager` can be used. It takes care of alot of the logic to create the context properly. This is especially useful when running background tasks or applications other than ASP.NET Core which need to interact with external services.
+To simplify managing correlation contexts, the correlation manager can be used. It takes care of alot of the logic to create the context properly. This is especially useful when running background tasks or applications other than ASP.NET Core which need to interact with external services.
+
+`CorrelationMananger` provides both a synchronous and asynchronous implementation, and they can be requested from the service provider independently:
+
+- ICorrelationManager
+- IAsyncCorrelationManager
 
 ### Example
 
 ```csharp
 public class MyWorker
 {
-    private readonly CorrelationManager _correlationManager;
+    private readonly IAsyncCorrelationManager _correlationManager;
     private readonly MyService _myService;
 
-    public MyWorker(CorrelationManager correlationManager, MyService myService)
+    public MyWorker(IAsyncCorrelationManager correlationManager, MyService myService)
     {
         _correlationManager = correlationManager;
         _myService = myService;
