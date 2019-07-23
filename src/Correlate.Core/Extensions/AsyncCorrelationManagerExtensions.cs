@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
 
+// ReSharper disable once CheckNamespace - Justification: common extension methods for the manager should be readily accessible.
 namespace Correlate
 {
 	/// <summary>
 	/// Extensions for <see cref="IAsyncCorrelationManager"/>.
 	/// </summary>
-	public static class IAsyncCorrelationManagerExtensions
+	public static class AsyncCorrelationManagerExtensions
 	{
 		/// <summary>
 		/// Executes the <paramref name="correlatedTask"/> with its own <see cref="CorrelationContext"/>.

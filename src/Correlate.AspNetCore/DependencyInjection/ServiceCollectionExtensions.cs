@@ -1,6 +1,5 @@
 ﻿using System;
 using Correlate.AspNetCore.Middleware;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Correlate.DependencyInjection
@@ -8,8 +7,7 @@ namespace Correlate.DependencyInjection
 	/// <summary>
 	/// Registration extensions for <see cref="IServiceCollection"/>.
 	/// </summary>
-	// ReSharper disable once InconsistentNaming
-	public static class IServiceCollectionExtensions
+	public static class ServiceCollectionExtensions
 	{
 		/// <summary>
 		/// Adds services required for using correlation.

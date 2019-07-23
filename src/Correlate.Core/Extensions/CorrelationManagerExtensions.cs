@@ -1,11 +1,12 @@
 ﻿using System;
 
+// ReSharper disable once CheckNamespace - Justification: common extension methods for the manager should be readily accessible.
 namespace Correlate
 {
 	/// <summary>
 	/// Extensions for <see cref="ICorrelationManager"/>.
 	/// </summary>
-	public static class ICorrelationManagerExtensions
+	public static class CorrelationManagerExtensions
 	{
 		/// <summary>
 		/// Executes the <paramref name="correlatedAction"/> with its own <see cref="CorrelationContext"/>.
