@@ -1,17 +1,17 @@
-﻿#if !NETCOREAPP1_1 && !NETFRAMEWORK
+﻿
+using MockHttp;
+#if !NETCOREAPP1_1 && !NETFRAMEWORK
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Correlate.Http;
-using Correlate.Testing;
 using Correlate.Testing.FluentAssertions;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Options;
-using RichardSzalay.MockHttp;
 using Xunit;
 
 namespace Correlate.DependencyInjection
@@ -20,7 +20,7 @@ namespace Correlate.DependencyInjection
 	{
 		private readonly IServiceCollection _services;
 		private readonly IHttpClientBuilder _sut;
-		private readonly MockHttpMessageHandler _mockHttp;
+		private readonly MockHttpHandler _mockHttp;
 
 		private class MyService
 		{
@@ -34,9 +34,8 @@ namespace Correlate.DependencyInjection
 
 		public When_adding_correlation_delegating_handler_to_httpClient()
 		{
-			_mockHttp = new MockHttpMessageHandler();
-			_services = new ServiceCollection()
-				.ForceEnableLogging();
+			_mockHttp = new MockHttpHandler();
+			_services = new ServiceCollection();
 			_sut = _services
 				.AddHttpClient<MyService, MyService>()
 				.ConfigurePrimaryHttpMessageHandler(() => _mockHttp);
@@ -74,24 +73,28 @@ namespace Correlate.DependencyInjection
 			};
 
 			_mockHttp
-				.Expect("/test/")
-				.With(message => message.Headers.Contains(expectedOptions.RequestHeader))
-				.Respond(HttpStatusCode.OK);
+				.When(matching => matching
+					.Url("**/test/")
+					.When(message => message.Headers.Contains(expectedOptions.RequestHeader))
+				)
+				.Respond(HttpStatusCode.OK)
+				.Verifiable();
 
 			_sut.CorrelateRequests(expectedOptions.RequestHeader);
 			IServiceProvider services = _services.BuildServiceProvider();
 			var service = services.GetService<MyService>();
-			var correlationManager = services.GetService<CorrelationManager>();
+			var asyncCorrelationManager = services.GetService<IAsyncCorrelationManager>();
 
 			// Act
-			await correlationManager.CorrelateAsync(async () =>
+			await asyncCorrelationManager.CorrelateAsync(async () =>
 			{
 				// Act
 				await service.HttpClient.GetAsync("http://0.0.0.0/test/");
 			});
 
 			// Assert
-			_mockHttp.VerifyNoOutstandingExpectation();
+			_mockHttp.Verify();
+			_mockHttp.VerifyNoOtherCalls();
 			services.GetService<IOptions<CorrelateClientOptions>>()
 				.Value
 				.RequestHeader.Should()

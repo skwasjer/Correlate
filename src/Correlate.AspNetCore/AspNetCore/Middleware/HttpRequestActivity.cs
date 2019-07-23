@@ -1,17 +1,15 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace Correlate.AspNetCore.Middleware
 {
-	internal class HttpRequestActivity : IActivity
+	internal class HttpRequestActivity
 	{
 		private readonly HttpContext _httpContext;
 		private readonly ILogger _logger;
 		private readonly string _responseHeaderName;
 		private readonly bool _includeInResponse;
-		private IDisposable _logScope;
 
 		internal HttpRequestActivity(ILogger logger, HttpContext httpContext, string responseHeaderName)
 		{
@@ -23,13 +21,7 @@ namespace Correlate.AspNetCore.Middleware
 
 		public void Start(CorrelationContext correlationContext)
 		{
-			bool isLoggingEnabled = _logger.IsEnabled(LogLevel.Critical);
-			if (isLoggingEnabled)
-			{
-				_logScope = _logger.BeginRequestScope(_httpContext, correlationContext.CorrelationId);
-			}
-
-			if (_includeInResponse)
+			if (_includeInResponse && correlationContext != null)
 			{
 				_httpContext.Response.OnStarting(() =>
 				{
@@ -47,7 +39,6 @@ namespace Correlate.AspNetCore.Middleware
 
 		public void Stop()
 		{
-			_logScope?.Dispose();
 		}
 	}
 }

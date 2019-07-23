@@ -18,7 +18,8 @@ namespace Correlate.AspNetCore.Middleware
 		private readonly RequestDelegate _next;
 		private readonly CorrelateOptions _options;
 		private readonly ILogger<CorrelateMiddleware> _logger;
-		private readonly CorrelationManager _correlationManager;
+		private readonly ICorrelationContextAccessor _correlationContextAccessor;
+		private readonly IAsyncCorrelationManager _asyncCorrelationManager;
 		private readonly ImmutableArray<string> _acceptedRequestHeaders;
 
 		/// <summary>
@@ -27,17 +28,20 @@ namespace Correlate.AspNetCore.Middleware
 		/// <param name="next">The next request delegate to invoke in the request execution pipeline.</param>
 		/// <param name="options">The options.</param>
 		/// <param name="logger">The logger.</param>
-		/// <param name="correlationManager">The correlation manager.</param>
+		/// <param name="correlationContextAccessor">The correlation context accessor.</param>
+		/// <param name="asyncCorrelationManager">The correlation manager.</param>
 		public CorrelateMiddleware(
 			RequestDelegate next,
 			IOptions<CorrelateOptions> options,
 			ILogger<CorrelateMiddleware> logger,
-			CorrelationManager correlationManager)
+			ICorrelationContextAccessor correlationContextAccessor,
+			IAsyncCorrelationManager asyncCorrelationManager)
 		{
 			_next = next ?? throw new ArgumentNullException(nameof(next));
 			_options = options?.Value ?? throw new ArgumentNullException(nameof(options));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_correlationManager = correlationManager ?? throw new ArgumentNullException(nameof(correlationManager));
+			_correlationContextAccessor = correlationContextAccessor ?? throw new ArgumentNullException(nameof(correlationContextAccessor));
+			_asyncCorrelationManager = asyncCorrelationManager ?? throw new ArgumentNullException(nameof(asyncCorrelationManager));
 
 			if (_options.RequestHeaders == null || !_options.RequestHeaders.Any())
 			{
@@ -64,11 +68,19 @@ namespace Correlate.AspNetCore.Middleware
 
 			string responseHeaderName = _options.IncludeInResponse ? requestHeader.Key : null;
 			var correlatedHttpRequest = new HttpRequestActivity(_logger, httpContext, responseHeaderName);
-			return _correlationManager.CorrelateInternalAsync(
+			return _asyncCorrelationManager.CorrelateAsync(
 				requestHeader.Value,
-				correlatedHttpRequest, 
-				() => _next(httpContext)
-			);
+				() =>
+				{
+					correlatedHttpRequest.Start(_correlationContextAccessor.CorrelationContext);
+					return _next(httpContext)
+						.ContinueWith(t =>
+						{
+							correlatedHttpRequest.Stop();
+							return t;
+						})
+						.Unwrap();
+				});
 		}
 	}
 }

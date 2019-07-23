@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
-using RichardSzalay.MockHttp;
+using MockHttp;
 using Xunit;
 
 namespace Correlate.Http
@@ -14,7 +14,7 @@ namespace Correlate.Http
 		private readonly CorrelationContextAccessor _contextAccessor;
 		private readonly CorrelatingHttpMessageHandler _sut;
 		private readonly HttpClient _httpClient;
-		private readonly MockHttpMessageHandler _mockHttp;
+		private readonly MockHttpHandler _mockHttp;
 		private readonly CorrelateClientOptions _correlateClientOptions = new CorrelateClientOptions();
 
 		private static readonly Uri BaseUri = new Uri("http://0.0.0.0/");
@@ -29,7 +29,7 @@ namespace Correlate.Http
 				}
 			};
 
-			_mockHttp = new MockHttpMessageHandler();
+			_mockHttp = new MockHttpHandler();
 
 			_sut = new CorrelatingHttpMessageHandler(_contextAccessor, new OptionsWrapper<CorrelateClientOptions>(_correlateClientOptions), _mockHttp);
 			_httpClient = new HttpClient(_sut)
@@ -44,15 +44,20 @@ namespace Correlate.Http
 			string correlationId = _contextAccessor.CorrelationContext.CorrelationId;
 
 			_mockHttp
-				.Expect(HttpMethod.Get, BaseUri + "*")
-				.WithHeaders($"{_correlateClientOptions.RequestHeader}: {correlationId}")
-				.Respond(HttpStatusCode.OK);
+				.When(matching => matching
+					.Url(BaseUri + "*")
+					.Method(HttpMethod.Get)
+					.Headers($"{_correlateClientOptions.RequestHeader}: {correlationId}")
+				)
+				.Respond(HttpStatusCode.OK)
+				.Verifiable();
 
 			// Act
 			await _httpClient.GetAsync("");
 
 			// Assert
-			_mockHttp.VerifyNoOutstandingExpectation();
+			_mockHttp.Verify();
+			_mockHttp.VerifyNoOtherCalls();
 		}
 
 		[Fact]
@@ -61,15 +66,20 @@ namespace Correlate.Http
 			_contextAccessor.CorrelationContext = null;
 
 			_mockHttp
-				.Expect(HttpMethod.Get, BaseUri + "*")
-				.With(message => !message.Headers.Any())
-				.Respond(HttpStatusCode.OK);
+				.When(matching => matching
+					.Url(BaseUri + "*")
+					.Method(HttpMethod.Get)
+					.When(message => !message.Headers.Any())
+				)
+				.Respond(HttpStatusCode.OK)
+				.Verifiable();
 
 			// Act
 			await _httpClient.GetAsync("");
 
 			// Assert
-			_mockHttp.VerifyNoOutstandingExpectation();
+			_mockHttp.Verify();
+			_mockHttp.VerifyNoOtherCalls();
 		}
 
 		[Fact]
@@ -78,9 +88,13 @@ namespace Correlate.Http
 			const string existingCorrelationId = "existing-correlation-id";
 
 			_mockHttp
-				.Expect(HttpMethod.Get, BaseUri + "*")
-				.WithHeaders($"{_correlateClientOptions.RequestHeader}: {existingCorrelationId}")
-				.Respond(HttpStatusCode.OK);
+				.When(matching => matching
+					.Url(BaseUri + "*")
+					.Method(HttpMethod.Get)
+					.Headers($"{_correlateClientOptions.RequestHeader}: {existingCorrelationId}")
+				)
+				.Respond(HttpStatusCode.OK)
+				.Verifiable();
 
 			// Act
 			await _httpClient.SendAsync(new HttpRequestMessage
@@ -89,7 +103,8 @@ namespace Correlate.Http
 			});
 
 			// Assert
-			_mockHttp.VerifyNoOutstandingExpectation();
+			_mockHttp.Verify();
+			_mockHttp.VerifyNoOtherCalls();
 		}
 
 		[Fact]
@@ -99,15 +114,20 @@ namespace Correlate.Http
 			string correlationId = _contextAccessor.CorrelationContext.CorrelationId;
 
 			_mockHttp
-				.Expect(HttpMethod.Get, BaseUri + "*")
-				.WithHeaders($"{_correlateClientOptions.RequestHeader}: {correlationId}")
-				.Respond(HttpStatusCode.OK);
+				.When(matching => matching
+					.Url(BaseUri + "*")
+					.Method(HttpMethod.Get)
+					.Headers($"{_correlateClientOptions.RequestHeader}: {correlationId}")
+				)
+				.Respond(HttpStatusCode.OK)
+				.Verifiable();
 
 			// Act
 			await _httpClient.GetAsync("");
 
 			// Assert
-			_mockHttp.VerifyNoOutstandingExpectation();
+			_mockHttp.Verify();
+			_mockHttp.VerifyNoOtherCalls();
 		}
 
 		public void Dispose()

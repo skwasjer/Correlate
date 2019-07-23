@@ -3,10 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 
-namespace Correlate
+namespace Correlate.Extensions
 {
-	// ReSharper disable once InconsistentNaming
-	internal static class ILoggerExtensions
+	internal static class LoggerExtensions
 	{
 		public static IDisposable BeginCorrelatedScope(this ILogger logger, string correlationId)
 		{

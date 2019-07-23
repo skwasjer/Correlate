@@ -6,8 +6,7 @@ namespace Correlate.AspNetCore
 	/// <summary>
 	/// Registration extensions for <see cref="IApplicationBuilder"/>.
 	/// </summary>
-	// ReSharper disable once InconsistentNaming
-	public static class IAppBuilderExtensions
+	public static class AppBuilderExtensions
 	{
 		/// <summary>
 		/// Adds Correlate middleware to the request execution pipeline.

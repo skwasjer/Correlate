@@ -86,7 +86,7 @@ Thirdly, for all outbound HTTP calls that are sent via the `HttpClient` provided
 
 ## Logging
 
-Before a request flows down the pipeline, a log scope is created with a `CorrelationId` property, containing the correlation id.
+Before a request flows down the pipeline, a log scope is created with a `CorrelationId` property, containing the correlation id. As such, every log event that is logged during the entire request context will be enriched with the `CorrelationId` property.
 
 Most popular log providers will be able to log the correlation id with minimal set up required.
 
@@ -112,21 +112,21 @@ public class MyService
 }
 ```
 
-> Note: `correlationContextAccessor.CorrelationContext` can be null, when `MyService` is not scoped to a request. Thus, when used outside of ASP.NET (not using the middleware component), you should create the context using `ICorrelationContextFactory` or `CorrelationManager` for each unique subprocess.
+> Note: `correlationContextAccessor.CorrelationContext` can be null, when `MyService` is not scoped to a request. Thus, when used outside of ASP.NET (not using the middleware component), you should create the context using `CorrelationManager` or `IActivityFactory` respectively (depending on the use case) for each unique subprocess.
 
-## CorrelationManager
+## Correlation outside of ASP.NET request context
 
-To simplify managing correlation contexts, the `CorrelationManager` can be used. It takes care of alot of the logic to create the context properly. This is especially useful when running background tasks or applications other than ASP.NET Core which need to interact with external services.
+To simplify managing correlation contexts, the `CorrelationManager` can be used. It takes care of the logic to create the context properly. This is especially useful when running background tasks, console apps, Windows services, etc. which need to interact with external services. Think of message broker handlers, scheduled task runners, etc.
 
 ### Example
 
 ```csharp
 public class MyWorker
 {
-    private readonly CorrelationManager _correlationManager;
+    private readonly IAsyncCorrelationManager _correlationManager;
     private readonly MyService _myService;
 
-    public MyWorker(CorrelationManager correlationManager, MyService myService)
+    public MyWorker(IAsyncCorrelationManager correlationManager, MyService myService)
     {
         _correlationManager = correlationManager;
         _myService = myService;
@@ -147,7 +147,7 @@ public class MyWorker
 }
 ```
 
-In this example the `MakeHttpCallAsync()` call is executed in a scoped correlation context, for which a correlation id is automatically generated and attached to the outgoing request provided the `HttpClient` is set up with the delegating handler:
+In this example the `MakeHttpCallAsync()` call is executed in a correlation context, for which a correlation id is automatically generated and attached to the outgoing request provided the `HttpClient` is set up with the delegating handler:
 
 ```csharp
 services
@@ -155,13 +155,23 @@ services
     .CorrelateRequests("X-Correlation-ID");
 ```
 
-## Enabling Correlate
+### Providing an existing correlation id
 
-Correlate depends on logging (`ILogger`) and/or tracing (`DiagnosticsListener`), in a sense that a correlation context will only be created when one of either is enabled. This is intentional, because it does not make much sense to have the overhead of Correlate - no matter how minute - when nothing is logged/traced.
+As an example, consider a use case where the order id should be used as a correlation id. The `CorrelationManager` has an overload that accepts a custom correlation id:
 
-If the `IsEnabled()` method for both returns `false`, the `CorrelationManager` will simply execute the task without scoping it to a correlation context. This also means that `ICorrelationContextAccessor.CorrelationContext` will return `null`, since no context is created.
+```csharp
+await _correlationManager.CorrelateAsync(orderId, () => { 
+  // Do work
+});
+```
 
-For ASP.NET Core no additional setup is required, and Correlate will just be enabled (unless you explicitly disabled logging/tracing). When working outside of ASP.NET Core, make sure logging or tracing is enabled via configuration/code. This includes in unit tests.
+### Async/sync support
+
+`CorrelationManager` provides both a synchronous and asynchronous implementation, and they can be requested from the service provider independently:
+
+- `ICorrelationManager`
+- `IAsyncCorrelationManager`
+
 
 ## ICorrelationIdFactory
 
