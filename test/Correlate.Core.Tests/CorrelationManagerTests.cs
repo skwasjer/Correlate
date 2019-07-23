@@ -142,15 +142,42 @@ namespace Correlate
 				Func<Task> act = () => _sut.CorrelateAsync(
 					null,
 					() => throw exception,
-					(ctx, ex) =>
+					ctx =>
 					{
-						ctx.CorrelationId.Should().Be(GeneratedCorrelationId);
-						ex.Should().Be(exception);
-						return handlesException;
+						ctx.CorrelationContext.CorrelationId.Should().Be(GeneratedCorrelationId);
+						ctx.Exception.Should().Be(exception);
+						ctx.IsExceptionHandled = handlesException;
 					});
 
 				// Assert
 				act.Should().NotThrow();
+			}
+
+			[Fact]
+			public async Task When_handling_exception_by_returning_new_value_should_not_throw()
+			{
+				var exception = new Exception();
+				async Task<int> ThrowingTask()
+				{
+					await Task.Yield();
+					throw exception;
+				}
+				const int returnValue = 12345;
+
+				// Act
+				Func<Task<int>> act = () => _sut.CorrelateAsync(
+					null,
+					ThrowingTask,
+					ctx =>
+					{
+						ctx.CorrelationContext.CorrelationId.Should().Be(GeneratedCorrelationId);
+						ctx.Exception.Should().Be(exception);
+						ctx.Result = returnValue;
+					});
+
+				// Assert
+				act.Should().NotThrow();
+				(await act()).Should().Be(returnValue);
 			}
 
 			[Fact]
@@ -162,7 +189,7 @@ namespace Correlate
 				// Act
 				Func<Task> act = () => _sut.CorrelateAsync(
 					() => throw exception,
-					(ctx, ex) => handlesException
+					ctx => ctx.IsExceptionHandled = handlesException
 				);
 
 				// Assert
@@ -395,15 +422,41 @@ namespace Correlate
 				Action act = () => _sut.Correlate(
 					null,
 					() => throw exception,
-					(ctx, ex) =>
+					ctx =>
 					{
-						ctx.CorrelationId.Should().Be(GeneratedCorrelationId);
-						ex.Should().Be(exception);
-						return handlesException;
+						ctx.CorrelationContext.CorrelationId.Should().Be(GeneratedCorrelationId);
+						ctx.Exception.Should().Be(exception);
+						ctx.IsExceptionHandled = handlesException;
 					});
 
 				// Assert
 				act.Should().NotThrow();
+			}
+
+			[Fact]
+			public void When_handling_exception_by_returning_new_value_should_not_throw()
+			{
+				var exception = new Exception();
+				int ThrowingFunc()
+				{
+					throw exception;
+				}
+				const int returnValue = 12345;
+
+				// Act
+				Func<int> act = () => _sut.Correlate(
+					null,
+					ThrowingFunc,
+					ctx =>
+					{
+						ctx.CorrelationContext.CorrelationId.Should().Be(GeneratedCorrelationId);
+						ctx.Exception.Should().Be(exception);
+						ctx.Result = returnValue;
+					});
+
+				// Assert
+				act.Should().NotThrow();
+				act().Should().Be(returnValue);
 			}
 
 			[Fact]
@@ -415,7 +468,7 @@ namespace Correlate
 				// Act
 				Action act = () => _sut.Correlate(
 					() => throw exception,
-					(ctx, ex) => handlesException
+					ctx => ctx.IsExceptionHandled = handlesException
 				);
 
 				// Assert

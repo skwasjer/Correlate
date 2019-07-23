@@ -31,6 +31,6 @@ namespace Correlate
 		/// <remarks>
 		/// When logging and tracing are both disabled, no correlation context is created and the task simply executed as it normally would.
 		/// </remarks>
-		Task<T> CorrelateAsync<T>(string correlationId, Func<Task<T>> correlatedTask, OnException onException);
+		Task<T> CorrelateAsync<T>(string correlationId, Func<Task<T>> correlatedTask, OnException<T> onException);
 	}
 }

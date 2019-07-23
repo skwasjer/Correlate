@@ -75,7 +75,7 @@ namespace Correlate
 		/// <remarks>
 		/// When logging and tracing are both disabled, no correlation context is created and the action simply executed as it normally would.
 		/// </remarks>
-		public static T Correlate<T>(this ICorrelationManager correlationManager, Func<T> correlatedFunc, OnException onException)
+		public static T Correlate<T>(this ICorrelationManager correlationManager, Func<T> correlatedFunc, OnException<T> onException)
 		{
 			return correlationManager.Correlate(null, correlatedFunc, onException);
 		}

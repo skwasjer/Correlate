@@ -16,6 +16,15 @@ namespace Correlate
 		private readonly ILogger _logger;
 		private readonly DiagnosticListener _diagnosticListener;
 
+		private class Void
+		{
+			private Void()
+			{
+			}
+
+			public static readonly Void Null = new Void();
+		}
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="CorrelationManager"/> class.
 		/// </summary>
@@ -110,12 +119,12 @@ namespace Correlate
 				throw new ArgumentNullException(nameof(correlatedTask));
 			}
 
-			return CorrelateAsync(
+			return ExecuteAsync(
 				correlationId,
 				async () =>
 				{
 					await correlatedTask().ConfigureAwait(false);
-					return (object)null;
+					return Void.Null;
 				},
 				onException
 			);
@@ -132,7 +141,7 @@ namespace Correlate
 		/// <remarks>
 		/// When logging and tracing are both disabled, no correlation context is created and the task simply executed as it normally would.
 		/// </remarks>
-		public Task<T> CorrelateAsync<T>(string correlationId, Func<Task<T>> correlatedTask, OnException onException)
+		public Task<T> CorrelateAsync<T>(string correlationId, Func<Task<T>> correlatedTask, OnException<T> onException)
 		{
 			if (correlatedTask == null)
 			{
@@ -142,7 +151,7 @@ namespace Correlate
 			return ExecuteAsync(
 				correlationId,
 				correlatedTask,
-				onException
+				context => onException((ExceptionContext<T>)context)
 			);
 		}
 
@@ -155,10 +164,9 @@ namespace Correlate
 			{
 				return await correlatedTask().ConfigureAwait(false);
 			}
-			catch (Exception ex) when (HandlesException(onException, correlationContext, ex))
+			catch (Exception ex) when (HandlesException(onException, correlationContext, ex, out T exceptionResult))
 			{
-				// TODO: allow handler to provide result via ExceptionContext.
-				return default(T);
+				return exceptionResult;
 			}
 			finally
 			{
@@ -182,11 +190,11 @@ namespace Correlate
 				throw new ArgumentNullException(nameof(correlatedAction));
 			}
 
-			Correlate(correlationId,
+			Execute(correlationId,
 				() =>
 				{
 					correlatedAction();
-					return 0;
+					return Void.Null;
 				},
 				onException);
 		}
@@ -202,14 +210,14 @@ namespace Correlate
 		/// <remarks>
 		/// When logging and tracing are both disabled, no correlation context is created and the action simply executed as it normally would.
 		/// </remarks>
-		public T Correlate<T>(string correlationId, Func<T> correlatedFunc, OnException onException)
+		public T Correlate<T>(string correlationId, Func<T> correlatedFunc, OnException<T> onException)
 		{
 			if (correlatedFunc == null)
 			{
 				throw new ArgumentNullException(nameof(correlatedFunc));
 			}
 
-			return Execute(correlationId, correlatedFunc, onException);
+			return Execute(correlationId, correlatedFunc, context => onException((ExceptionContext<T>)context));
 		}
 
 		private T Execute<T>(string correlationId, Func<T> correlatedFunc, OnException onException)
@@ -221,10 +229,9 @@ namespace Correlate
 			{
 				return correlatedFunc();
 			}
-			catch (Exception ex) when (HandlesException(onException, correlationContext, ex))
+			catch (Exception ex) when (HandlesException(onException, correlationContext, ex, out T exceptionResult))
 			{
-				// TODO: allow handler to provide result via ExceptionContext.
-				return default(T);
+				return exceptionResult;
 			}
 			finally
 			{
@@ -241,7 +248,7 @@ namespace Correlate
 			return new RootActivity(_correlationContextFactory, _logger, _diagnosticListener);
 		}
 
-		private static bool HandlesException(OnException onException, CorrelationContext correlationContext, Exception ex)
+		private static bool HandlesException<T>(OnException onException, CorrelationContext correlationContext, Exception ex, out T result)
 		{
 			if (correlationContext != null && !ex.Data.Contains(CorrelateConstants.CorrelationIdKey))
 			{
@@ -249,8 +256,27 @@ namespace Correlate
 				ex.Data.Add(CorrelateConstants.CorrelationIdKey, correlationContext.CorrelationId);
 			}
 
-			// Allow caller to handle exception inline before losing context scope.
-			return onException != null && onException(correlationContext, ex);
+			if (onException != null)
+			{
+				bool hasResultValue = typeof(T) != typeof(Void);
+
+				// Allow caller to handle exception inline before losing context scope.
+				ExceptionContext exceptionContext = hasResultValue ? new ExceptionContext<T>() : new ExceptionContext();
+				exceptionContext.Exception = ex;
+				exceptionContext.CorrelationContext = correlationContext;
+
+				onException(exceptionContext);
+				if (exceptionContext.IsExceptionHandled)
+				{
+					result = hasResultValue
+						? ((ExceptionContext<T>)exceptionContext).Result
+						: default(T);
+					return true;
+				}
+			}
+
+			result = default(T);
+			return false;
 		}
 
 		private CorrelationContext StartActivity(string correlationId, IActivity activity)

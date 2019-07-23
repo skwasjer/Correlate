@@ -79,7 +79,7 @@ namespace Correlate
 		/// <remarks>
 		/// When logging and tracing are both disabled, no correlation context is created and the task simply executed as it normally would.
 		/// </remarks>
-		public static Task<T> CorrelateAsync<T>(this IAsyncCorrelationManager asyncCorrelationManager, Func<Task<T>> correlatedTask, OnException onException)
+		public static Task<T> CorrelateAsync<T>(this IAsyncCorrelationManager asyncCorrelationManager, Func<Task<T>> correlatedTask, OnException<T> onException)
 		{
 			return asyncCorrelationManager.CorrelateAsync(null, correlatedTask, onException);
 		}
