@@ -7,7 +7,6 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Correlate.Http;
-using Correlate.Testing;
 using Correlate.Testing.FluentAssertions;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,8 +35,7 @@ namespace Correlate.DependencyInjection
 		public When_adding_correlation_delegating_handler_to_httpClient()
 		{
 			_mockHttp = new MockHttpHandler();
-			_services = new ServiceCollection()
-				.ForceEnableLogging();
+			_services = new ServiceCollection();
 			_sut = _services
 				.AddHttpClient<MyService, MyService>()
 				.ConfigurePrimaryHttpMessageHandler(() => _mockHttp);

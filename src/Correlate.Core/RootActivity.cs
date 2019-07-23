@@ -37,27 +37,22 @@ namespace Correlate
 			bool isDiagnosticsEnabled = _diagnosticListener?.IsEnabled() ?? false;
 			bool isLoggingEnabled = _logger.IsEnabled(LogLevel.Critical);
 
-			if (isDiagnosticsEnabled || isLoggingEnabled)
+			CorrelationContext context = _correlationContextFactory.Create(correlationId);
+
+			if (isDiagnosticsEnabled)
 			{
-				CorrelationContext context = _correlationContextFactory.Create(correlationId);
-
-				if (isDiagnosticsEnabled)
-				{
-					// TODO: add Activity support
-					//var activity = new Activity("Correlated-Request");
-					//activity.SetParentId(correlationId);
-					//_diagnosticListener.StartActivity(activity, new {})
-				}
-
-				if (isLoggingEnabled)
-				{
-					_logScope = _logger.BeginCorrelatedScope(correlationId);
-				}
-
-				return context;
+				// TODO: add Activity support
+				//var activity = new Activity("Correlated-Request");
+				//activity.SetParentId(correlationId);
+				//_diagnosticListener.StartActivity(activity, new {})
 			}
 
-			return null;
+			if (isLoggingEnabled)
+			{
+				_logScope = _logger.BeginCorrelatedScope(correlationId);
+			}
+
+			return context;
 		}
 
 		/// <summary>

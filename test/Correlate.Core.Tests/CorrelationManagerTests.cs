@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Threading.Tasks;
-using Correlate.Testing;
 using FluentAssertions;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Xunit;
 
@@ -29,7 +29,7 @@ namespace Correlate
 				new CorrelationContextFactory(_correlationContextAccessor),
 				_correlationIdFactoryMock.Object,
 				_correlationContextAccessor,
-				new TestLogger<CorrelationManager>()
+				new NullLogger<CorrelationManager>()
 			);
 		}
 
@@ -276,7 +276,7 @@ namespace Correlate
 				var sut = new CorrelationManager(
 					new CorrelationContextFactory(_correlationContextAccessor),
 					_correlationIdFactoryMock.Object,
-					new TestLogger<CorrelationManager>()
+					new NullLogger<CorrelationManager>()
 				);
 
 				return sut.CorrelateAsync(parentContextId,

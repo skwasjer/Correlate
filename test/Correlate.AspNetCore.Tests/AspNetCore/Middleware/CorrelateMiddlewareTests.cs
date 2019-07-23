@@ -208,7 +208,7 @@ namespace Correlate.AspNetCore.Middleware
 		}
 
 		[Fact]
-		public void When_logging_and_diagnostics_is_disabled_should_throw_in_controller()
+		public void When_logging_and_diagnostics_is_disabled_should_not_throw_in_controller()
 		{
 			_rootFactory.LoggingEnabled = false;
 
@@ -217,11 +217,7 @@ namespace Correlate.AspNetCore.Middleware
 			Func<Task> act = () => client.GetAsync("");
 
 			// Assert
-			act.Should().NotThrow<AggregateException>();
-			act.Should().Throw<NullReferenceException>()
-				.Which.StackTrace
-				.Should()
-				.StartWith("   at Correlate.AspNetCore.Fixtures.TestController.Get() ");
+			act.Should().NotThrow<Exception>();
 		}
 
 		[Fact]
