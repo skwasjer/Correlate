@@ -8,7 +8,7 @@ namespace Correlate
 	/// <summary>
 	/// The correlation manager runs activities in its own <see cref="CorrelationContext"/> allowing correlation with external services.
 	/// </summary>
-	public class CorrelationManager : IAsyncCorrelationManager, ICorrelationManager
+	public class CorrelationManager : IAsyncCorrelationManager, ICorrelationManager, IActivityFactory
 	{
 		private readonly ICorrelationContextFactory _correlationContextFactory;
 		private readonly ICorrelationIdFactory _correlationIdFactory;
@@ -140,15 +140,15 @@ namespace Correlate
 
 			return ExecuteAsync(
 				correlationId,
-				new RootActivity(_correlationContextFactory, _logger, _diagnosticListener),
 				correlatedTask,
 				onException
 			);
 		}
 
-		private async Task<T> ExecuteAsync<T>(string correlationId, RootActivity activity, Func<Task<T>> correlatedTask, OnException onException)
+		private async Task<T> ExecuteAsync<T>(string correlationId, Func<Task<T>> correlatedTask, OnException onException)
 		{
-			CorrelationContext correlationContext = activity.Start(correlationId ?? _correlationContextAccessor?.CorrelationContext?.CorrelationId ?? _correlationIdFactory.Create());
+			IActivity activity = CreateActivity();
+			CorrelationContext correlationContext = StartActivity(correlationId, activity);
 
 			try
 			{
@@ -206,8 +206,13 @@ namespace Correlate
 				throw new ArgumentNullException(nameof(correlatedFunc));
 			}
 
-			var activity = new RootActivity(_correlationContextFactory, _logger, _diagnosticListener);
-			CorrelationContext correlationContext = activity.Start(correlationId ?? _correlationContextAccessor?.CorrelationContext?.CorrelationId ?? _correlationIdFactory.Create());
+			return Execute(correlationId, correlatedFunc, onException);
+		}
+
+		private T Execute<T>(string correlationId, Func<T> correlatedFunc, OnException onException)
+		{
+			IActivity activity = CreateActivity();
+			CorrelationContext correlationContext = StartActivity(correlationId, activity);
 
 			try
 			{
@@ -224,6 +229,15 @@ namespace Correlate
 			}
 		}
 
+		/// <summary>
+		/// Creates a new activity that can be started and stopped manually.
+		/// </summary>
+		/// <returns>The correlated activity.</returns>
+		public IActivity CreateActivity()
+		{
+			return new RootActivity(_correlationContextFactory, _logger, _diagnosticListener);
+		}
+
 		private static bool HandlesException(OnException onException, CorrelationContext correlationContext, Exception ex)
 		{
 			if (correlationContext != null && !ex.Data.Contains(CorrelateConstants.CorrelationIdKey))
@@ -234,6 +248,11 @@ namespace Correlate
 
 			// Allow caller to handle exception inline before losing context scope.
 			return onException != null && onException(correlationContext, ex);
+		}
+
+		private CorrelationContext StartActivity(string correlationId, IActivity activity)
+		{
+			return activity.Start(correlationId ?? _correlationContextAccessor?.CorrelationContext?.CorrelationId ?? _correlationIdFactory.Create());
 		}
 	}
 }

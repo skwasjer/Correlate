@@ -1,11 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace Correlate.AspNetCore.Middleware
 {
-	internal class HttpRequestActivity : IActivity
+	internal class HttpRequestActivity
 	{
 		private readonly HttpContext _httpContext;
 		private readonly ILogger _logger;

@@ -59,11 +59,6 @@ namespace Correlate
 			return null;
 		}
 
-		void IActivity.Start(CorrelationContext correlationContext)
-		{
-			throw new NotImplementedException();
-		}
-
 		/// <summary>
 		/// Stops the correlation context.
 		/// </summary>
