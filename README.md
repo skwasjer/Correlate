@@ -167,10 +167,10 @@ await _correlationManager.CorrelateAsync(orderId, () => {
 
 ### Async/sync support
 
-`CorrelationMananger` provides both a synchronous and asynchronous implementation, and they can be requested from the service provider independently:
+`CorrelationManager` provides both a synchronous and asynchronous implementation, and they can be requested from the service provider independently:
 
-- ICorrelationManager
-- IAsyncCorrelationManager
+- `ICorrelationManager`
+- `IAsyncCorrelationManager`
 
 
 ## ICorrelationIdFactory
