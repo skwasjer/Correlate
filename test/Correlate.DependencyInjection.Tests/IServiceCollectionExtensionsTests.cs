@@ -51,6 +51,8 @@ namespace Correlate.DependencyInjection
 				yield return new ExpectedRegistration<ICorrelationIdFactory, GuidCorrelationIdFactory>(ServiceLifetime.Singleton);
 				yield return new ExpectedRegistration<CorrelationManager, CorrelationManager>(ServiceLifetime.Transient);
 				yield return new ExpectedRegistration<IAsyncCorrelationManager, CorrelationManager>(ServiceLifetime.Transient);
+				yield return new ExpectedRegistration<ICorrelationManager, CorrelationManager>(ServiceLifetime.Transient);
+				yield return new ExpectedRegistration<IActivityFactory, CorrelationManager>(ServiceLifetime.Transient);
 				yield return new ExpectedRegistration<ILoggerFactory, LoggerFactory>(ServiceLifetime.Singleton);
 			}
 
