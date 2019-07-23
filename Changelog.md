@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.0 - WIP
+
+- (breaking) Reworked `CorrelationManager`. It now has synchronous support, and has overloads for `Func<T>` and `Func<Task<T>>` allowing the return of values. New interfaces `ICorrelationManager` and `IAsyncCorrelationManager` are introduced for better separation, DI and unit testing. Reworked `OnException` delegate to be type safe and allowing a return value to be provided, if needed.
+- Middleware no longer calls internal method, but now uses the new and public `IAsyncCorrelationManager` making it more resilient to version discrepancies.
+
 ## v2.4
 
 - Fixes starting nested context overwriting parent. Only create new context if correlation id differs. Keep track of nested contexts using stack, and restore the parent context when the nested (child) context completes.
