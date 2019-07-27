@@ -183,7 +183,7 @@ namespace Correlate.AspNetCore.Middleware
 
 			_mockHttp
 				.When(matching => matching
-					.Url("**/correlated_external_call")
+					.RequestUri("*/correlated_external_call")
 					.Headers($"{headerName}: {correlationId}")
 				)
 				.Respond(HttpStatusCode.Accepted)
@@ -204,7 +204,7 @@ namespace Correlate.AspNetCore.Middleware
 			response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
 			_mockHttp.Verify();
-			_mockHttp.VerifyNoOtherCalls();
+			_mockHttp.VerifyNoOtherRequests();
 		}
 
 		[Fact]
