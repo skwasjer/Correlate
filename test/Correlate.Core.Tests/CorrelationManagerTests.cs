@@ -1,19 +1,30 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Correlate.Testing;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
+using Serilog;
+using Serilog.Core;
+using Serilog.Events;
+using Serilog.Extensions.Logging;
+using Serilog.Sinks.TestCorrelator;
 using Xunit;
 
 namespace Correlate
 {
-	public class CorrelationManagerTests
+	public class CorrelationManagerTests : IDisposable
 	{
+		private const string GeneratedCorrelationId = "generated-correlation-id";
 		private readonly CorrelationContextAccessor _correlationContextAccessor;
 		private readonly CorrelationManager _sut;
 		private readonly Mock<ICorrelationIdFactory> _correlationIdFactoryMock;
-		private const string GeneratedCorrelationId = "generated-correlation-id";
+		private readonly ILogger<CorrelationManager> _logger;
+		private readonly SerilogLoggerProvider _logProvider;
 
 		public CorrelationManagerTests()
 		{
@@ -25,12 +36,24 @@ namespace Correlate
 				.Returns(() => GeneratedCorrelationId)
 				.Verifiable();
 
+			Logger serilogLogger = new LoggerConfiguration()
+				.WriteTo.TestCorrelator()
+				.CreateLogger();
+
+			_logProvider = new SerilogLoggerProvider(serilogLogger);
+			_logger = new TestLogger<CorrelationManager>(_logProvider.CreateLogger(nameof(CorrelationManager)));
+
 			_sut = new CorrelationManager(
 				new CorrelationContextFactory(_correlationContextAccessor),
 				_correlationIdFactoryMock.Object,
 				_correlationContextAccessor,
-				new NullLogger<CorrelationManager>()
+				_logger
 			);
+		}
+
+		public void Dispose()
+		{
+			_logProvider.Dispose();
 		}
 
 		public class Async : CorrelationManagerTests
@@ -202,7 +225,7 @@ namespace Correlate
 				const string parentContextId = nameof(parentContextId);
 				const string innerContextId = nameof(innerContextId);
 
-				return _sut.CorrelateAsync(parentContextId, 
+				return _sut.CorrelateAsync(parentContextId,
 					async () =>
 					{
 						CorrelationContext parentContext = _correlationContextAccessor.CorrelationContext;
@@ -273,11 +296,13 @@ namespace Correlate
 			{
 				const string parentContextId = nameof(parentContextId);
 
+#pragma warning disable 618 // justification, covering legacy implementation (pre v3.0)
 				var sut = new CorrelationManager(
 					new CorrelationContextFactory(_correlationContextAccessor),
 					_correlationIdFactoryMock.Object,
 					new NullLogger<CorrelationManager>()
 				);
+#pragma warning restore 618
 
 				return sut.CorrelateAsync(parentContextId,
 					async () =>
@@ -316,6 +341,30 @@ namespace Correlate
 				// Post-assert
 				actual.Should().Be(value);
 				_correlationContextAccessor.CorrelationContext.Should().BeNull();
+			}
+
+			[Fact]
+			public async Task Should_create_log_scope()
+			{
+				using (TestCorrelator.CreateContext())
+				{
+					_logger.LogInformation("Start message without correlation id.");
+
+					// Act
+					await _sut.CorrelateAsync(() =>
+					{
+						_logger.LogInformation("Message with correlation id.");
+						return Task.CompletedTask;
+					});
+
+					_logger.LogInformation("End message without correlation id.");
+
+					// Assert
+					List<LogEvent> logEvents = TestCorrelator.GetLogEventsFromCurrentContext().ToList();
+					logEvents.Should()
+						.HaveCount(3)
+						.And.ContainSingle(ev => ev.MessageTemplate.Text == "Message with correlation id." && ev.Properties.ContainsKey("CorrelationId"));
+				}
 			}
 		}
 
@@ -437,10 +486,12 @@ namespace Correlate
 			public void When_handling_exception_by_returning_new_value_should_not_throw()
 			{
 				var exception = new Exception();
+
 				int ThrowingFunc()
 				{
 					throw exception;
 				}
+
 				const int returnValue = 12345;
 
 				// Act
@@ -560,6 +611,29 @@ namespace Correlate
 				// Post-assert
 				actual.Should().Be(value);
 				_correlationContextAccessor.CorrelationContext.Should().BeNull();
+			}
+
+			[Fact]
+			public void Should_create_log_scope()
+			{
+				using (TestCorrelator.CreateContext())
+				{
+					_logger.LogInformation("Start message without correlation id.");
+
+					// Act
+					_sut.Correlate(() =>
+					{
+						_logger.LogInformation("Message with correlation id.");
+					});
+
+					_logger.LogInformation("End message without correlation id.");
+
+					// Assert
+					List<LogEvent> logEvents = TestCorrelator.GetLogEventsFromCurrentContext().ToList();
+					logEvents.Should()
+						.HaveCount(3)
+						.And.ContainSingle(ev => ev.MessageTemplate.Text == "Message with correlation id." && ev.Properties.ContainsKey("CorrelationId"));
+				}
 			}
 		}
 	}

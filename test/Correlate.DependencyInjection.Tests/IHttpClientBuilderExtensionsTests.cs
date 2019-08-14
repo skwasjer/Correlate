@@ -74,8 +74,8 @@ namespace Correlate.DependencyInjection
 
 			_mockHttp
 				.When(matching => matching
-					.Url("**/test/")
-					.When(message => message.Headers.Contains(expectedOptions.RequestHeader))
+					.RequestUri("*/test/")
+					.Where(message => message.Headers.Contains(expectedOptions.RequestHeader))
 				)
 				.Respond(HttpStatusCode.OK)
 				.Verifiable();
@@ -94,7 +94,7 @@ namespace Correlate.DependencyInjection
 
 			// Assert
 			_mockHttp.Verify();
-			_mockHttp.VerifyNoOtherCalls();
+			_mockHttp.VerifyNoOtherRequests();
 			services.GetService<IOptions<CorrelateClientOptions>>()
 				.Value
 				.RequestHeader.Should()

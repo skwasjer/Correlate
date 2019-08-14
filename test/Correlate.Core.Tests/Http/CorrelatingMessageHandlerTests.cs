@@ -45,7 +45,7 @@ namespace Correlate.Http
 
 			_mockHttp
 				.When(matching => matching
-					.Url(BaseUri + "*")
+					.RequestUri(BaseUri + "*")
 					.Method(HttpMethod.Get)
 					.Headers($"{_correlateClientOptions.RequestHeader}: {correlationId}")
 				)
@@ -57,7 +57,7 @@ namespace Correlate.Http
 
 			// Assert
 			_mockHttp.Verify();
-			_mockHttp.VerifyNoOtherCalls();
+			_mockHttp.VerifyNoOtherRequests();
 		}
 
 		[Fact]
@@ -67,9 +67,9 @@ namespace Correlate.Http
 
 			_mockHttp
 				.When(matching => matching
-					.Url(BaseUri + "*")
+					.RequestUri(BaseUri + "*")
 					.Method(HttpMethod.Get)
-					.When(message => !message.Headers.Any())
+					.Where(message => !message.Headers.Any())
 				)
 				.Respond(HttpStatusCode.OK)
 				.Verifiable();
@@ -79,7 +79,7 @@ namespace Correlate.Http
 
 			// Assert
 			_mockHttp.Verify();
-			_mockHttp.VerifyNoOtherCalls();
+			_mockHttp.VerifyNoOtherRequests();
 		}
 
 		[Fact]
@@ -89,7 +89,7 @@ namespace Correlate.Http
 
 			_mockHttp
 				.When(matching => matching
-					.Url(BaseUri + "*")
+					.RequestUri(BaseUri + "*")
 					.Method(HttpMethod.Get)
 					.Headers($"{_correlateClientOptions.RequestHeader}: {existingCorrelationId}")
 				)
@@ -104,7 +104,7 @@ namespace Correlate.Http
 
 			// Assert
 			_mockHttp.Verify();
-			_mockHttp.VerifyNoOtherCalls();
+			_mockHttp.VerifyNoOtherRequests();
 		}
 
 		[Fact]
@@ -115,7 +115,7 @@ namespace Correlate.Http
 
 			_mockHttp
 				.When(matching => matching
-					.Url(BaseUri + "*")
+					.RequestUri(BaseUri + "*")
 					.Method(HttpMethod.Get)
 					.Headers($"{_correlateClientOptions.RequestHeader}: {correlationId}")
 				)
@@ -127,7 +127,7 @@ namespace Correlate.Http
 
 			// Assert
 			_mockHttp.Verify();
-			_mockHttp.VerifyNoOtherCalls();
+			_mockHttp.VerifyNoOtherRequests();
 		}
 
 		public void Dispose()
