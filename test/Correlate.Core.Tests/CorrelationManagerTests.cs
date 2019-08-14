@@ -273,11 +273,13 @@ namespace Correlate
 			{
 				const string parentContextId = nameof(parentContextId);
 
+#pragma warning disable 618 // justification, covering legacy implementation (pre v3.0)
 				var sut = new CorrelationManager(
 					new CorrelationContextFactory(_correlationContextAccessor),
 					_correlationIdFactoryMock.Object,
 					new NullLogger<CorrelationManager>()
 				);
+#pragma warning restore 618
 
 				return sut.CorrelateAsync(parentContextId,
 					async () =>
