@@ -184,6 +184,13 @@ As an alternative, there's also a `RequestIdentifierCorrelationIdFactory` which 
 services.AddSingleton<ICorrelationIdFactory, RequestIdentifierCorrelationIdFactory>();
 ```
 
+## Integrations
+
+| Framework/library | Type | Package | Description |
+| - | - | - | - |
+| [Rebus](https://github.com/rebus-org/Rebus) | Service&#160;bus | [Rebus.Correlate](https://github.com/skwasjer/Rebus.Correlate) | Rebus integration of Correlate to correlate message flow via any supported Rebus transport. |
+| [Hangfire](https://www.hangfire.io/) | Job&#160;scheduler | [Hangfire.Correlate](https://github.com/skwasjer/Hangfire.Correlate) | Hangfire integration of Correlate to add correlation id support to Hangfire background/scheduled jobs. |
+
 ## More info
 
 ### Supported .NET targets
