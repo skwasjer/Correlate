@@ -1,5 +1,8 @@
 # Changelog
 
+## v3.0.1
+- Fixed threading issue for child contexts, where child could inherit from wrong parent.
+
 ## v3.0
 
 - (breaking) It is no longer a requirement for logging or diagnostics to be enabled, Correlate now just works regardless. This now allows integrations to be less dependent on the log provider (`ILoggerFactory`/`ILogger`) and makes unit testing easier (`Microsoft.Extensions.Logging.Abstractions.NullLogger<T>` can now be used). Note however, that for production environments, `ILoggerFactory` is still required, in order for the `CorrelationId` property to be added to each log event.
