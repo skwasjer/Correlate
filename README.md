@@ -94,7 +94,7 @@ Here's some providers that require no set up or custom code, only configuration:
 
 - Serilog: `new LoggerConfiguration().Enrich.FromLogContext()`
   https://github.com/serilog/serilog/wiki/Enrichment#the-logcontext  
-- NLog: https://github.com/NLog/NLog/wiki/MDLC-Layout-Renderer ${mdlc:item=CorrelationId}
+- NLog: https://github.com/NLog/NLog/wiki/MDLC-Layout-Renderer `${mdlc:item=CorrelationId}`
 
 ## ICorrelationContextAccessor - Getting the correlation id from anywhere
 
