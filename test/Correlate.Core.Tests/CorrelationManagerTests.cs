@@ -109,22 +109,6 @@ namespace Correlate
 			}
 
 			[Fact]
-			public void When_not_providing_task_when_starting_correlation_should_throw()
-			{
-				Func<Task> correlatedTask = null;
-
-				// Act
-				// ReSharper disable once ExpressionIsAlwaysNull
-				Func<Task> act = () => _sut.CorrelateAsync(null, correlatedTask, null);
-
-				// Assert
-				act.Should()
-					.Throw<ArgumentNullException>()
-					.Which.ParamName.Should()
-					.Be(nameof(correlatedTask));
-			}
-
-			[Fact]
 			public void When_provided_task_throws_should_not_wrap_exception()
 			{
 				var exception = new Exception();
@@ -415,22 +399,6 @@ namespace Correlate
 					});
 
 				_correlationIdFactoryMock.Verify(m => m.Create(), Times.Never);
-			}
-
-			[Fact]
-			public void When_not_providing_action_when_starting_correlation_should_throw()
-			{
-				Action correlatedAction = null;
-
-				// Act
-				// ReSharper disable once ExpressionIsAlwaysNull
-				Action act = () => _sut.Correlate(null, correlatedAction, null);
-
-				// Assert
-				act.Should()
-					.Throw<ArgumentNullException>()
-					.Which.ParamName.Should()
-					.Be(nameof(correlatedAction));
 			}
 
 			[Fact]
