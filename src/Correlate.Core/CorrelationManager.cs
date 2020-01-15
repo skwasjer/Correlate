@@ -151,7 +151,7 @@ namespace Correlate
 			return ExecuteAsync(
 				correlationId,
 				correlatedTask,
-				onException == null ? (OnException?)null: context => onException!((ExceptionContext<T>)context)
+				onException == null ? (OnException?)null : context => onException!((ExceptionContext<T>)context)
 			);
 		}
 
@@ -265,9 +265,9 @@ namespace Correlate
 				bool hasResultValue = typeof(T) != typeof(Void);
 
 				// Allow caller to handle exception inline before losing context scope.
-				ExceptionContext exceptionContext = hasResultValue ? new ExceptionContext<T>() : new ExceptionContext();
-				exceptionContext.Exception = ex;
-				exceptionContext.CorrelationContext = correlationContext;
+				ExceptionContext exceptionContext = hasResultValue
+					? new ExceptionContext<T>(correlationContext, ex)
+					: new ExceptionContext(correlationContext, ex);
 
 				onException(exceptionContext);
 				if (exceptionContext.IsExceptionHandled)
