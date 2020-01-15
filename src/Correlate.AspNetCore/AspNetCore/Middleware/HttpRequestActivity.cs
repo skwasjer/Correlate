@@ -37,7 +37,9 @@ namespace Correlate.AspNetCore.Middleware
 			}
 		}
 
+#pragma warning disable CA1822
 		public void Stop()
+#pragma warning restore CA1822
 		{
 		}
 	}
