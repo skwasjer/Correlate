@@ -5,8 +5,6 @@
     <IsTestProject>false</IsTestProject>
   </PropertyGroup>
 
-  <Import Project="..\Package.props" />
-
   <PropertyGroup>
     <Description>Dependency injection extensions for Correlate.</Description>
     <PackageProjectUrl>https://github.com/skwasjer/Correlate</PackageProjectUrl>

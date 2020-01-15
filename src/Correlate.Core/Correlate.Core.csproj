@@ -14,8 +14,6 @@
     <AssemblyName>Correlate</AssemblyName>
   </PropertyGroup>
 
-  <Import Project="..\Package.props" />
-
   <ItemGroup Condition="$(TargetFramework.StartsWith('netstandard2'))">
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.1.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="2.1.0" />

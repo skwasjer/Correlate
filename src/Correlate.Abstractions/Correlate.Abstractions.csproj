@@ -6,8 +6,6 @@
     <RootNamespace>Correlate</RootNamespace>
   </PropertyGroup>
 
-  <Import Project="..\Package.props" />
-
   <PropertyGroup>
     <Description>Provides abtractions to correlate requests between microservices.</Description>
     <PackageProjectUrl>https://github.com/skwasjer/Correlate</PackageProjectUrl>
