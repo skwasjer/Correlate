@@ -23,7 +23,7 @@ namespace Correlate.DependencyInjection
 		/// <returns>The <see cref="IHttpClientBuilder"/> so that additional calls can be chained.</returns>
 		public static IHttpClientBuilder CorrelateRequests(this IHttpClientBuilder builder, string requestHeader = CorrelationHttpHeaders.CorrelationId)
 		{
-			return CorrelateRequests(builder, options => options.RequestHeader = requestHeader);
+			return builder.CorrelateRequests(options => options.RequestHeader = requestHeader);
 		}
 
 		/// <summary>
@@ -34,7 +34,7 @@ namespace Correlate.DependencyInjection
 		/// <returns>The <see cref="IHttpClientBuilder"/> so that additional calls can be chained.</returns>
 		public static IHttpClientBuilder CorrelateRequests(this IHttpClientBuilder builder, IConfiguration configuration)
 		{
-			return CorrelateRequests(builder, configuration.Bind);
+			return builder.CorrelateRequests(configuration.Bind);
 		}
 
 		/// <summary>
