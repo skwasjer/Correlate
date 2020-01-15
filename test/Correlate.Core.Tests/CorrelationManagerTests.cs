@@ -351,6 +351,32 @@ namespace Correlate
 						.And.ContainSingle(ev => ev.MessageTemplate.Text == "Message with correlation id." && ev.Properties.ContainsKey("CorrelationId"));
 				}
 			}
+
+			[Fact]
+			public void Given_provided_task_throws_but_exception_delegate_is_null_it_should_just_rethrow()
+			{
+				var exception = new Exception();
+				Task ThrowingTask() => throw exception;
+
+				// Act
+				Func<Task> act = () => _sut.CorrelateAsync(null, ThrowingTask, null);
+
+				// Assert
+				act.Should().Throw<Exception>().Which.Should().Be(exception);
+			}
+
+			[Fact]
+			public void Given_provided_task_with_returnValue_throws_but_exception_delegate_is_null_it_should_just_rethrow()
+			{
+				var exception = new Exception();
+				Task<int> ThrowingTask() => throw exception;
+
+				// Act
+				Func<Task<int>> act = () => _sut.CorrelateAsync(null, ThrowingTask, null);
+
+				// Assert
+				act.Should().Throw<Exception>().Which.Should().Be(exception);
+			}
 		}
 
 		public class Sync : CorrelationManagerTests
@@ -456,10 +482,7 @@ namespace Correlate
 			{
 				var exception = new Exception();
 
-				int ThrowingFunc()
-				{
-					throw exception;
-				}
+				int ThrowingFunc() => throw exception;
 
 				const int returnValue = 12345;
 
@@ -603,6 +626,34 @@ namespace Correlate
 						.HaveCount(3)
 						.And.ContainSingle(ev => ev.MessageTemplate.Text == "Message with correlation id." && ev.Properties.ContainsKey("CorrelationId"));
 				}
+			}
+
+			[Fact]
+			public void Given_provided_action_throws_but_exception_delegate_is_null_it_should_just_rethrow()
+			{
+				var exception = new Exception();
+				// ReSharper disable once ConvertToLocalFunction
+				Action throwingAction = () => throw exception;
+
+				// Act
+				Action act = () => _sut.Correlate(null, throwingAction, null);
+
+				// Assert
+				act.Should().Throw<Exception>().Which.Should().Be(exception);
+			}
+
+			[Fact]
+			public void Given_provided_func_throws_but_exception_delegate_is_null_it_should_just_rethrow()
+			{
+				var exception = new Exception();
+				// ReSharper disable once ConvertToLocalFunction
+				Func<int> throwingFunc = () => throw exception;
+
+				// Act
+				Func<int> act = () => _sut.Correlate(null, throwingFunc, null);
+
+				// Assert
+				act.Should().Throw<Exception>().Which.Should().Be(exception);
 			}
 		}
 

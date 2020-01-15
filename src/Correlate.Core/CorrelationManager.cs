@@ -151,7 +151,7 @@ namespace Correlate
 			return ExecuteAsync(
 				correlationId,
 				correlatedTask,
-				context => onException((ExceptionContext<T>)context)
+				onException == null ? (OnException?)null: context => onException!((ExceptionContext<T>)context)
 			);
 		}
 
@@ -217,7 +217,11 @@ namespace Correlate
 				throw new ArgumentNullException(nameof(correlatedFunc));
 			}
 
-			return Execute(correlationId, correlatedFunc, context => onException((ExceptionContext<T>)context));
+			return Execute(
+				correlationId,
+				correlatedFunc,
+				onException == null ? (OnException?)null : context => onException!((ExceptionContext<T>)context)
+			);
 		}
 
 		private T Execute<T>(string? correlationId, Func<T> correlatedFunc, OnException? onException)
