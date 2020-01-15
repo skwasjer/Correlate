@@ -252,9 +252,9 @@ namespace Correlate
 			return new RootActivity(_correlationContextFactory, _logger, _diagnosticListener);
 		}
 
-		private static bool HandlesException<T>(OnException? onException, CorrelationContext? correlationContext, Exception ex, out T result)
+		private static bool HandlesException<T>(OnException? onException, CorrelationContext correlationContext, Exception ex, out T result)
 		{
-			if (correlationContext != null && !ex.Data.Contains(CorrelateConstants.CorrelationIdKey))
+			if (!ex.Data.Contains(CorrelateConstants.CorrelationIdKey))
 			{
 				// Because we're about to lose context scope, enrich exception with correlation id for reference by calling code.
 				ex.Data.Add(CorrelateConstants.CorrelationIdKey, correlationContext.CorrelationId);
