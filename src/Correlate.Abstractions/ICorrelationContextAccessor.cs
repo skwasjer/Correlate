@@ -8,6 +8,6 @@
 		/// <summary>
 		/// Gets or sets <see cref="CorrelationContext"/>.
 		/// </summary>
-		CorrelationContext CorrelationContext { get; set; }
+		CorrelationContext? CorrelationContext { get; set; }
 	}
 }

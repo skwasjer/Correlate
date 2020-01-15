@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Correlate
 {
@@ -33,12 +34,14 @@ namespace Correlate
 	/// </summary>
 	public class ExceptionContext<T> : ExceptionContext
 	{
+		// ReSharper disable once RedundantDefaultMemberInitializer
 		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-		private T _result;
+		private T _result = default!;
 
 		/// <summary>
 		/// Gets or sets the result value to return. This is only 
 		/// </summary>
+		[AllowNull]
 		public T Result
 		{
 			get

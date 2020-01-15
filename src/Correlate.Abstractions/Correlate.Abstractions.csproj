@@ -4,6 +4,7 @@
     <TargetFrameworks>netstandard1.0;net46</TargetFrameworks>
     <IsTestProject>false</IsTestProject>
     <RootNamespace>Correlate</RootNamespace>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup>
