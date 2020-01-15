@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFrameworks>netcoreapp3.1;netcoreapp2.2;netcoreapp2.1;netcoreapp1.1;net46</TargetFrameworks>
     <IsTestProject>true</IsTestProject>
-    <IsPackable>false</IsPackable>
     <RootNamespace>Correlate.DependencyInjection</RootNamespace>
   </PropertyGroup>
 
