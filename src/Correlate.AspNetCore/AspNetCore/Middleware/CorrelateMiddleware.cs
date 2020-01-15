@@ -60,6 +60,7 @@ namespace Correlate.AspNetCore.Middleware
 		/// <returns>An awaitable to wait for to complete the request.</returns>
 		public Task Invoke(HttpContext httpContext)
 		{
+			// ReSharper disable once UseDeconstruction - not supported in .NET46/.NETS
 			KeyValuePair<string, string> requestHeader = httpContext.Request.Headers.GetCorrelationIdHeader(_acceptedRequestHeaders);
 			if (requestHeader.Value != null)
 			{
@@ -78,7 +79,7 @@ namespace Correlate.AspNetCore.Middleware
 						{
 							correlatedHttpRequest.Stop();
 							return t;
-						})
+						}, TaskScheduler.Current)
 						.Unwrap();
 				});
 		}
