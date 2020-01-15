@@ -18,7 +18,7 @@ namespace Correlate
 		/// </remarks>
 		public static void Correlate(this ICorrelationManager correlationManager, Action correlatedAction)
 		{
-			correlationManager.Correlate(correlatedAction, null);
+			correlationManager.Correlate(null, correlatedAction);
 		}
 
 		/// <summary>
@@ -71,7 +71,7 @@ namespace Correlate
 		/// </remarks>
 		public static T Correlate<T>(this ICorrelationManager correlationManager, Func<T> correlatedFunc)
 		{
-			return correlationManager.Correlate(correlatedFunc, null);
+			return correlationManager.Correlate(null, correlatedFunc);
 		}
 
 		/// <summary>

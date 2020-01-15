@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Correlate.Testing;
+using Correlate.Testing.TestCases;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -634,6 +635,53 @@ namespace Correlate
 						.HaveCount(3)
 						.And.ContainSingle(ev => ev.MessageTemplate.Text == "Message with correlation id." && ev.Properties.ContainsKey("CorrelationId"));
 				}
+			}
+		}
+
+		public class NullArgChecks
+		{
+
+			[Theory]
+			[MemberData(nameof(NullArgumentTestCases))]
+			public void Given_null_argument_when_executing_it_should_throw(params object[] args)
+			{
+				NullArgumentTest.Execute(args);
+			}
+
+			public static IEnumerable<object[]> NullArgumentTestCases()
+			{
+				var instance = new CorrelationManager(
+					Mock.Of<ICorrelationContextFactory>(),
+					Mock.Of<ICorrelationIdFactory>(),
+					Mock.Of<ICorrelationContextAccessor>(),
+					Mock.Of<ILogger<CorrelationManager>>()
+				);
+				// ReSharper disable ConvertToLocalFunction
+				Func<Task> correlatedTask = () => Task.CompletedTask;
+				Func<Task<int>> returningCorrelatedTask = () => Task.FromResult(1);
+				Action correlatedAction = () => { };
+				Func<int> returningCorrelatedAction = () => 1;
+				// ReSharper restore ConvertToLocalFunction
+
+				return new[]
+					{
+						// Instance members
+						DelegateTestCase.Create(instance.CorrelateAsync, (string)null, correlatedTask, (OnException)null),
+						DelegateTestCase.Create(instance.CorrelateAsync, (string)null, returningCorrelatedTask, (OnException<int>)null),
+						DelegateTestCase.Create(instance.Correlate, (string)null, correlatedAction, (OnException)null),
+						DelegateTestCase.Create(instance.Correlate, (string)null, returningCorrelatedAction, (OnException<int>)null),
+						// Extensions
+						DelegateTestCase.Create(AsyncCorrelationManagerExtensions.CorrelateAsync, instance, correlatedTask),
+						DelegateTestCase.Create(AsyncCorrelationManagerExtensions.CorrelateAsync, instance, returningCorrelatedTask),
+						DelegateTestCase.Create(CorrelationManagerExtensions.Correlate, instance, correlatedAction),
+						DelegateTestCase.Create(CorrelationManagerExtensions.Correlate, instance, returningCorrelatedAction),
+
+						DelegateTestCase.Create(AsyncCorrelationManagerExtensions.CorrelateAsync, instance, correlatedTask, (OnException)null),
+						DelegateTestCase.Create(AsyncCorrelationManagerExtensions.CorrelateAsync, instance, returningCorrelatedTask, (OnException<int>)null),
+						DelegateTestCase.Create(CorrelationManagerExtensions.Correlate, instance, correlatedAction, (OnException)null),
+						DelegateTestCase.Create(CorrelationManagerExtensions.Correlate, instance, returningCorrelatedAction, (OnException<int>)null),
+					}
+					.SelectMany(tc => tc.GetNullArgumentTestCases());
 			}
 		}
 	}
