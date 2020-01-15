@@ -45,6 +45,11 @@ namespace Correlate.DependencyInjection
 		/// <returns>The <see cref="IHttpClientBuilder"/> so that additional calls can be chained.</returns>
 		public static IHttpClientBuilder CorrelateRequests(this IHttpClientBuilder builder, Action<CorrelateClientOptions> configureOptions)
 		{
+			if (builder is null)
+			{
+				throw new ArgumentNullException(nameof(builder));
+			}
+
 			builder.Services.AddCorrelate();
 
 			builder.Services.TryAddTransient<CorrelatingHttpMessageHandler>();

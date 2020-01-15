@@ -35,6 +35,11 @@ namespace Correlate
 		/// </remarks>
 		public static Task CorrelateAsync(this IAsyncCorrelationManager asyncCorrelationManager, Func<Task> correlatedTask, OnException onException)
 		{
+			if (asyncCorrelationManager is null)
+			{
+				throw new ArgumentNullException(nameof(asyncCorrelationManager));
+			}
+
 			return asyncCorrelationManager.CorrelateAsync(null, correlatedTask, onException);
 		}
 
@@ -50,6 +55,11 @@ namespace Correlate
 		/// </remarks>
 		public static Task CorrelateAsync(this IAsyncCorrelationManager asyncCorrelationManager, string correlationId, Func<Task> correlatedTask)
 		{
+			if (asyncCorrelationManager is null)
+			{
+				throw new ArgumentNullException(nameof(asyncCorrelationManager));
+			}
+
 			return asyncCorrelationManager.CorrelateAsync(correlationId, correlatedTask, null);
 		}
 
@@ -81,6 +91,11 @@ namespace Correlate
 		/// </remarks>
 		public static Task<T> CorrelateAsync<T>(this IAsyncCorrelationManager asyncCorrelationManager, Func<Task<T>> correlatedTask, OnException<T> onException)
 		{
+			if (asyncCorrelationManager is null)
+			{
+				throw new ArgumentNullException(nameof(asyncCorrelationManager));
+			}
+
 			return asyncCorrelationManager.CorrelateAsync(null, correlatedTask, onException);
 		}
 
@@ -97,6 +112,11 @@ namespace Correlate
 		/// </remarks>
 		public static Task<T> CorrelateAsync<T>(this IAsyncCorrelationManager asyncCorrelationManager, string correlationId, Func<Task<T>> correlatedTask)
 		{
+			if (asyncCorrelationManager is null)
+			{
+				throw new ArgumentNullException(nameof(asyncCorrelationManager));
+			}
+
 			return asyncCorrelationManager.CorrelateAsync(correlationId, correlatedTask, null);
 		}
 	}
