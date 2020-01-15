@@ -95,7 +95,7 @@ Here's some providers that require no set up or custom code, only configuration:
 
 - Serilog: `new LoggerConfiguration().Enrich.FromLogContext()`
   https://github.com/serilog/serilog/wiki/Enrichment#the-logcontext  
-- NLog: https://github.com/NLog/NLog/wiki/EventProperties-Layout-Renderer
+- NLog: https://github.com/NLog/NLog/wiki/MDLC-Layout-Renderer `${mdlc:item=CorrelationId}`
 
 ## ICorrelationContextAccessor - Getting the correlation id from anywhere
 
@@ -184,6 +184,13 @@ As an alternative, there's also a `RequestIdentifierCorrelationIdFactory` which 
 ```csharp
 services.AddSingleton<ICorrelationIdFactory, RequestIdentifierCorrelationIdFactory>();
 ```
+
+## Integrations
+
+| Framework/library | Type | Package | Description |
+| - | - | - | - |
+| [Rebus](https://github.com/rebus-org/Rebus) | Service&#160;bus | [Rebus.Correlate](https://github.com/skwasjer/Rebus.Correlate) | Rebus integration of Correlate to correlate message flow via any supported Rebus transport. |
+| [Hangfire](https://www.hangfire.io/) | Job&#160;scheduler | [Hangfire.Correlate](https://github.com/skwasjer/Hangfire.Correlate) | Hangfire integration of Correlate to add correlation id support to Hangfire background/scheduled jobs. |
 
 ## More info
 
