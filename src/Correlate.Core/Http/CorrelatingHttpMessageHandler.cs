@@ -47,13 +47,10 @@ namespace Correlate.Http
 				throw new ArgumentNullException(nameof(request));
 			}
 
-			string correlationId = _correlationContextAccessor?.CorrelationContext?.CorrelationId;
-			if (correlationId != null)
+			string? correlationId = _correlationContextAccessor?.CorrelationContext?.CorrelationId;
+			if (correlationId != null && !request.Headers.Contains(_options.RequestHeader))
 			{
-				if (!request.Headers.Contains(_options.RequestHeader))
-				{
-					request.Headers.TryAddWithoutValidation(_options.RequestHeader, correlationId);
-				}
+				request.Headers.TryAddWithoutValidation(_options.RequestHeader, correlationId);
 			}
 
 			return base.SendAsync(request, cancellationToken);
