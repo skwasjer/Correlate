@@ -1,11 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.2;netcoreapp2.1;netcoreapp1.1;net46</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;netcoreapp2.2;netcoreapp2.1;netcoreapp1.1;net46</TargetFrameworks>
     <IsTestProject>true</IsTestProject>
     <IsPackable>false</IsPackable>
     <RootNamespace>Correlate.DependencyInjection</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.1" />
+  </ItemGroup>
 
   <ItemGroup Condition="$(TargetFramework.StartsWith('netcoreapp2'))">
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.1.0" />

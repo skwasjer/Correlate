@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions.Internal;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Correlate.Testing
 {
@@ -45,7 +45,7 @@ namespace Correlate.Testing
 
 		public IDisposable BeginScope<TState>(TState state)
 		{
-			return _innerLogger?.BeginScope(state) ?? NullScope.Instance;
+			return _innerLogger?.BeginScope(state) ?? NullLogger.Instance.BeginScope(state);
 		}
 	}
 }
