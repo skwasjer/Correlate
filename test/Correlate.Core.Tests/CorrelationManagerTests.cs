@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Correlate.Testing;
+using Correlate.Testing.TestCases;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -105,22 +106,6 @@ namespace Correlate
 					});
 
 				_correlationIdFactoryMock.Verify(m => m.Create(), Times.Never);
-			}
-
-			[Fact]
-			public void When_not_providing_task_when_starting_correlation_should_throw()
-			{
-				Func<Task> correlatedTask = null;
-
-				// Act
-				// ReSharper disable once ExpressionIsAlwaysNull
-				Func<Task> act = () => _sut.CorrelateAsync(null, correlatedTask, null);
-
-				// Assert
-				act.Should()
-					.Throw<ArgumentNullException>()
-					.Which.ParamName.Should()
-					.Be(nameof(correlatedTask));
 			}
 
 			[Fact]
@@ -366,6 +351,32 @@ namespace Correlate
 						.And.ContainSingle(ev => ev.MessageTemplate.Text == "Message with correlation id." && ev.Properties.ContainsKey("CorrelationId"));
 				}
 			}
+
+			[Fact]
+			public void Given_provided_task_throws_but_exception_delegate_is_null_it_should_just_rethrow()
+			{
+				var exception = new Exception();
+				Task ThrowingTask() => throw exception;
+
+				// Act
+				Func<Task> act = () => _sut.CorrelateAsync(null, ThrowingTask, null);
+
+				// Assert
+				act.Should().Throw<Exception>().Which.Should().Be(exception);
+			}
+
+			[Fact]
+			public void Given_provided_task_with_returnValue_throws_but_exception_delegate_is_null_it_should_just_rethrow()
+			{
+				var exception = new Exception();
+				Task<int> ThrowingTask() => throw exception;
+
+				// Act
+				Func<Task<int>> act = () => _sut.CorrelateAsync(null, ThrowingTask, null);
+
+				// Assert
+				act.Should().Throw<Exception>().Which.Should().Be(exception);
+			}
 		}
 
 		public class Sync : CorrelationManagerTests
@@ -414,22 +425,6 @@ namespace Correlate
 					});
 
 				_correlationIdFactoryMock.Verify(m => m.Create(), Times.Never);
-			}
-
-			[Fact]
-			public void When_not_providing_action_when_starting_correlation_should_throw()
-			{
-				Action correlatedAction = null;
-
-				// Act
-				// ReSharper disable once ExpressionIsAlwaysNull
-				Action act = () => _sut.Correlate(null, correlatedAction, null);
-
-				// Assert
-				act.Should()
-					.Throw<ArgumentNullException>()
-					.Which.ParamName.Should()
-					.Be(nameof(correlatedAction));
 			}
 
 			[Fact]
@@ -487,10 +482,7 @@ namespace Correlate
 			{
 				var exception = new Exception();
 
-				int ThrowingFunc()
-				{
-					throw exception;
-				}
+				int ThrowingFunc() => throw exception;
 
 				const int returnValue = 12345;
 
@@ -634,6 +626,81 @@ namespace Correlate
 						.HaveCount(3)
 						.And.ContainSingle(ev => ev.MessageTemplate.Text == "Message with correlation id." && ev.Properties.ContainsKey("CorrelationId"));
 				}
+			}
+
+			[Fact]
+			public void Given_provided_action_throws_but_exception_delegate_is_null_it_should_just_rethrow()
+			{
+				var exception = new Exception();
+				// ReSharper disable once ConvertToLocalFunction
+				Action throwingAction = () => throw exception;
+
+				// Act
+				Action act = () => _sut.Correlate(null, throwingAction, null);
+
+				// Assert
+				act.Should().Throw<Exception>().Which.Should().Be(exception);
+			}
+
+			[Fact]
+			public void Given_provided_func_throws_but_exception_delegate_is_null_it_should_just_rethrow()
+			{
+				var exception = new Exception();
+				// ReSharper disable once ConvertToLocalFunction
+				Func<int> throwingFunc = () => throw exception;
+
+				// Act
+				Func<int> act = () => _sut.Correlate(null, throwingFunc, null);
+
+				// Assert
+				act.Should().Throw<Exception>().Which.Should().Be(exception);
+			}
+		}
+
+		public class NullArgChecks
+		{
+
+			[Theory]
+			[MemberData(nameof(NullArgumentTestCases))]
+			public void Given_null_argument_when_executing_it_should_throw(params object[] args)
+			{
+				NullArgumentTest.Execute(args);
+			}
+
+			public static IEnumerable<object[]> NullArgumentTestCases()
+			{
+				var instance = new CorrelationManager(
+					Mock.Of<ICorrelationContextFactory>(),
+					Mock.Of<ICorrelationIdFactory>(),
+					Mock.Of<ICorrelationContextAccessor>(),
+					Mock.Of<ILogger<CorrelationManager>>()
+				);
+				// ReSharper disable ConvertToLocalFunction
+				Func<Task> correlatedTask = () => Task.CompletedTask;
+				Func<Task<int>> returningCorrelatedTask = () => Task.FromResult(1);
+				Action correlatedAction = () => { };
+				Func<int> returningCorrelatedAction = () => 1;
+				// ReSharper restore ConvertToLocalFunction
+
+				return new[]
+					{
+						// Instance members
+						DelegateTestCase.Create(instance.CorrelateAsync, (string)null, correlatedTask, (OnException)null),
+						DelegateTestCase.Create(instance.CorrelateAsync, (string)null, returningCorrelatedTask, (OnException<int>)null),
+						DelegateTestCase.Create(instance.Correlate, (string)null, correlatedAction, (OnException)null),
+						DelegateTestCase.Create(instance.Correlate, (string)null, returningCorrelatedAction, (OnException<int>)null),
+						// Extensions
+						DelegateTestCase.Create(AsyncCorrelationManagerExtensions.CorrelateAsync, instance, correlatedTask),
+						DelegateTestCase.Create(AsyncCorrelationManagerExtensions.CorrelateAsync, instance, returningCorrelatedTask),
+						DelegateTestCase.Create(CorrelationManagerExtensions.Correlate, instance, correlatedAction),
+						DelegateTestCase.Create(CorrelationManagerExtensions.Correlate, instance, returningCorrelatedAction),
+
+						DelegateTestCase.Create(AsyncCorrelationManagerExtensions.CorrelateAsync, instance, correlatedTask, (OnException)null),
+						DelegateTestCase.Create(AsyncCorrelationManagerExtensions.CorrelateAsync, instance, returningCorrelatedTask, (OnException<int>)null),
+						DelegateTestCase.Create(CorrelationManagerExtensions.Correlate, instance, correlatedAction, (OnException)null),
+						DelegateTestCase.Create(CorrelationManagerExtensions.Correlate, instance, returningCorrelatedAction, (OnException<int>)null),
+					}
+					.SelectMany(tc => tc.GetNullArgumentTestCases());
 			}
 		}
 	}

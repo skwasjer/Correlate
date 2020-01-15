@@ -15,6 +15,8 @@
 		/// <summary>
 		/// Signals the activity is complete.
 		/// </summary>
+#pragma warning disable CA1716
 		void Stop();
+#pragma warning restore CA1716
 	}
 }

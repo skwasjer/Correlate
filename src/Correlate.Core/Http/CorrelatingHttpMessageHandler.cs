@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
@@ -41,13 +42,15 @@ namespace Correlate.Http
 		/// <inheritdoc />
 		protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
 		{
-			string correlationId = _correlationContextAccessor?.CorrelationContext?.CorrelationId;
-			if (correlationId != null)
+			if (request is null)
 			{
-				if (!request.Headers.Contains(_options.RequestHeader))
-				{
-					request.Headers.TryAddWithoutValidation(_options.RequestHeader, correlationId);
-				}
+				throw new ArgumentNullException(nameof(request));
+			}
+
+			string? correlationId = _correlationContextAccessor?.CorrelationContext?.CorrelationId;
+			if (correlationId != null && !request.Headers.Contains(_options.RequestHeader))
+			{
+				request.Headers.TryAddWithoutValidation(_options.RequestHeader, correlationId);
 			}
 
 			return base.SendAsync(request, cancellationToken);

@@ -10,7 +10,7 @@ namespace Correlate
 		private static readonly AsyncLocal<CorrelationContextHolder> CurrentContext = new AsyncLocal<CorrelationContextHolder>();
 
 		/// <inheritdoc />
-		public CorrelationContext CorrelationContext
+		public CorrelationContext? CorrelationContext
 		{
 			get => CurrentContext.Value?.Context;
 			set
@@ -47,8 +47,8 @@ namespace Correlate
 
 		private class CorrelationContextHolder
 		{
-			public CorrelationContext Context { get; set; }
-			public CorrelationContextHolder ParentContext { get; set; }
+			public CorrelationContext? Context { get; set; }
+			public CorrelationContextHolder? ParentContext { get; set; }
 		}
 	}
 }

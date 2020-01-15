@@ -20,7 +20,7 @@ using Xunit;
 
 namespace Correlate.AspNetCore.Middleware
 {
-	public class CorrelateMiddlewareTests : IClassFixture<TestAppFactory<Startup>>
+	public class CorrelateMiddlewareTests : IClassFixture<TestAppFactory<Startup>>, IDisposable
 	{
 		private readonly WebApplicationFactory<Startup> _factory;
 		private readonly TestAppFactory<Startup> _rootFactory;
@@ -42,6 +42,12 @@ namespace Correlate.AspNetCore.Middleware
 					services.AddSingleton<IOptions<CorrelateOptions>>(new OptionsWrapper<CorrelateOptions>(_options));
 				})
 			);
+		}
+
+		public void Dispose()
+		{
+			_factory?.Dispose();
+			_mockHttp?.Dispose();
 		}
 
 		[Fact]
@@ -140,36 +146,25 @@ namespace Correlate.AspNetCore.Middleware
 			var request = new HttpRequestMessage();
 			request.Headers.Add(headerName, correlationId);
 
-			using (TestCorrelator.CreateContext())
-			{
-				// Act
-				HttpClient client = _factory.CreateClient();
-				await client.SendAsync(request);
+			// Act
+			HttpClient client = _factory.CreateClient();
+			await client.SendAsync(request);
 
-				// Assert
-				// ReSharper disable once SuggestVarOrType_Elsewhere
-				var logEvents = TestCorrelator.GetLogEventsFromCurrentContext().ToList();
-				logEvents.Should().HaveCountGreaterThan(2);
+			// Assert
+			// ReSharper disable once SuggestVarOrType_Elsewhere
+			var logEvents = TestCorrelator.GetLogEventsFromContextGuid(Startup.LastRequestContext.Guid).ToList();
+			logEvents.Should().HaveCountGreaterThan(2);
 
-				logEvents
-					.Take(1)
-					.Union(logEvents.TakeLast(1))
-					.ToList()
-					.ForEach(le => le.Properties
-						.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
-						.Should().ContainKey(CorrelateConstants.CorrelationIdKey)
-						.WhichValue.Should().BeOfType<ScalarValue>()
-						.Which.Value.Should().BeNull());
-				logEvents
-					.Skip(1)
-					.SkipLast(1)
-					.ToList()
-					.ForEach(le => le.Properties
-						.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
-						.Should().ContainKey(CorrelateConstants.CorrelationIdKey)
-						.WhichValue.Should().BeOfType<ScalarValue>()
-						.Which.Value.Should().Be(correlationId));
-			}
+			logEvents
+				.ToList()
+				.ForEach(le => le.Properties
+					.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
+					.Should()
+					.ContainKey(CorrelateConstants.CorrelationIdKey)
+					.WhichValue.Should()
+					.BeOfType<ScalarValue>()
+					.Which.Value.Should()
+					.Be(correlationId));
 		}
 
 		[Fact]

@@ -1,9 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.2;netcoreapp2.1;netcoreapp1.1;net46</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;netcoreapp2.2;netcoreapp2.1;netcoreapp1.1;net46</TargetFrameworks>
     <IsTestProject>true</IsTestProject>
-    <IsPackable>false</IsPackable>
     <RootNamespace>Correlate</RootNamespace>
   </PropertyGroup>
 

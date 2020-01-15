@@ -18,7 +18,7 @@ namespace Correlate
 		/// </remarks>
 		public static void Correlate(this ICorrelationManager correlationManager, Action correlatedAction)
 		{
-			correlationManager.Correlate(correlatedAction, null);
+			correlationManager.Correlate(null, correlatedAction);
 		}
 
 		/// <summary>
@@ -30,8 +30,13 @@ namespace Correlate
 		/// <remarks>
 		/// When logging and tracing are both disabled, no correlation context is created and the action simply executed as it normally would.
 		/// </remarks>
-		public static void Correlate(this ICorrelationManager correlationManager, Action correlatedAction, OnException onException)
+		public static void Correlate(this ICorrelationManager correlationManager, Action correlatedAction, OnException? onException)
 		{
+			if (correlationManager is null)
+			{
+				throw new ArgumentNullException(nameof(correlationManager));
+			}
+
 			correlationManager.Correlate(null, correlatedAction, onException);
 		}
 
@@ -44,8 +49,13 @@ namespace Correlate
 		/// <remarks>
 		/// When logging and tracing are both disabled, no correlation context is created and the action simply executed as it normally would.
 		/// </remarks>
-		public static void Correlate(this ICorrelationManager correlationManager, string correlationId, Action correlatedAction)
+		public static void Correlate(this ICorrelationManager correlationManager, string? correlationId, Action correlatedAction)
 		{
+			if (correlationManager is null)
+			{
+				throw new ArgumentNullException(nameof(correlationManager));
+			}
+
 			correlationManager.Correlate(correlationId, correlatedAction, null);
 		}
 
@@ -61,7 +71,7 @@ namespace Correlate
 		/// </remarks>
 		public static T Correlate<T>(this ICorrelationManager correlationManager, Func<T> correlatedFunc)
 		{
-			return correlationManager.Correlate(correlatedFunc, null);
+			return correlationManager.Correlate(null, correlatedFunc);
 		}
 
 		/// <summary>
@@ -75,8 +85,13 @@ namespace Correlate
 		/// <remarks>
 		/// When logging and tracing are both disabled, no correlation context is created and the action simply executed as it normally would.
 		/// </remarks>
-		public static T Correlate<T>(this ICorrelationManager correlationManager, Func<T> correlatedFunc, OnException<T> onException)
+		public static T Correlate<T>(this ICorrelationManager correlationManager, Func<T> correlatedFunc, OnException<T>? onException)
 		{
+			if (correlationManager is null)
+			{
+				throw new ArgumentNullException(nameof(correlationManager));
+			}
+
 			return correlationManager.Correlate(null, correlatedFunc, onException);
 		}
 
@@ -91,8 +106,13 @@ namespace Correlate
 		/// <remarks>
 		/// When logging and tracing are both disabled, no correlation context is created and the action simply executed as it normally would.
 		/// </remarks>
-		public static T Correlate<T>(this ICorrelationManager correlationManager, string correlationId, Func<T> correlatedFunc)
+		public static T Correlate<T>(this ICorrelationManager correlationManager, string? correlationId, Func<T> correlatedFunc)
 		{
+			if (correlationManager is null)
+			{
+				throw new ArgumentNullException(nameof(correlationManager));
+			}
+
 			return correlationManager.Correlate(correlationId, correlatedFunc, null);
 		}
 

@@ -7,7 +7,7 @@ namespace Correlate
 	/// </summary>
 	public class CorrelationContextFactory : ICorrelationContextFactory
 	{
-		private readonly ICorrelationContextAccessor _correlationContextAccessor;
+		private readonly ICorrelationContextAccessor? _correlationContextAccessor;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="CorrelationContextFactory"/> class.
