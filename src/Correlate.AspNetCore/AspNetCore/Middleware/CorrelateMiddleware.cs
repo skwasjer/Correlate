@@ -66,13 +66,13 @@ namespace Correlate.AspNetCore.Middleware
 			}
 
 			// ReSharper disable once UseDeconstruction - not supported in .NET46/.NETS
-			KeyValuePair<string, string> requestHeader = httpContext.Request.Headers.GetCorrelationIdHeader(_acceptedRequestHeaders);
+			KeyValuePair<string, string?> requestHeader = httpContext.Request.Headers.GetCorrelationIdHeader(_acceptedRequestHeaders);
 			if (requestHeader.Value != null)
 			{
 				_logger.LogTrace("Request header '{HeaderName}' found with correlation id '{CorrelationId}'.", requestHeader.Key, requestHeader.Value);
 			}
 
-			string responseHeaderName = _options.IncludeInResponse ? requestHeader.Key : null;
+			string? responseHeaderName = _options.IncludeInResponse ? requestHeader.Key : null;
 			var correlatedHttpRequest = new HttpRequestActivity(_logger, httpContext, responseHeaderName);
 			return _asyncCorrelationManager.CorrelateAsync(
 				requestHeader.Value,

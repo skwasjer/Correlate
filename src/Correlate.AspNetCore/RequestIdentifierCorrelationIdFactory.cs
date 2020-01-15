@@ -7,7 +7,7 @@ namespace Correlate
 	/// </summary>
 	public class RequestIdentifierCorrelationIdFactory : ICorrelationIdFactory
 	{
-		private readonly IHttpRequestIdentifierFeature _httpRequestIdentifierFeature;
+		private readonly HttpRequestIdentifierFeature _httpRequestIdentifierFeature;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="RequestIdentifierCorrelationIdFactory"/> class.
@@ -22,7 +22,7 @@ namespace Correlate
 		{
 			// Set to null, so the next 'get' will produce a new id.
 			_httpRequestIdentifierFeature.TraceIdentifier = null;
-			return _httpRequestIdentifierFeature.TraceIdentifier;
+			return _httpRequestIdentifierFeature.TraceIdentifier!;
 		}
 	}
 }
