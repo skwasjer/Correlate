@@ -3,7 +3,7 @@
 namespace Correlate
 {
 	/// <summary>
-	/// Produces a base32 encoded correlation id, similar to the <see cref="IHttpRequestIdentifierFeature.TraceIdentifier"/>
+	/// Produces a base32 encoded correlation id, similar to the <see cref="HttpRequestIdentifierFeature.TraceIdentifier"/>
 	/// </summary>
 	public class RequestIdentifierCorrelationIdFactory : ICorrelationIdFactory
 	{
