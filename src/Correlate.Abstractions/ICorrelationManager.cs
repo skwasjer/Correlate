@@ -16,7 +16,7 @@ namespace Correlate
 		/// <remarks>
 		/// When logging and tracing are both disabled, no correlation context is created and the action simply executed as it normally would.
 		/// </remarks>
-		void Correlate(string correlationId, Action correlatedAction, OnException onException);
+		void Correlate(string? correlationId, Action correlatedAction, OnException? onException);
 
 		/// <summary>
 		/// Executes the <paramref name="correlatedFunc"/> with its own <see cref="CorrelationContext"/>.
@@ -29,6 +29,6 @@ namespace Correlate
 		/// <remarks>
 		/// When logging and tracing are both disabled, no correlation context is created and the action simply executed as it normally would.
 		/// </remarks>
-		T Correlate<T>(string correlationId, Func<T> correlatedFunc, OnException<T> onException);
+		T Correlate<T>(string? correlationId, Func<T> correlatedFunc, OnException<T>? onException);
 	}
 }

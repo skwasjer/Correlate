@@ -20,6 +20,7 @@ dotnet add package Correlate.AspNetCore
 
 [![Build status](https://ci.appveyor.com/api/projects/status/rwfdg9d4i3g0qyga/branch/master?svg=true)](https://ci.appveyor.com/project/skwasjer/correlate)
 [![Tests](https://img.shields.io/appveyor/tests/skwasjer/Correlate/master.svg)](https://ci.appveyor.com/project/skwasjer/correlate/build/tests)
+[![codecov](https://codecov.io/gh/skwasjer/Correlate/branch/master/graph/badge.svg)](https://codecov.io/gh/skwasjer/Correlate)
 
 | | | |
 |---|---|---|
@@ -172,6 +173,7 @@ await _correlationManager.CorrelateAsync(orderId, () => {
 - `ICorrelationManager`
 - `IAsyncCorrelationManager`
 
+> Note that the Correlate internals are intrinsically asynchronous as it relies on [`AsyncLocal<T>`](https://docs.microsoft.com/en-us/dotnet/api/system.threading.asynclocal-1) to save the correlation context. The synchronous implementation is useful for integrations that have a synchronous API surface but are still used in asynchronous context, but should only be used as such.
 
 ## ICorrelationIdFactory
 
@@ -190,6 +192,14 @@ services.AddSingleton<ICorrelationIdFactory, RequestIdentifierCorrelationIdFacto
 | - | - | - | - |
 | [Rebus](https://github.com/rebus-org/Rebus) | Service&#160;bus | [Rebus.Correlate](https://github.com/skwasjer/Rebus.Correlate) | Rebus integration of Correlate to correlate message flow via any supported Rebus transport. |
 | [Hangfire](https://www.hangfire.io/) | Job&#160;scheduler | [Hangfire.Correlate](https://github.com/skwasjer/Hangfire.Correlate) | Hangfire integration of Correlate to add correlation id support to Hangfire background/scheduled jobs. |
+
+## Alternatives for more advanced Distributed Tracing
+
+Please consider that .NET Core 3 now has built-in support for [W3C TraceContext](https://github.com/w3c/trace-context) ([blog](https://devblogs.microsoft.com/aspnet/improvements-in-net-core-3-0-for-troubleshooting-and-monitoring-distributed-apps/)) and that there are other distributed tracing libraries with more functionality than Correlate.
+
+- [OpenTelemetry](https://opentelemetry.io/)
+- [Jaeger](https://www.jaegertracing.io/)
+- [Application Insights](https://docs.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview)
 
 ## More info
 

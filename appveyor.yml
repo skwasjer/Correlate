@@ -1,35 +1,42 @@
-version: 1.0.0.{build}-ci
+image: Visual Studio 2019
 skip_branch_with_pr: true
-image: Visual Studio 2017
 configuration: Release
+install:
+  - choco install gitversion.portable --pre -y
+#  - choco install gitversion.portable -y --version=4.0.0
+  - gitversion /l console /output buildserver
+  - choco install opencover.portable
+  - choco install codecov
+cache:
+  - C:\ProgramData\chocolatey\bin -> appveyor.yml, codecov.yml
+  - C:\ProgramData\chocolatey\lib -> appveyor.yml, codecov.yml
 dotnet_csproj:
   patch: true
   file: '**\*.csproj;**\*.props'
-  version: '{version}'
-  package_version: $(package_version)
-  assembly_version: $(assembly_version)
-  file_version: $(file_version)
-  informational_version: $(informational_version)
-install:
-- ps: '& .\ci\set_version_from_git.ps1'
+  version: '{GitVersion_SemVer}'
+  package_version: $(GitVersion_NuGetVersion)
+  assembly_version: $(GitVersion_AssemblySemVer)
+  file_version: $(GitVersion_AssemblySemFileVer)
+  informational_version: $(GitVersion_InformationalVersion)
 nuget:
   project_feed: true
-  disable_publish_on_pr: true
+#  disable_publish_on_pr: true
 before_build:
-- ps: dotnet restore
+  - dotnet restore
 build:
   project: Correlate.sln
   publish_nuget: true
   publish_nuget_symbols: true
   use_snupkg_format: true
   verbosity: minimal
-test:
-  categories:
-    except:
-    - Integration
+test_script:
+  - OpenCover.Console.exe -target:"dotnet.exe" -targetargs:"test -c Release /p:DebugType=full -l:trx;LogFilePrefix=testresults" -output:coverage.xml -register:user -returntargetcode -filter:"+[Correlate*]* -[*Tests]* -[*Testing]*" -excludebyattribute:*.ExcludeFromCodeCoverageAttribute;*.GeneratedCodeAttribute;*.DebuggerNonUserCodeAttribute;*.CompilerGeneratedAttribute;*.DebuggerHiddenAttribute -oldStyle
+  - codecov -f coverage.xml
 deploy:
 - provider: NuGet
   api_key:
     secure: V2QFEs9EHhZ5Fxgocpd0/jKOMhiFx1wXkLqPvs7DxSKJT9vItwFMwNQgI8yP1io+
   on:
-    branch: /release/.*/
+    branch:
+    - master
+    - /release\/.+/

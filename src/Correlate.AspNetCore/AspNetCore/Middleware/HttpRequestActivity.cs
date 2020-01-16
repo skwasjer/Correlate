@@ -8,10 +8,10 @@ namespace Correlate.AspNetCore.Middleware
 	{
 		private readonly HttpContext _httpContext;
 		private readonly ILogger _logger;
-		private readonly string _responseHeaderName;
+		private readonly string? _responseHeaderName;
 		private readonly bool _includeInResponse;
 
-		internal HttpRequestActivity(ILogger logger, HttpContext httpContext, string responseHeaderName)
+		internal HttpRequestActivity(ILogger logger, HttpContext httpContext, string? responseHeaderName)
 		{
 			_logger = logger;
 			_httpContext = httpContext;
@@ -19,7 +19,7 @@ namespace Correlate.AspNetCore.Middleware
 			_includeInResponse = !string.IsNullOrWhiteSpace(responseHeaderName);
 		}
 
-		public void Start(CorrelationContext correlationContext)
+		public void Start(CorrelationContext? correlationContext)
 		{
 			if (_includeInResponse && correlationContext != null)
 			{
@@ -37,7 +37,9 @@ namespace Correlate.AspNetCore.Middleware
 			}
 		}
 
+#pragma warning disable CA1822
 		public void Stop()
+#pragma warning restore CA1822
 		{
 		}
 	}

@@ -9,13 +9,13 @@ namespace Correlate
 	{
 		private readonly ICorrelationContextFactory _correlationContextFactory;
 		private readonly ILogger _logger;
-		private readonly DiagnosticListener _diagnosticListener;
-		private IDisposable _logScope;
+		private readonly DiagnosticListener? _diagnosticListener;
+		private IDisposable? _logScope;
 
 		public RootActivity(
 			ICorrelationContextFactory correlationContextFactory,
 			ILogger logger,
-			DiagnosticListener diagnosticListener)
+			DiagnosticListener? diagnosticListener)
 		{
 			_correlationContextFactory = correlationContextFactory ?? throw new ArgumentNullException(nameof(correlationContextFactory));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));

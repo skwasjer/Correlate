@@ -60,13 +60,19 @@ namespace Correlate.AspNetCore.Middleware
 		/// <returns>An awaitable to wait for to complete the request.</returns>
 		public Task Invoke(HttpContext httpContext)
 		{
-			KeyValuePair<string, string> requestHeader = httpContext.Request.Headers.GetCorrelationIdHeader(_acceptedRequestHeaders);
+			if (httpContext is null)
+			{
+				throw new ArgumentNullException(nameof(httpContext));
+			}
+
+			// ReSharper disable once UseDeconstruction - not supported in .NET46/.NETS
+			KeyValuePair<string, string?> requestHeader = httpContext.Request.Headers.GetCorrelationIdHeader(_acceptedRequestHeaders);
 			if (requestHeader.Value != null)
 			{
 				_logger.LogTrace("Request header '{HeaderName}' found with correlation id '{CorrelationId}'.", requestHeader.Key, requestHeader.Value);
 			}
 
-			string responseHeaderName = _options.IncludeInResponse ? requestHeader.Key : null;
+			string? responseHeaderName = _options.IncludeInResponse ? requestHeader.Key : null;
 			var correlatedHttpRequest = new HttpRequestActivity(_logger, httpContext, responseHeaderName);
 			return _asyncCorrelationManager.CorrelateAsync(
 				requestHeader.Value,
@@ -78,7 +84,7 @@ namespace Correlate.AspNetCore.Middleware
 						{
 							correlatedHttpRequest.Stop();
 							return t;
-						})
+						}, TaskScheduler.Current)
 						.Unwrap();
 				});
 		}
