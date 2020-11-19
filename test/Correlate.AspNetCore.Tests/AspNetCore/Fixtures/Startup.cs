@@ -22,7 +22,7 @@ namespace Correlate.AspNetCore.Fixtures
 				.ConfigurePrimaryHttpMessageHandler(s => s.GetRequiredService<MockHttpHandler>())
 				.CorrelateRequests();
 
-#if NETCOREAPP3_1
+#if NETCOREAPP3_1 || NET5_0
 			services
 				.AddControllers()
 				.AddControllersAsServices();
@@ -41,7 +41,7 @@ namespace Correlate.AspNetCore.Fixtures
 
 			app.UseCorrelate();
 
-#if NETCOREAPP3_1
+#if NETCOREAPP3_1 || NET5_0
 			app.UseRouting();
 			app.UseEndpoints(builder => builder.MapControllers());
 #else

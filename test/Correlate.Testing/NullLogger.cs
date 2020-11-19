@@ -3,7 +3,7 @@
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.Logging.Abstractions
 {
-#if !NETSTANDARD2_0 && !NETSTANDARD2_1
+#if !NETSTANDARD2_0 && !NETSTANDARD2_1 && !NET5_0
 	/// <summary>
 	/// Polyfill for frameworks older than NET Core 2.
 	/// </summary>
