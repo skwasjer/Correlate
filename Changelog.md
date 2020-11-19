@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.3.0
+
+- Added .NET 5 target framework
+- Deprecated `CorrelateRequests` extension accepting `IConfiguration` instance.
+
 ## v3.2.0
 
 - Added .NET Standard 2.1 support (for .NET Core 3.x, with newer Microsoft.* dependencies)

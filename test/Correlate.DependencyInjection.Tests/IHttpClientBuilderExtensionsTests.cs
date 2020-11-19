@@ -113,7 +113,7 @@ namespace Correlate.DependencyInjection
 				yield return new ExpectedRegistration<CorrelatingHttpMessageHandler, CorrelatingHttpMessageHandler>(ServiceLifetime.Transient);
 				// AddHttpMessageHandler with options:
 				yield return new ExpectedRegistration<IConfigureOptions<CorrelateClientOptions>, ConfigureNamedOptions<CorrelateClientOptions>>(ServiceLifetime.Singleton);
-#if NETCOREAPP3_1
+#if NETCOREAPP3_1 || NET5_0
 				yield return new ExpectedRegistration<IConfigureOptions<HttpClientFactoryOptions>>(ServiceLifetime.Singleton);
 #else
 				yield return new ExpectedRegistration<IConfigureOptions<HttpClientFactoryOptions>>(ServiceLifetime.Transient);
