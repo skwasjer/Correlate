@@ -48,6 +48,7 @@ namespace Correlate.AspNetCore.Middleware
 		{
 			_factory?.Dispose();
 			_mockHttp?.Dispose();
+			GC.SuppressFinalize(this);
 		}
 
 		[Fact]
@@ -83,7 +84,7 @@ namespace Correlate.AspNetCore.Middleware
 
 			// Assert
 			response.Headers
-				.Should().ContainCorrelationId(headerName)
+				.Should().ContainCorrelationId()
 				.WhichValue.Should().BeEquivalentTo(correlationId);
 		}
 
@@ -108,7 +109,7 @@ namespace Correlate.AspNetCore.Middleware
 		[Fact]
 		public async Task Given_no_headers_are_defined_when_executing_request_the_response_should_contain_default_header()
 		{
-			_options.RequestHeaders = new string[0];
+			_options.RequestHeaders = Array.Empty<string>();
 
 			// Act
 			HttpClient client = _factory.CreateClient();
@@ -132,9 +133,7 @@ namespace Correlate.AspNetCore.Middleware
 			HttpResponseMessage response = await client.GetAsync("");
 
 			// Assert
-			response.Headers
-				.OfType<IEnumerable>()
-				.Should().BeEmpty();
+			((IEnumerable)response.Headers).Should().BeEmpty();
 		}
 
 		[Fact]
@@ -219,11 +218,11 @@ namespace Correlate.AspNetCore.Middleware
 		public async Task When_executing_multiple_requests_the_response_should_contain_new_correlationIds_for_each_response()
 		{
 			HttpClient client = _factory.CreateClient();
-			var requestTasks = Enumerable.Range(0, 50)
+			IEnumerable<Task<HttpResponseMessage>> requestTasks = Enumerable.Range(0, 50)
 				.Select(_ => client.GetAsync(""));
 
 			// Act
-			List<HttpResponseMessage> responses = (await Task.WhenAll(requestTasks)).ToList();
+			var responses = (await Task.WhenAll(requestTasks)).ToList();
 
 			// Assert
 			string[] correlationIds = responses

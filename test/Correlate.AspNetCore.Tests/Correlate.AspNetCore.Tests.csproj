@@ -8,12 +8,10 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.All" Condition="$(TargetFramework.StartsWith('netcoreapp2'))" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="5.0.0" Condition="'$(TargetFramework)' == 'net5'" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.1.1" Condition="'$(TargetFramework)' == 'netcoreapp3.1'" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="5.0.0" Condition="'$(TargetFramework)'=='net5'" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.1.1" Condition="'$(TargetFramework)'=='netcoreapp3.1'" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="2.2.0" Condition="$(TargetFramework.StartsWith('netcoreapp2'))" />
-    <PackageReference Include="Serilog" Version="2.10.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="3.4.0" />
-    <PackageReference Include="Serilog.Sinks.TestCorrelator" Version="3.2.0" />
   </ItemGroup>
 
   <ItemGroup>

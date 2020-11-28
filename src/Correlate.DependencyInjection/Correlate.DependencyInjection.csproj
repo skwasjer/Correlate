@@ -12,7 +12,7 @@
     <PackageTags>correlationid, correlation, correlate, causation, aspnet, middleware, httpclient, httpclientfactory</PackageTags>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net5' Or $(TargetFramework.StartsWith('netstandard2'))">
+  <ItemGroup Condition="'$(TargetFramework)'=='net5' Or $(TargetFramework.StartsWith('netstandard2'))">
     <PackageReference Include="Microsoft.Extensions.Http" Version="$(PackageVersion_Microsoft_Extensions)" />
   </ItemGroup>
 

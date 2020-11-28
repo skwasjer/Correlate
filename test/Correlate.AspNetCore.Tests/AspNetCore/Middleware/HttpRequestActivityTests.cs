@@ -109,6 +109,7 @@ namespace Correlate.AspNetCore.Middleware
 		public void Dispose()
 		{
 			_sut.Stop();
+			GC.SuppressFinalize(this);
 		}
 	}
 }

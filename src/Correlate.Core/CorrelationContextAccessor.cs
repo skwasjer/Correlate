@@ -3,7 +3,7 @@
 namespace Correlate
 {
 	/// <summary>
-	/// Provides access to the <see cref="CorrelationContext"/>.
+	/// Provides access to the <see cref="CorrelationContext" />.
 	/// </summary>
 	public class CorrelationContextAccessor : ICorrelationContextAccessor
 	{
@@ -15,32 +15,34 @@ namespace Correlate
 			get => CurrentContext.Value?.Context;
 			set
 			{
-				CorrelationContextHolder holder = CurrentContext.Value;
-				if (value == null && holder == null)
+				CorrelationContextHolder? holder = CurrentContext.Value;
+				switch (value)
 				{
-					return;
-				}
+					case null when holder is null:
+						return;
 
-				if (value == null)
-				{
-					// Restore parent context as current context (if any), and clear current context.
-					if (holder.ParentContext != null)
+					case null:
 					{
-						CurrentContext.Value = holder.ParentContext;
+						// Restore parent context as current context (if any), and clear current context.
+						if (holder.ParentContext != null)
+						{
+							CurrentContext.Value = holder.ParentContext;
+						}
+
+						holder.Context = null;
+						holder.ParentContext = null;
+						break;
 					}
 
-					holder.Context = null;
-					holder.ParentContext = null;
-				}
-				else
-				{
-					// Use an object indirection to hold the CorrelationContext in the AsyncLocal,
-					// so it can be cleared in all ExecutionContexts when its cleared.
-					CurrentContext.Value = new CorrelationContextHolder
-					{
-						Context = value,
-						ParentContext = holder
-					};
+					default:
+						// Use an object indirection to hold the CorrelationContext in the AsyncLocal,
+						// so it can be cleared in all ExecutionContexts when its cleared.
+						CurrentContext.Value = new CorrelationContextHolder
+						{
+							Context = value,
+							ParentContext = holder
+						};
+						break;
 				}
 			}
 		}
