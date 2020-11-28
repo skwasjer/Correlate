@@ -11,10 +11,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Serilog" Version="2.8.0" />
-    <PackageReference Include="Serilog.Extensions.Logging" Version="2.0.0" />
-    <PackageReference Include="Serilog.Sinks.TestCorrelator" Version="3.0.3" />
-    <PackageReference Include="skwas.MockHttp" Version="2.2.0" />
+    <PackageReference Include="Serilog" Version="2.10.0" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="2.0.4" Condition="'$(TargetFramework)'=='netstandard1.3' Or '$(TargetFramework)'=='net46'" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" Condition="'$(TargetFramework)'!='netstandard1.3' And '$(TargetFramework)'!='net46'" />
+    <PackageReference Include="Serilog.Sinks.TestCorrelator" Version="3.0.3" Condition="'$(TargetFramework)'=='netstandard1.3'" />
+    <PackageReference Include="Serilog.Sinks.TestCorrelator" Version="3.2.0" Condition="'$(TargetFramework)'!='netstandard1.3'" />
+    <PackageReference Include="skwas.MockHttp" Version="2.3.0" />
   </ItemGroup>
 
 </Project>

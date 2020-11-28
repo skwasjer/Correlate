@@ -6,8 +6,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="5.10.0" />
-    <PackageReference Include="Moq" Version="4.10.1" />
+    <PackageReference Include="FluentAssertions" Version="5.10.3" />
+    <PackageReference Include="Moq" Version="4.10.1" Condition="$(TargetFramework.StartsWith('netstandard1')) Or '$(TargetFramework)'=='netcoreapp1.1'"/>
+    <PackageReference Include="Moq" Version="4.15.2" Condition="'$(TargetFramework)'!='netstandard1.3' And '$(TargetFramework)'!='netcoreapp1.1'" />
     <PackageReference Include="xunit" Version="2.4.1" />
   </ItemGroup>
 
