@@ -8,11 +8,15 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <AssemblyName>Correlate</AssemblyName>
     <PackageId>Correlate</PackageId>
     <Description>Correlate requests between microservices using a correlation id.</Description>
     <PackageProjectUrl>https://github.com/skwasjer/Correlate</PackageProjectUrl>
     <PackageTags>correlationid, correlation, correlate, causation, aspnet, middleware, httpclient, httpclientfactory</PackageTags>
-    <AssemblyName>Correlate</AssemblyName>
+    <PackageReleaseNotes>
+      ## v3.3.0
+      - Added .NET 5 target framework
+    </PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

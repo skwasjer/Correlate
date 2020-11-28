@@ -10,6 +10,11 @@
     <Description>Dependency injection extensions for Correlate.</Description>
     <PackageProjectUrl>https://github.com/skwasjer/Correlate</PackageProjectUrl>
     <PackageTags>correlationid, correlation, correlate, causation, aspnet, middleware, httpclient, httpclientfactory</PackageTags>
+    <PackageReleaseNotes>
+      ## v3.3.0
+      - Added .NET 5 target framework
+      - Deprecated `CorrelateRequests` extension accepting `IConfiguration` instance.
+    </PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='net5' Or $(TargetFramework.StartsWith('netstandard2'))">
