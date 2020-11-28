@@ -46,7 +46,7 @@ namespace Correlate
 		}
 
 		/// <summary>
-		/// Gets or sets the result value to return. This is only 
+		/// Gets or sets the result value to return.
 		/// </summary>
 		[AllowNull]
 		public T Result
@@ -58,7 +58,7 @@ namespace Correlate
 			set
 			{
 				IsExceptionHandled = true;
-				_result = value;
+				_result = value!;
 			}
 		}
 	}
