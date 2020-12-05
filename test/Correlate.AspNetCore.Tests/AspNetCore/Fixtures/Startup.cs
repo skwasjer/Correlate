@@ -30,7 +30,11 @@ namespace Correlate.AspNetCore.Fixtures
 			services
 				.AddMvcCore()
 				.AddControllersAsServices()
+#if NETCOREAPP2_1
+				.SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_2_1);
+#else
 				.SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_2_2);
+#endif
 #endif
 		}
 
