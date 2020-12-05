@@ -21,7 +21,6 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" Condition="'$(TargetFramework)'=='net5.0'" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" Condition="$(TargetFramework.StartsWith('netstandard2'))" />
     <PackageReference Include="System.Collections.Immutable" Version="1.7.1" Condition="'$(TargetFramework)'!='net5.0'"/>
-    <PackageReference Include="System.Collections.Immutable" Version="5.0.0" Condition="'$(TargetFramework)'=='net5.0'" />
   </ItemGroup>
 
   <ItemGroup>
