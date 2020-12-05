@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;netstandard2.0;netstandard1.3;net46</TargetFrameworks>
+    <TargetFrameworks>net5.0;netstandard2.1;netstandard2.0;netstandard1.3;net46</TargetFrameworks>
     <IsTestProject>false</IsTestProject>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -10,18 +10,19 @@
     <Description>Dependency injection extensions for Correlate.</Description>
     <PackageProjectUrl>https://github.com/skwasjer/Correlate</PackageProjectUrl>
     <PackageTags>correlationid, correlation, correlate, causation, aspnet, middleware, httpclient, httpclientfactory</PackageTags>
+    <PackageReleaseNotes>
+      v3.3.0
+      - Added .NET 5 target framework
+      - Deprecated `CorrelateRequests` extension accepting `IConfiguration` instance.
+    </PackageReleaseNotes>
   </PropertyGroup>
 
-  <ItemGroup  Condition="'$(TargetFramework)' == 'netstandard2.1'">
-    <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.1" />
-  </ItemGroup>
-
-  <ItemGroup Condition="$(TargetFramework.StartsWith('netstandard2'))">
-    <PackageReference Include="Microsoft.Extensions.Http" Version="2.1.0" />
+  <ItemGroup Condition="'$(TargetFramework)'=='net5.0' Or $(TargetFramework.StartsWith('netstandard2'))">
+    <PackageReference Include="Microsoft.Extensions.Http" Version="$(PackageVersion_Microsoft_Extensions)" />
   </ItemGroup>
 
   <ItemGroup Condition="$(TargetFramework.StartsWith('netstandard1')) Or $(TargetFramework.StartsWith('net46'))">
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="1.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="$(PackageVersion_Microsoft_Extensions)" />
   </ItemGroup>
 
   <ItemGroup>

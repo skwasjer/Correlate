@@ -3,7 +3,7 @@
 namespace Correlate
 {
 	/// <summary>
-	/// Produces a base32 encoded correlation id, similar to the <see cref="IHttpRequestIdentifierFeature.TraceIdentifier"/>
+	/// Produces a base32 encoded correlation id, similar to the <see cref="HttpRequestIdentifierFeature.TraceIdentifier"/>
 	/// </summary>
 	public class RequestIdentifierCorrelationIdFactory : ICorrelationIdFactory
 	{
@@ -21,7 +21,7 @@ namespace Correlate
 		public string Create()
 		{
 			// Set to null, so the next 'get' will produce a new id.
-			_httpRequestIdentifierFeature.TraceIdentifier = null;
+			_httpRequestIdentifierFeature.TraceIdentifier = null!;
 			return _httpRequestIdentifierFeature.TraceIdentifier!;
 		}
 	}

@@ -11,7 +11,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Serilog;
 using Serilog.Core;
-using Serilog.Events;
 using Serilog.Extensions.Logging;
 using Serilog.Sinks.TestCorrelator;
 using Xunit;
@@ -27,7 +26,7 @@ namespace Correlate
 		private readonly ILogger<CorrelationManager> _logger;
 		private readonly SerilogLoggerProvider _logProvider;
 
-		public CorrelationManagerTests()
+		protected CorrelationManagerTests()
 		{
 			_correlationContextAccessor = new CorrelationContextAccessor();
 
@@ -55,6 +54,7 @@ namespace Correlate
 		public void Dispose()
 		{
 			_logProvider.Dispose();
+			GC.SuppressFinalize(this);
 		}
 
 		public class Async : CorrelationManagerTests
@@ -84,7 +84,7 @@ namespace Correlate
 				await _sut.CorrelateAsync(() =>
 				{
 					// Inline assert
-					_correlationContextAccessor.CorrelationContext.CorrelationId.Should().Be(GeneratedCorrelationId);
+					_correlationContextAccessor.CorrelationContext?.CorrelationId.Should().Be(GeneratedCorrelationId);
 					return Task.CompletedTask;
 				});
 
@@ -101,7 +101,7 @@ namespace Correlate
 					() =>
 					{
 						// Inline assert
-						_correlationContextAccessor.CorrelationContext.CorrelationId.Should().Be(correlationId);
+						_correlationContextAccessor.CorrelationContext?.CorrelationId.Should().Be(correlationId);
 						return Task.CompletedTask;
 					});
 
@@ -215,7 +215,7 @@ namespace Correlate
 					{
 						CorrelationContext parentContext = _correlationContextAccessor.CorrelationContext;
 						parentContext.Should().NotBeNull();
-						parentContext.CorrelationId.Should().Be(parentContextId);
+						parentContext?.CorrelationId.Should().Be(parentContextId);
 
 						await _sut.CorrelateAsync(innerContextId,
 							() =>
@@ -223,14 +223,14 @@ namespace Correlate
 								CorrelationContext innerContext = _correlationContextAccessor.CorrelationContext;
 								innerContext.Should().NotBeNull();
 								innerContext.Should().NotBe(parentContext);
-								innerContext.CorrelationId.Should().Be(innerContextId);
+								innerContext?.CorrelationId.Should().Be(innerContextId);
 
 								return Task.CompletedTask;
 							});
 
 						_correlationContextAccessor.CorrelationContext.Should().NotBeNull();
 
-						_correlationContextAccessor.CorrelationContext
+						_correlationContextAccessor.CorrelationContext?
 							.CorrelationId
 							.Should()
 							.Be(parentContextId);
@@ -243,8 +243,9 @@ namespace Correlate
 				return _sut.CorrelateAsync(async () =>
 				{
 					CorrelationContext parentContext = _correlationContextAccessor.CorrelationContext;
+					parentContext.Should().NotBeNull();
 
-					await _sut.CorrelateAsync(parentContext.CorrelationId,
+					await _sut.CorrelateAsync(parentContext?.CorrelationId,
 						() =>
 						{
 							CorrelationContext innerContext = _correlationContextAccessor.CorrelationContext;
@@ -294,13 +295,13 @@ namespace Correlate
 					{
 						CorrelationContext parentContext = _correlationContextAccessor.CorrelationContext;
 						parentContext.Should().NotBeNull();
-						parentContext.CorrelationId.Should().Be(parentContextId);
+						parentContext?.CorrelationId.Should().Be(parentContextId);
 
 						await sut.CorrelateAsync(() =>
 						{
 							CorrelationContext innerContext = _correlationContextAccessor.CorrelationContext;
 							innerContext.Should().NotBeNull().And.NotBe(parentContext);
-							innerContext.CorrelationId.Should().NotBe(parentContextId);
+							innerContext?.CorrelationId.Should().NotBe(parentContextId);
 
 							return Task.CompletedTask;
 						});
@@ -345,7 +346,7 @@ namespace Correlate
 					_logger.LogInformation("End message without correlation id.");
 
 					// Assert
-					List<LogEvent> logEvents = TestCorrelator.GetLogEventsFromCurrentContext().ToList();
+					var logEvents = TestCorrelator.GetLogEventsFromCurrentContext().ToList();
 					logEvents.Should()
 						.HaveCount(3)
 						.And.ContainSingle(ev => ev.MessageTemplate.Text == "Message with correlation id." && ev.Properties.ContainsKey("CorrelationId"));
@@ -405,7 +406,7 @@ namespace Correlate
 				_sut.Correlate(() =>
 				{
 					// Inline assert
-					_correlationContextAccessor.CorrelationContext.CorrelationId.Should().Be(GeneratedCorrelationId);
+					_correlationContextAccessor.CorrelationContext?.CorrelationId.Should().Be(GeneratedCorrelationId);
 				});
 
 				_correlationIdFactoryMock.Verify();
@@ -421,7 +422,7 @@ namespace Correlate
 					() =>
 					{
 						// Inline assert
-						_correlationContextAccessor.CorrelationContext.CorrelationId.Should().Be(correlationId);
+						_correlationContextAccessor.CorrelationContext?.CorrelationId.Should().Be(correlationId);
 					});
 
 				_correlationIdFactoryMock.Verify(m => m.Create(), Times.Never);
@@ -529,7 +530,7 @@ namespace Correlate
 					{
 						CorrelationContext parentContext = _correlationContextAccessor.CorrelationContext;
 						parentContext.Should().NotBeNull();
-						parentContext.CorrelationId.Should().Be(parentContextId);
+						parentContext?.CorrelationId.Should().Be(parentContextId);
 
 						_sut.Correlate(innerContextId,
 							() =>
@@ -537,12 +538,12 @@ namespace Correlate
 								CorrelationContext innerContext = _correlationContextAccessor.CorrelationContext;
 								innerContext.Should().NotBeNull();
 								innerContext.Should().NotBe(parentContext);
-								innerContext.CorrelationId.Should().Be(innerContextId);
+								innerContext?.CorrelationId.Should().Be(innerContextId);
 							});
 
 						_correlationContextAccessor.CorrelationContext.Should().NotBeNull();
 
-						_correlationContextAccessor.CorrelationContext
+						_correlationContextAccessor.CorrelationContext?
 							.CorrelationId
 							.Should()
 							.Be(parentContextId);
@@ -555,8 +556,9 @@ namespace Correlate
 				_sut.Correlate(() =>
 				{
 					CorrelationContext parentContext = _correlationContextAccessor.CorrelationContext;
+					parentContext.Should().NotBeNull();
 
-					_sut.Correlate(parentContext.CorrelationId,
+					_sut.Correlate(parentContext?.CorrelationId,
 						() =>
 						{
 							CorrelationContext innerContext = _correlationContextAccessor.CorrelationContext;
@@ -621,7 +623,7 @@ namespace Correlate
 					_logger.LogInformation("End message without correlation id.");
 
 					// Assert
-					List<LogEvent> logEvents = TestCorrelator.GetLogEventsFromCurrentContext().ToList();
+					var logEvents = TestCorrelator.GetLogEventsFromCurrentContext().ToList();
 					logEvents.Should()
 						.HaveCount(3)
 						.And.ContainSingle(ev => ev.MessageTemplate.Text == "Message with correlation id." && ev.Properties.ContainsKey("CorrelationId"));
@@ -632,11 +634,10 @@ namespace Correlate
 			public void Given_provided_action_throws_but_exception_delegate_is_null_it_should_just_rethrow()
 			{
 				var exception = new Exception();
-				// ReSharper disable once ConvertToLocalFunction
-				Action throwingAction = () => throw exception;
+				void ThrowingAction() => throw exception;
 
 				// Act
-				Action act = () => _sut.Correlate(null, throwingAction, null);
+				Action act = () => _sut.Correlate(null, ThrowingAction, null);
 
 				// Assert
 				act.Should().Throw<Exception>().Which.Should().Be(exception);
@@ -646,11 +647,10 @@ namespace Correlate
 			public void Given_provided_func_throws_but_exception_delegate_is_null_it_should_just_rethrow()
 			{
 				var exception = new Exception();
-				// ReSharper disable once ConvertToLocalFunction
-				Func<int> throwingFunc = () => throw exception;
+				int ThrowingFunc() => throw exception;
 
 				// Act
-				Func<int> act = () => _sut.Correlate(null, throwingFunc, null);
+				Func<int> act = () => _sut.Correlate(null, ThrowingFunc, null);
 
 				// Assert
 				act.Should().Throw<Exception>().Which.Should().Be(exception);
@@ -675,30 +675,29 @@ namespace Correlate
 					Mock.Of<ICorrelationContextAccessor>(),
 					Mock.Of<ILogger<CorrelationManager>>()
 				);
-				// ReSharper disable ConvertToLocalFunction
-				Func<Task> correlatedTask = () => Task.CompletedTask;
-				Func<Task<int>> returningCorrelatedTask = () => Task.FromResult(1);
-				Action correlatedAction = () => { };
-				Func<int> returningCorrelatedAction = () => 1;
-				// ReSharper restore ConvertToLocalFunction
+
+				static Task CorrelatedTask() => Task.CompletedTask;
+				static Task<int> ReturningCorrelatedTask() => Task.FromResult(1);
+				static void CorrelatedAction() { }
+				static int ReturningCorrelatedFunc() => 1;
 
 				return new[]
 					{
 						// Instance members
-						DelegateTestCase.Create(instance.CorrelateAsync, (string)null, correlatedTask, (OnException)null),
-						DelegateTestCase.Create(instance.CorrelateAsync, (string)null, returningCorrelatedTask, (OnException<int>)null),
-						DelegateTestCase.Create(instance.Correlate, (string)null, correlatedAction, (OnException)null),
-						DelegateTestCase.Create(instance.Correlate, (string)null, returningCorrelatedAction, (OnException<int>)null),
+						DelegateTestCase.Create(instance.CorrelateAsync, (string)null, (Func<Task>)CorrelatedTask, (OnException)null),
+						DelegateTestCase.Create(instance.CorrelateAsync, (string)null, (Func<Task<int>>)ReturningCorrelatedTask, (OnException<int>)null),
+						DelegateTestCase.Create(instance.Correlate, (string)null, (Action)CorrelatedAction, (OnException)null),
+						DelegateTestCase.Create(instance.Correlate, (string)null, (Func<int>)ReturningCorrelatedFunc, (OnException<int>)null),
 						// Extensions
-						DelegateTestCase.Create(AsyncCorrelationManagerExtensions.CorrelateAsync, instance, correlatedTask),
-						DelegateTestCase.Create(AsyncCorrelationManagerExtensions.CorrelateAsync, instance, returningCorrelatedTask),
-						DelegateTestCase.Create(CorrelationManagerExtensions.Correlate, instance, correlatedAction),
-						DelegateTestCase.Create(CorrelationManagerExtensions.Correlate, instance, returningCorrelatedAction),
+						DelegateTestCase.Create(AsyncCorrelationManagerExtensions.CorrelateAsync, instance, (Func<Task>)CorrelatedTask),
+						DelegateTestCase.Create(AsyncCorrelationManagerExtensions.CorrelateAsync, instance, (Func<Task<int>>)ReturningCorrelatedTask),
+						DelegateTestCase.Create(CorrelationManagerExtensions.Correlate, instance, (Action)CorrelatedAction),
+						DelegateTestCase.Create(CorrelationManagerExtensions.Correlate, instance, (Func<int>)ReturningCorrelatedFunc),
 
-						DelegateTestCase.Create(AsyncCorrelationManagerExtensions.CorrelateAsync, instance, correlatedTask, (OnException)null),
-						DelegateTestCase.Create(AsyncCorrelationManagerExtensions.CorrelateAsync, instance, returningCorrelatedTask, (OnException<int>)null),
-						DelegateTestCase.Create(CorrelationManagerExtensions.Correlate, instance, correlatedAction, (OnException)null),
-						DelegateTestCase.Create(CorrelationManagerExtensions.Correlate, instance, returningCorrelatedAction, (OnException<int>)null),
+						DelegateTestCase.Create(AsyncCorrelationManagerExtensions.CorrelateAsync, instance, (Func<Task>)CorrelatedTask, (OnException)null),
+						DelegateTestCase.Create(AsyncCorrelationManagerExtensions.CorrelateAsync, instance, (Func<Task<int>>)ReturningCorrelatedTask, (OnException<int>)null),
+						DelegateTestCase.Create(CorrelationManagerExtensions.Correlate, instance, (Action)CorrelatedAction, (OnException)null),
+						DelegateTestCase.Create(CorrelationManagerExtensions.Correlate, instance, (Func<int>)ReturningCorrelatedFunc, (OnException<int>)null),
 					}
 					.SelectMany(tc => tc.GetNullArgumentTestCases());
 			}

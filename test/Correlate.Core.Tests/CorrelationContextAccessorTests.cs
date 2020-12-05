@@ -19,6 +19,15 @@ namespace Correlate
 		}
 
 		[Fact]
+		public void Given_context_is_uninitialized_when_setting_context_to_null_it_should_not_throw()
+		{
+			Action act = () => _sut.CorrelationContext = null;
+
+			// Assert
+			act.Should().NotThrow();
+		}
+
+		[Fact]
 		public async Task When_running_multiple_tasks_in_nested_context_should_inherit_from_ambient_parent()
 		{
 			const string rootName = "root-context";

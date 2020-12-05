@@ -22,7 +22,7 @@ namespace Correlate.AspNetCore.Fixtures
 				.ConfigurePrimaryHttpMessageHandler(s => s.GetRequiredService<MockHttpHandler>())
 				.CorrelateRequests();
 
-#if NETCOREAPP3_1
+#if NETCOREAPP3_1 || NET5_0
 			services
 				.AddControllers()
 				.AddControllersAsServices();
@@ -30,7 +30,11 @@ namespace Correlate.AspNetCore.Fixtures
 			services
 				.AddMvcCore()
 				.AddControllersAsServices()
+#if NETCOREAPP2_1
+				.SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_2_1);
+#else
 				.SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_2_2);
+#endif
 #endif
 		}
 
@@ -41,7 +45,7 @@ namespace Correlate.AspNetCore.Fixtures
 
 			app.UseCorrelate();
 
-#if NETCOREAPP3_1
+#if NETCOREAPP3_1 || NET5_0
 			app.UseRouting();
 			app.UseEndpoints(builder => builder.MapControllers());
 #else

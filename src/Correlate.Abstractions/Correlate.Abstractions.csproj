@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.0;net46</TargetFrameworks>
+    <TargetFrameworks>net5.0;netstandard2.0;netstandard1.0;net46</TargetFrameworks>
     <IsTestProject>false</IsTestProject>
     <RootNamespace>Correlate</RootNamespace>
     <Nullable>enable</Nullable>
@@ -11,6 +11,10 @@
     <Description>Provides abtractions to correlate requests between microservices.</Description>
     <PackageProjectUrl>https://github.com/skwasjer/Correlate</PackageProjectUrl>
     <PackageTags>correlationid, correlation, correlate, causation, aspnet, middleware, httpclient, httpclientfactory</PackageTags>
+    <PackageReleaseNotes>
+      v3.3.0
+      - Added .NET 5.0 and .NET Standard 2.0 target framework
+    </PackageReleaseNotes>
   </PropertyGroup>
   
 </Project>
