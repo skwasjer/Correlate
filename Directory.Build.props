@@ -14,7 +14,7 @@
 
     <!-- System.Diagnostics.DiagnosticSource -->
     <PackageVersion_DiagnosticSource>5.0.0</PackageVersion_DiagnosticSource>
-    <PackageVersion_DiagnosticSource Condition="'$(TargetFramework)'!='net5'">4.7.0</PackageVersion_DiagnosticSource>
+    <PackageVersion_DiagnosticSource Condition="'$(TargetFramework)'!='net5.0'">4.7.0</PackageVersion_DiagnosticSource>
 
   </PropertyGroup>
 </Project>
