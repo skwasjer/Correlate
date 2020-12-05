@@ -204,11 +204,12 @@ Please consider that .NET Core 3 now has built-in support for [W3C TraceContext]
 ## More info
 
 ### Supported .NET targets
-- .NET Standard 2.1
-- .NET Standard 2.0
-- .NET Standard 1.3
-- ASP.NET Core 2.1/2.2/3.0/3.1/5.0
+- .NET 5.0
+- .NET Standard 2.1/2.0/1.3
 - .NET 4.6
+
+### ASP.NET Core support
+- ASP.NET Core 2.1/2.2/3.0/3.1/5.0
 
 ### Build requirements
 - Visual Studio 2019
