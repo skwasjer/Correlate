@@ -6,7 +6,7 @@ using FluentAssertions.Specialized;
 
 namespace Correlate.Testing.FluentAssertions
 {
-	public class DelegateAssertions : DelegateAssertions<Delegate>
+	public class DelegateAssertions : DelegateAssertions<Delegate, DelegateAssertions>
 	{
 		public DelegateAssertions(Delegate @delegate, IExtractExceptions extractor) : base(@delegate, extractor)
 		{
@@ -41,7 +41,7 @@ namespace Correlate.Testing.FluentAssertions
 				.BecauseOf(because, becauseArgs)
 				.FailWith("Expected {context} to throw {0}{reason}, but found <null>.", (object)typeof(TException));
 
-			return Throw<TException>(InvokeSubjectWithInterception(args), because, becauseArgs);
+			return ThrowInternal<TException>(InvokeSubjectWithInterception(args), because, becauseArgs);
 		}
 
 		/// <summary>
@@ -69,12 +69,12 @@ namespace Correlate.Testing.FluentAssertions
 			}
 			catch (TargetInvocationException ex) when (ex.InnerException != null)
 			{
-				NotThrow(ex.InnerException, because, becauseArgs);
+				NotThrowInternal(ex.InnerException, because, becauseArgs);
 				return new AndWhichConstraint<DelegateAssertions, object>(this, default);
 			}
 			catch (Exception ex)
 			{
-				NotThrow(ex, because, becauseArgs);
+				NotThrowInternal(ex, because, becauseArgs);
 				return new AndWhichConstraint<DelegateAssertions, object>(this, default);
 			}
 		}
@@ -106,12 +106,12 @@ namespace Correlate.Testing.FluentAssertions
 			}
 			catch (TargetInvocationException ex) when (ex.InnerException != null)
 			{
-				NotThrow(ex.InnerException, because, becauseArgs);
+				NotThrowInternal(ex.InnerException, because, becauseArgs);
 				return new AndWhichConstraint<DelegateAssertions, object>(this, default);
 			}
 			catch (Exception ex)
 			{
-				NotThrow(ex, because, becauseArgs);
+				NotThrowInternal(ex, because, becauseArgs);
 				return new AndWhichConstraint<DelegateAssertions, object>(this, default);
 			}
 		}

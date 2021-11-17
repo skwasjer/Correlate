@@ -109,7 +109,7 @@ namespace Correlate
 			}
 
 			[Fact]
-			public void When_provided_task_throws_should_not_wrap_exception()
+			public async Task When_provided_task_throws_should_not_wrap_exception()
 			{
 				var exception = new Exception();
 				async Task ThrowingTask()
@@ -122,11 +122,11 @@ namespace Correlate
 				Func<Task> act = () => _sut.CorrelateAsync(null, ThrowingTask);
 
 				// Assert
-				act.Should().Throw<Exception>().Which.Should().Be(exception);
+				(await act.Should().ThrowAsync<Exception>()).Which.Should().Be(exception);
 			}
 
 			[Fact]
-			public void When_provided_task_throws_should_enrich_exception_with_correlationId()
+			public async Task When_provided_task_throws_should_enrich_exception_with_correlationId()
 			{
 				var exception = new Exception();
 				Task ThrowingTask() => throw exception;
@@ -135,13 +135,18 @@ namespace Correlate
 				Func<Task> act = () => _sut.CorrelateAsync(null, ThrowingTask);
 
 				// Assert
-				IDictionary exceptionData = act.Should().Throw<Exception>().Which.Data;
-				exceptionData.Keys.Should().Contain(CorrelateConstants.CorrelationIdKey);
-				exceptionData[CorrelateConstants.CorrelationIdKey].Should().Be(GeneratedCorrelationId);
+				IDictionary exceptionData = (await act.Should().ThrowAsync<Exception>()).Which.Data;
+				exceptionData
+					.Cast<DictionaryEntry>()
+					.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
+					.Should()
+					.ContainKey(CorrelateConstants.CorrelationIdKey)
+					.WhoseValue.Should()
+					.Be(GeneratedCorrelationId);
 			}
 
 			[Fact]
-			public void When_handling_exception_with_delegate_should_not_throw()
+			public async Task When_handling_exception_with_delegate_should_not_throw()
 			{
 				var exception = new Exception();
 				const bool handlesException = true;
@@ -158,7 +163,7 @@ namespace Correlate
 					});
 
 				// Assert
-				act.Should().NotThrow();
+				await act.Should().NotThrowAsync();
 			}
 
 			[Fact]
@@ -184,12 +189,11 @@ namespace Correlate
 					});
 
 				// Assert
-				act.Should().NotThrow();
-				(await act()).Should().Be(returnValue);
+				(await act.Should().NotThrowAsync()).Which.Should().Be(returnValue);
 			}
 
 			[Fact]
-			public void When_not_handling_exception_with_delegate_should_still_throw()
+			public async Task When_not_handling_exception_with_delegate_should_still_throw()
 			{
 				var exception = new Exception();
 				const bool handlesException = false;
@@ -201,7 +205,7 @@ namespace Correlate
 				);
 
 				// Assert
-				act.Should().Throw<Exception>().Which.Should().Be(exception);
+				(await act.Should().ThrowAsync<Exception>()).Which.Should().Be(exception);
 			}
 
 			[Fact]
@@ -323,7 +327,7 @@ namespace Correlate
 			}
 
 			[Fact]
-			public void Given_provided_task_throws_but_exception_delegate_is_null_it_should_just_rethrow()
+			public async Task Given_provided_task_throws_but_exception_delegate_is_null_it_should_just_rethrow()
 			{
 				var exception = new Exception();
 				Task ThrowingTask() => throw exception;
@@ -332,11 +336,11 @@ namespace Correlate
 				Func<Task> act = () => _sut.CorrelateAsync(null, ThrowingTask, null);
 
 				// Assert
-				act.Should().Throw<Exception>().Which.Should().Be(exception);
+				(await act.Should().ThrowAsync<Exception>()).Which.Should().Be(exception);
 			}
 
 			[Fact]
-			public void Given_provided_task_with_returnValue_throws_but_exception_delegate_is_null_it_should_just_rethrow()
+			public async Task Given_provided_task_with_returnValue_throws_but_exception_delegate_is_null_it_should_just_rethrow()
 			{
 				var exception = new Exception();
 				Task<int> ThrowingTask() => throw exception;
@@ -345,7 +349,7 @@ namespace Correlate
 				Func<Task<int>> act = () => _sut.CorrelateAsync(null, ThrowingTask, null);
 
 				// Assert
-				act.Should().Throw<Exception>().Which.Should().Be(exception);
+				(await act.Should().ThrowAsync<Exception>()).Which.Should().Be(exception);
 			}
 		}
 
@@ -422,8 +426,13 @@ namespace Correlate
 
 				// Assert
 				IDictionary exceptionData = act.Should().Throw<Exception>().Which.Data;
-				exceptionData.Keys.Should().Contain(CorrelateConstants.CorrelationIdKey);
-				exceptionData[CorrelateConstants.CorrelationIdKey].Should().Be(GeneratedCorrelationId);
+				exceptionData
+					.Cast<DictionaryEntry>()
+					.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
+					.Should()
+					.ContainKey(CorrelateConstants.CorrelationIdKey)
+					.WhoseValue.Should()
+					.Be(GeneratedCorrelationId);
 			}
 
 			[Fact]

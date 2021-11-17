@@ -10,8 +10,8 @@ namespace Correlate.Testing.FluentAssertions
 	public class ServiceCollectionAssertions : ReferenceTypeAssertions<IServiceCollection, ServiceCollectionAssertions>
 	{
 		public ServiceCollectionAssertions(IServiceCollection actualValue)
+		: base(actualValue)
 		{
-			Subject = actualValue;
 		}
 
 		protected override string Identifier => "ServiceProviderAssertions";
