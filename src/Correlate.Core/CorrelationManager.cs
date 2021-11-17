@@ -30,43 +30,6 @@ namespace Correlate
 		/// </summary>
 		/// <param name="correlationContextFactory">The correlation context factory used to create new contexts.</param>
 		/// <param name="correlationIdFactory">The correlation id factory used to generate a new correlation id per context.</param>
-		/// <param name="logger">The logger.</param>
-		[Obsolete("Use the Ctor() that accepts 'ICorrelationContextAccessor'.")]
-		public CorrelationManager
-		(
-			ICorrelationContextFactory correlationContextFactory,
-			ICorrelationIdFactory correlationIdFactory,
-			ILogger<CorrelationManager> logger
-		)
-		{
-			_correlationContextFactory = correlationContextFactory ?? throw new ArgumentNullException(nameof(correlationContextFactory));
-			_correlationIdFactory = correlationIdFactory ?? throw new ArgumentNullException(nameof(correlationIdFactory));
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-		}
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="CorrelationManager"/> class.
-		/// </summary>
-		/// <param name="correlationContextFactory">The correlation context factory used to create new contexts.</param>
-		/// <param name="correlationIdFactory">The correlation id factory used to generate a new correlation id per context.</param>
-		/// <param name="logger">The logger.</param>
-		/// <param name="diagnosticListener">The diagnostics listener to run activities on.</param>
-		[Obsolete("Use the Ctor() that accepts 'ICorrelationContextAccessor'.")]
-		public CorrelationManager(
-			ICorrelationContextFactory correlationContextFactory,
-			ICorrelationIdFactory correlationIdFactory,
-			ILogger<CorrelationManager> logger,
-			DiagnosticListener diagnosticListener
-		) : this(correlationContextFactory, correlationIdFactory, logger)
-		{
-			_diagnosticListener = diagnosticListener ?? throw new ArgumentNullException(nameof(diagnosticListener));
-		}
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="CorrelationManager"/> class.
-		/// </summary>
-		/// <param name="correlationContextFactory">The correlation context factory used to create new contexts.</param>
-		/// <param name="correlationIdFactory">The correlation id factory used to generate a new correlation id per context.</param>
 		/// <param name="correlationContextAccessor">The correlation context accessor.</param>
 		/// <param name="logger">The logger.</param>
 		public CorrelationManager

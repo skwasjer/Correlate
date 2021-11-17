@@ -4,6 +4,8 @@
 
 - Added .NET 6 target framework
 - (breaking) Removed .NET Framework 4.6 and .NET Standard below 2.0.
+- (breaking) Removed `CorrelationManager` obsoleted constructors.
+- (breaking) Removed obsolete `CorrelateRequests` overload accepting an `IConfiguration` parameter.
 
 ## v3.3.0
 
