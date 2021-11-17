@@ -1,8 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net5.0;netstandard2.1;netstandard2.0</TargetFrameworks>
-    <IsTestProject>false</IsTestProject>
+    <TargetFrameworks>net6.0;net5.0;netstandard2.1</TargetFrameworks>
     <RootNamespace>Correlate</RootNamespace>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -12,16 +11,19 @@
     <PackageProjectUrl>https://github.com/skwasjer/Correlate</PackageProjectUrl>
     <PackageTags>correlationid, correlation, correlate, causation, aspnet, middleware, httpclient, httpclientfactory</PackageTags>
     <PackageReleaseNotes>
-      v3.3.0
-      - Added .NET 5.0 target framework
+      v4.0.0
+      - Added .NET 6.0 support
+      - Removed .NET Core 2.1 support (implicitly by removing .NET Standard 2.0)
     </PackageReleaseNotes>
   </PropertyGroup>
 
-  <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" Condition="'$(TargetFramework)'=='net5.0'" />
-    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" Condition="'$(TargetFramework)' == 'netstandard2.1'" />
-    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.1.0" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
-    <PackageReference Include="System.Collections.Immutable" Version="1.7.1" Condition="'$(TargetFramework)'!='net5.0'"/>
+  <ItemGroup Condition="'$(TargetFramework)'!='netstandard2.1'">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.1'">
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
+    <PackageReference Include="System.Collections.Immutable" Version="1.7.1" />
   </ItemGroup>
 
   <ItemGroup>

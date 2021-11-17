@@ -1,8 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net5.0;netstandard2.0;netstandard1.0;net46</TargetFrameworks>
-    <IsTestProject>false</IsTestProject>
+    <TargetFrameworks>net6.0;net5.0;netstandard2.0</TargetFrameworks>
     <RootNamespace>Correlate</RootNamespace>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -12,8 +11,9 @@
     <PackageProjectUrl>https://github.com/skwasjer/Correlate</PackageProjectUrl>
     <PackageTags>correlationid, correlation, correlate, causation, aspnet, middleware, httpclient, httpclientfactory</PackageTags>
     <PackageReleaseNotes>
-      v3.3.0
-      - Added .NET 5.0 and .NET Standard 2.0 target framework
+      v4.0.0
+      - Added .NET 6.0 support
+      - Dropped support for .NET Framework 4.6 and .NET Standard 1.0
     </PackageReleaseNotes>
   </PropertyGroup>
   

@@ -1,8 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net5.0;netstandard2.1;netstandard2.0;netstandard1.3;net46</TargetFrameworks>
-    <IsTestProject>false</IsTestProject>
+    <TargetFrameworks>net6.0;net5.0;netstandard2.1;netstandard2.0</TargetFrameworks>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
@@ -11,18 +10,14 @@
     <PackageProjectUrl>https://github.com/skwasjer/Correlate</PackageProjectUrl>
     <PackageTags>correlationid, correlation, correlate, causation, aspnet, middleware, httpclient, httpclientfactory</PackageTags>
     <PackageReleaseNotes>
-      v3.3.0
-      - Added .NET 5 target framework
-      - Deprecated `CorrelateRequests` extension accepting `IConfiguration` instance.
+      v4.0.0
+      - Added .NET 6.0 support
+      - Dropped support for .NET Framework 4.6 and .NET Standard 1.3
     </PackageReleaseNotes>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='net5.0' Or $(TargetFramework.StartsWith('netstandard2'))">
+  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Http" Version="$(PackageVersion_Microsoft_Extensions)" />
-  </ItemGroup>
-
-  <ItemGroup Condition="$(TargetFramework.StartsWith('netstandard1')) Or $(TargetFramework.StartsWith('net46'))">
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="$(PackageVersion_Microsoft_Extensions)" />
   </ItemGroup>
 
   <ItemGroup>

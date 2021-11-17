@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net5.0;netstandard2.1;netstandard2.0;netstandard1.3;net46</TargetFrameworks>
+    <TargetFrameworks>net6.0;net5.0;netstandard2.1;netstandard2.0</TargetFrameworks>
     <IsTestProject>false</IsTestProject>
   </PropertyGroup>
 
@@ -12,17 +12,9 @@
 
   <ItemGroup>
     <PackageReference Include="Serilog" Version="2.10.0" />
-    <PackageReference Include="skwas.MockHttp" Version="2.4.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.3' Or '$(TargetFramework)'=='net46'">
-    <PackageReference Include="Serilog.Extensions.Logging" Version="2.0.4" />
-    <PackageReference Include="Serilog.Sinks.TestCorrelator" Version="3.0.3" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)'!='netstandard1.3' And '$(TargetFramework)'!='net46'">
     <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
     <PackageReference Include="Serilog.Sinks.TestCorrelator" Version="3.2.0" />
+    <PackageReference Include="skwas.MockHttp" Version="2.4.0" />
   </ItemGroup>
 
 </Project>
