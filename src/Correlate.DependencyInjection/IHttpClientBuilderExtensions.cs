@@ -1,5 +1,4 @@
-﻿#if NETSTANDARD2_0 || NETSTANDARD2_1 || NET5_0
-using System;
+﻿using System;
 using System.Net.Http;
 using Correlate.Http;
 #if NETSTANDARD2_0 || NETSTANDARD2_1
@@ -74,4 +73,3 @@ namespace Correlate.DependencyInjection
 		}
 	}
 }
-#endif

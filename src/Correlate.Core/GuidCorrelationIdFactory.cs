@@ -19,11 +19,7 @@ namespace Correlate
 		/// <inheritdoc />
 		public string Create()
 		{
-#if NETSTANDARD1_3
-			return Guid.NewGuid().ToString("D");
-#else
 			return Guid.NewGuid().ToString("D", CultureInfo.InvariantCulture);
-#endif
 		}
 	}
 }

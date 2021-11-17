@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.0.0-rc1
+
+- Added .NET 6 target framework
+- (breaking) Removed .NET Framework 4.6 and .NET Standard below 2.0.
+
 ## v3.3.0
 
 - Added .NET 5 target framework
