@@ -278,37 +278,6 @@ namespace Correlate
 			}
 
 			[Fact]
-			public Task When_starting_correlationContext_with_legacy_ctor_when_another_context_is_active_should_not_throw()
-			{
-				const string parentContextId = nameof(parentContextId);
-
-#pragma warning disable 618 // justification, covering legacy implementation (pre v3.0)
-				var sut = new CorrelationManager(
-					new CorrelationContextFactory(_correlationContextAccessor),
-					_correlationIdFactoryMock.Object,
-					new NullLogger<CorrelationManager>()
-				);
-#pragma warning restore 618
-
-				return sut.CorrelateAsync(parentContextId,
-					async () =>
-					{
-						CorrelationContext parentContext = _correlationContextAccessor.CorrelationContext;
-						parentContext.Should().NotBeNull();
-						parentContext?.CorrelationId.Should().Be(parentContextId);
-
-						await sut.CorrelateAsync(() =>
-						{
-							CorrelationContext innerContext = _correlationContextAccessor.CorrelationContext;
-							innerContext.Should().NotBeNull().And.NotBe(parentContext);
-							innerContext?.CorrelationId.Should().NotBe(parentContextId);
-
-							return Task.CompletedTask;
-						});
-					});
-			}
-
-			[Fact]
 			public async Task Given_task_returns_a_value_when_executed_should_return_value()
 			{
 				const int value = 12345;

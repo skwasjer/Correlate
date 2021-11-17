@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Net.Http;
 using Correlate.Http;
-#if NETSTANDARD2_0 || NETSTANDARD2_1
-using Microsoft.Extensions.Configuration;
-#endif
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
@@ -26,20 +23,6 @@ namespace Correlate.DependencyInjection
 		{
 			return builder.CorrelateRequests(options => options.RequestHeader = requestHeader);
 		}
-
-#if NETSTANDARD2_0 || NETSTANDARD2_1
-		/// <summary>
-		/// Adds services required for adding correlation id to each outgoing <see cref="HttpClient"/> request.
-		/// </summary>
-		/// <param name="builder">The <see cref="IHttpClientBuilder"/> to add the services to.</param>
-		/// <param name="configuration">The <see cref="IConfiguration"/> used to configure <see cref="CorrelateClientOptions"/>.</param>
-		/// <returns>The <see cref="IHttpClientBuilder"/> so that additional calls can be chained.</returns>
-		[Obsolete("Will be removed in future version.")]
-		public static IHttpClientBuilder CorrelateRequests(this IHttpClientBuilder builder, IConfiguration configuration)
-		{
-			return builder.CorrelateRequests(configuration.Bind);
-		}
-#endif
 
 		/// <summary>
 		/// Adds services required for adding correlation id to each outgoing <see cref="HttpClient"/> request.
