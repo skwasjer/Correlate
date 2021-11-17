@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Correlate.AspNetCore.Fixtures;
 using Correlate.Http;
@@ -133,7 +134,7 @@ namespace Correlate.AspNetCore.Middleware
 			HttpResponseMessage response = await client.GetAsync("");
 
 			// Assert
-			((IEnumerable)response.Headers).Should().BeEmpty();
+			((HttpHeaders)response.Headers).Should().BeEmpty();
 		}
 
 		[Fact]
@@ -160,7 +161,7 @@ namespace Correlate.AspNetCore.Middleware
 					.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
 					.Should()
 					.ContainKey(CorrelateConstants.CorrelationIdKey)
-					.WhichValue.Should()
+					.WhoseValue.Should()
 					.BeOfType<ScalarValue>()
 					.Which.Value.Should()
 					.Be(correlationId));
@@ -202,7 +203,7 @@ namespace Correlate.AspNetCore.Middleware
 		}
 
 		[Fact]
-		public void When_logging_and_diagnostics_is_disabled_should_not_throw_in_controller()
+		public async Task When_logging_and_diagnostics_is_disabled_should_not_throw_in_controller()
 		{
 			_rootFactory.LoggingEnabled = false;
 
@@ -211,7 +212,7 @@ namespace Correlate.AspNetCore.Middleware
 			Func<Task> act = () => client.GetAsync("");
 
 			// Assert
-			act.Should().NotThrow<Exception>();
+			await act.Should().NotThrowAsync<Exception>();
 		}
 
 		[Fact]

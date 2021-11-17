@@ -8,8 +8,8 @@ namespace Correlate.Testing.FluentAssertions
 	public class ResponseHeadersAssertions : ReferenceTypeAssertions<HttpResponseHeaders, ResponseHeadersAssertions>
 	{
 		public ResponseHeadersAssertions(HttpResponseHeaders actualValue)
+			: base(actualValue)
 		{
-			Subject = actualValue;
 		}
 
 		protected override string Identifier => "ResponseHeaders";
