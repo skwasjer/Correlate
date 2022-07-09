@@ -195,7 +195,7 @@ services.AddSingleton<ICorrelationIdFactory, RequestIdentifierCorrelationIdFacto
 
 ## Alternatives for more advanced Distributed Tracing
 
-Please consider that .NET Core 3 now has built-in support for [W3C TraceContext](https://github.com/w3c/trace-context) ([blog](https://devblogs.microsoft.com/aspnet/improvements-in-net-core-3-0-for-troubleshooting-and-monitoring-distributed-apps/)) and that there are other distributed tracing libraries with more functionality than Correlate.
+Please consider that .NET Core 3.1 and up now has built-in support for [W3C TraceContext](https://github.com/w3c/trace-context) ([blog](https://devblogs.microsoft.com/aspnet/improvements-in-net-core-3-0-for-troubleshooting-and-monitoring-distributed-apps/)) and that there are other distributed tracing libraries with more functionality than Correlate.
 
 - [OpenTelemetry](https://opentelemetry.io/)
 - [Jaeger](https://www.jaegertracing.io/)
@@ -204,17 +204,16 @@ Please consider that .NET Core 3 now has built-in support for [W3C TraceContext]
 ## More info
 
 ### Supported .NET targets
-- .NET 5.0
-- .NET Standard 2.1/2.0/1.3
-- .NET 4.6
+- .NET 6.0
+- .NET Standard 2.1/.NET Core 3.1
 
 ### ASP.NET Core support
-- ASP.NET Core 2.1/2.2/3.0/3.1/5.0
+- ASP.NET Core 3.1/6.0
 
 ### Build requirements
-- Visual Studio 2019
-- .NET 5 SDK
-- .NET 4.6 targetting pack
+- Visual Studio 2022
+- .NET 6 SDK
+- .NET 3.1 SDK
 
 #### Contributions
 PR's are welcome. Please rebase before submitting, provide test coverage, and ensure the AppVeyor build passes. I will not consider PR's otherwise.
