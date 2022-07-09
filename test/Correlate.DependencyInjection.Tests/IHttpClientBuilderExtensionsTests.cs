@@ -75,7 +75,9 @@ namespace Correlate.DependencyInjection
 					.RequestUri("*/test/")
 					.Where(message => message.Headers.Contains(expectedOptions.RequestHeader))
 				)
-				.Respond(HttpStatusCode.OK)
+				.Respond(with =>
+					with.StatusCode(HttpStatusCode.OK)
+				)
 				.Verifiable();
 
 			_sut.CorrelateRequests(expectedOptions.RequestHeader);

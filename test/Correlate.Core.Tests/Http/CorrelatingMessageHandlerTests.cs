@@ -3,13 +3,14 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Microsoft.Extensions.Options;
 using MockHttp;
 using Xunit;
 
 namespace Correlate.Http
 {
-	public class CorrelatingMessageHandlerTests : IDisposable
+	public sealed class CorrelatingMessageHandlerTests : IDisposable
 	{
 		private readonly CorrelationContextAccessor _contextAccessor;
 		private readonly CorrelatingHttpMessageHandler _sut;
@@ -41,7 +42,8 @@ namespace Correlate.Http
 		[Fact]
 		public async Task Given_a_correlation_context_should_add()
 		{
-			string correlationId = _contextAccessor.CorrelationContext.CorrelationId;
+			_contextAccessor.CorrelationContext?.CorrelationId.Should().NotBeNull();
+			string correlationId = _contextAccessor.CorrelationContext!.CorrelationId;
 
 			_mockHttp
 				.When(matching => matching
@@ -49,7 +51,9 @@ namespace Correlate.Http
 					.Method(HttpMethod.Get)
 					.Headers($"{_correlateClientOptions.RequestHeader}: {correlationId}")
 				)
-				.Respond(HttpStatusCode.OK)
+				.Respond(with => with
+					.StatusCode(HttpStatusCode.OK)
+				)
 				.Verifiable();
 
 			// Act
@@ -71,7 +75,9 @@ namespace Correlate.Http
 					.Method(HttpMethod.Get)
 					.Where(message => !message.Headers.Any())
 				)
-				.Respond(HttpStatusCode.OK)
+				.Respond(with => with
+					.StatusCode(HttpStatusCode.OK)
+				)
 				.Verifiable();
 
 			// Act
@@ -93,7 +99,9 @@ namespace Correlate.Http
 					.Method(HttpMethod.Get)
 					.Headers($"{_correlateClientOptions.RequestHeader}: {existingCorrelationId}")
 				)
-				.Respond(HttpStatusCode.OK)
+				.Respond(with => with
+					.StatusCode(HttpStatusCode.OK)
+				)
 				.Verifiable();
 
 			// Act
@@ -111,7 +119,8 @@ namespace Correlate.Http
 		public async Task Given_headerName_is_overridden_should_not_use_default_headerName()
 		{
 			_correlateClientOptions.RequestHeader = "custom-header";
-			string correlationId = _contextAccessor.CorrelationContext.CorrelationId;
+			_contextAccessor.CorrelationContext?.CorrelationId.Should().NotBeNull();
+			string correlationId = _contextAccessor.CorrelationContext!.CorrelationId;
 
 			_mockHttp
 				.When(matching => matching
@@ -119,7 +128,9 @@ namespace Correlate.Http
 					.Method(HttpMethod.Get)
 					.Headers($"{_correlateClientOptions.RequestHeader}: {correlationId}")
 				)
-				.Respond(HttpStatusCode.OK)
+				.Respond(with => with
+					.StatusCode(HttpStatusCode.OK)
+				)
 				.Verifiable();
 
 			// Act
