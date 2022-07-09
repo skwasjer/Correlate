@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net5.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net6.0;netcoreapp3.1</TargetFrameworks>
     <RootNamespace>Correlate</RootNamespace>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -13,17 +13,14 @@
     <PackageReleaseNotes>
       v4.0.0
       - Added .NET 6.0 support
+      - Added .NET Core 3.1 support
+      - Dropped .NET 5.0 support (non-LTS)
       - Removed .NET Core 2.1 support (implicitly by removing .NET Standard 2.0)
     </PackageReleaseNotes>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'!='netstandard2.1'">
+  <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.1'">
-    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
-    <PackageReference Include="System.Collections.Immutable" Version="1.7.1" />
   </ItemGroup>
 
   <ItemGroup>

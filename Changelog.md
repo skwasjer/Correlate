@@ -3,6 +3,7 @@
 ## v4.0.0-rc1
 
 - Added .NET 6 target framework
+- (breaking) Dropped .NET 5.0 support (non-LTS)
 - (breaking) Removed .NET Framework 4.6 and .NET Standard below 2.0.
 - (breaking) Removed `CorrelationManager` obsoleted constructors.
 - (breaking) Removed obsolete `CorrelateRequests` overload accepting an `IConfiguration` parameter.
