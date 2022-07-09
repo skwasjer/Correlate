@@ -1,9 +1,10 @@
-image: Visual Studio 2019
+image: Visual Studio 2022
 skip_branch_with_pr: true
 configuration: Release
+environment:
+  IGNORE_NORMALISATION_GIT_HEAD_MOVE: 1
 install:
   - choco install gitversion.portable --pre -y
-#  - choco install gitversion.portable -y --version=4.0.0
   - gitversion /l console /output buildserver
   - choco install opencover.portable -y
   - choco install codecov -y
@@ -35,8 +36,6 @@ test_script:
 deploy:
 - provider: NuGet
   api_key:
-    secure: wSwA2TpkqOMAk0m3EjrxbulepKj1RxelV8Glndpa6v5WqSI+1JNl67LiTJheHvIX
+    secure: DAtf3VaM4sn0mjbVCCO8e0qtHrf1R8Ste2qIxJToBuqa9Lp2YdC6quChAhMNtpF4
   on:
-    branch:
-    - master
-    - /release\/.+/
+    APPVEYOR_REPO_TAG: true
