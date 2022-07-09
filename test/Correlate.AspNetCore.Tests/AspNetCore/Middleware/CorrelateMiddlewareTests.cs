@@ -181,7 +181,9 @@ namespace Correlate.AspNetCore.Middleware
 					.RequestUri("*/correlated_external_call")
 					.Headers($"{headerName}: {correlationId}")
 				)
-				.Respond(HttpStatusCode.Accepted)
+				.Respond(with =>
+					with.StatusCode(HttpStatusCode.Accepted)
+				)
 				.Verifiable();
 
 			// Act
