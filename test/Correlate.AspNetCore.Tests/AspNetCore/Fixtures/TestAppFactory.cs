@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -34,16 +35,20 @@ namespace Correlate.AspNetCore.Fixtures
 			}
 		}
 
-		protected override IWebHostBuilder CreateWebHostBuilder()
+		protected override IHostBuilder CreateHostBuilder()
 		{
-			return WebHost.CreateDefaultBuilder()
-				.UseStartup<TStartup>()
+			return Host.CreateDefaultBuilder()
+				.UseEnvironment(Environments.Development)
 				.UseSerilog((context, configuration) =>
-				{
-					configuration
-						.MinimumLevel.ControlledBy(_logLevelSwitch)
-						.WriteTo.TestCorrelator();
-				}, true);
+					{
+						configuration
+							.MinimumLevel.ControlledBy(_logLevelSwitch)
+							.WriteTo.TestCorrelator();
+					},
+					true)
+				.ConfigureWebHost(webHostBuilder => webHostBuilder
+					.UseStartup<TStartup>()
+				);
 		}
 
 		protected override void ConfigureWebHost(IWebHostBuilder builder)
