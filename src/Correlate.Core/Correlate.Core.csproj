@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net5.0;netstandard2.1;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;netstandard2.1</TargetFrameworks>
     <RootNamespace>Correlate</RootNamespace>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -15,6 +15,7 @@
     <PackageReleaseNotes>
       v4.0.0
       - Added .NET 6.0 support
+      - Dropped .NET 5.0 support (non-LTS)
       - Dropped support for .NET Framework 4.6 and .NET Standard 1.3
     </PackageReleaseNotes>
   </PropertyGroup>
