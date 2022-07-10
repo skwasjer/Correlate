@@ -205,7 +205,7 @@ Please consider that .NET Core 3.1 and up now has built-in support for [W3C Trac
 
 ### Supported .NET targets
 - .NET 6.0
-- .NET Standard 2.1/.NET Core 3.1
+- .NET Standard 2.0/.NET Core 3.1
 
 ### ASP.NET Core support
 - ASP.NET Core 3.1/6.0
