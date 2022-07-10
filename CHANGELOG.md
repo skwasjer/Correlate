@@ -1,6 +1,6 @@
 # Changelog
 
-## v4.0.0-rc1
+## v4.0.0
 
 - Added .NET 6 target framework
 - (breaking) Dropped .NET 5.0 support (non-LTS)
