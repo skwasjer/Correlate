@@ -13,7 +13,7 @@ namespace Correlate.AspNetCore
 	{
 		private Func<Task> _responseStartingAsync = () => Task.FromResult(true);
 		private Func<Task> _responseCompletedAsync = () => Task.FromResult(true);
-		private HeaderDictionary _headers = new HeaderDictionary();
+		private readonly HeaderDictionary _headers = new();
 		private int _statusCode;
 		private string _reasonPhrase;
 
@@ -72,7 +72,7 @@ namespace Correlate.AspNetCore
 				throw new InvalidOperationException();
 			}
 
-			var prior = _responseStartingAsync;
+			Func<Task> prior = _responseStartingAsync;
 			_responseStartingAsync = async () =>
 			{
 				await callback(state);
@@ -82,7 +82,7 @@ namespace Correlate.AspNetCore
 
 		public void OnCompleted(Func<object, Task> callback, object state)
 		{
-			var prior = _responseCompletedAsync;
+			Func<Task> prior = _responseCompletedAsync;
 			_responseCompletedAsync = async () =>
 			{
 				try

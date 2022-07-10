@@ -20,7 +20,6 @@ namespace Correlate.Http
 		/// <param name="correlationContextAccessor">The correlation context accessor.</param>
 		/// <param name="options">The client correlation options.</param>
 		public CorrelatingHttpMessageHandler(ICorrelationContextAccessor correlationContextAccessor, IOptions<CorrelateClientOptions> options)
-			: base()
 		{
 			_correlationContextAccessor = correlationContextAccessor;
 			_options = options?.Value ?? new CorrelateClientOptions();
@@ -33,10 +32,9 @@ namespace Correlate.Http
 		/// <param name="options">The client correlation options.</param>
 		/// <param name="innerHandler">The inner handler.</param>
 		public CorrelatingHttpMessageHandler(ICorrelationContextAccessor correlationContextAccessor, IOptions<CorrelateClientOptions> options, HttpMessageHandler innerHandler)
-			: base(innerHandler)
+			: this(correlationContextAccessor, options)
 		{
-			_correlationContextAccessor = correlationContextAccessor;
-			_options = options?.Value ?? new CorrelateClientOptions();
+			InnerHandler = innerHandler;
 		}
 
 		/// <inheritdoc />
@@ -48,7 +46,7 @@ namespace Correlate.Http
 			}
 
 			string? correlationId = _correlationContextAccessor?.CorrelationContext?.CorrelationId;
-			if (correlationId != null && !request.Headers.Contains(_options.RequestHeader))
+			if (correlationId is not null && !request.Headers.Contains(_options.RequestHeader))
 			{
 				request.Headers.TryAddWithoutValidation(_options.RequestHeader, correlationId);
 			}

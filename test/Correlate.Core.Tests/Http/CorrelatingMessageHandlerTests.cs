@@ -16,9 +16,9 @@ namespace Correlate.Http
 		private readonly CorrelatingHttpMessageHandler _sut;
 		private readonly HttpClient _httpClient;
 		private readonly MockHttpHandler _mockHttp;
-		private readonly CorrelateClientOptions _correlateClientOptions = new CorrelateClientOptions();
+		private readonly CorrelateClientOptions _correlateClientOptions = new();
 
-		private static readonly Uri BaseUri = new Uri("http://0.0.0.0/");
+		private static readonly Uri BaseUri = new("http://0.0.0.0/");
 
 		public CorrelatingMessageHandlerTests()
 		{

@@ -13,11 +13,9 @@ namespace Correlate.AspNetCore.Middleware
 		/// <remarks>
 		/// The first matching header will be used.
 		/// </remarks>
-#pragma warning disable CA1819 // TODO: in next major release change to IEnumerable<>/ICollection<>.
 		public string[] RequestHeaders { get; set; } = {
 			CorrelationHttpHeaders.CorrelationId
 		};
-#pragma warning restore CA1819
 
 		/// <summary>
 		/// Gets or sets whether to include the correlation id in the response.

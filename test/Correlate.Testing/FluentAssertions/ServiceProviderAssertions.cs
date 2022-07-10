@@ -37,10 +37,10 @@ namespace Correlate.Testing.FluentAssertions
 						return ex;
 					}
 				})
-				.ForCondition(value => !(value is Exception))
+				.ForCondition(value => value is not Exception)
 				.FailWith("but threw with {0}.", ex => ex)
 				.Then
-				.ForCondition(value => value != null)
+				.ForCondition(value => value is not null)
 				.FailWith("but failed.")
 				;
 

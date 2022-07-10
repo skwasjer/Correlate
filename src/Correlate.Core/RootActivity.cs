@@ -29,7 +29,7 @@ namespace Correlate
 		/// <returns>The created correlation context (also accessible via <see cref="ICorrelationContextAccessor"/>), or null if diagnostics and logging is disabled.</returns>
 		public CorrelationContext Start(string correlationId)
 		{
-			if (correlationId == null)
+			if (correlationId is null)
 			{
 				throw new ArgumentNullException(nameof(correlationId));
 			}

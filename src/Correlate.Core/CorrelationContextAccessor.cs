@@ -7,7 +7,7 @@ namespace Correlate
 	/// </summary>
 	public class CorrelationContextAccessor : ICorrelationContextAccessor
 	{
-		private static readonly AsyncLocal<CorrelationContextHolder> CurrentContext = new AsyncLocal<CorrelationContextHolder>();
+		private static readonly AsyncLocal<CorrelationContextHolder> CurrentContext = new();
 
 		/// <inheritdoc />
 		public CorrelationContext? CorrelationContext

@@ -21,25 +21,26 @@ namespace Correlate.AspNetCore.Middleware
 
 		public void Start(CorrelationContext? correlationContext)
 		{
-			if (_includeInResponse && correlationContext != null)
+			if (_includeInResponse && correlationContext is not null)
 			{
 				_httpContext.Response.OnStarting(() =>
 				{
 					// If already set, ignore.
-					if (!_httpContext.Response.Headers.ContainsKey(_responseHeaderName!))
+					if (_httpContext.Response.Headers.ContainsKey(_responseHeaderName!))
 					{
-						_logger.LogTrace("Setting response header '{HeaderName}' to correlation id '{CorrelationId}'.", _responseHeaderName, correlationContext.CorrelationId);
-						_httpContext.Response.Headers.Add(_responseHeaderName!, correlationContext.CorrelationId);
+						return Task.CompletedTask;
 					}
+
+					_logger.LogTrace("Setting response header '{HeaderName}' to correlation id '{CorrelationId}'.", _responseHeaderName, correlationContext.CorrelationId);
+					_httpContext.Response.Headers.Add(_responseHeaderName!, correlationContext.CorrelationId);
 
 					return Task.CompletedTask;
 				});
 			}
 		}
 
-#pragma warning disable CA1822
+		// ReSharper disable once MemberCanBeMadeStatic.Global
 		public void Stop()
-#pragma warning restore CA1822
 		{
 		}
 	}

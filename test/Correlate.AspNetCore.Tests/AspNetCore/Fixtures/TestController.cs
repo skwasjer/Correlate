@@ -26,7 +26,7 @@ namespace Correlate.AspNetCore.Fixtures
 		[HttpGet]
 		public IActionResult Get()
 		{
-			_logger.LogInformation($"controller action: ok - {_correlationContextAccessor.CorrelationContext.CorrelationId}");
+			_logger.LogInformation("controller action: ok - {Id}", _correlationContextAccessor.CorrelationContext.CorrelationId);
 
 			return Ok("ok");
 		}
@@ -37,7 +37,7 @@ namespace Correlate.AspNetCore.Fixtures
 		[HttpGet("correlate_client_request")]
 		public async Task<IActionResult> CorrelateClientRequest()
 		{
-			_logger.LogInformation($"controller action: ok - {_correlationContextAccessor.CorrelationContext.CorrelationId}");
+			_logger.LogInformation("controller action: ok - {Id}", _correlationContextAccessor.CorrelationContext.CorrelationId);
 
 			HttpResponseMessage response = await _httpClient.GetAsync("correlated_external_call");
 

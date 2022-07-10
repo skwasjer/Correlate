@@ -9,7 +9,7 @@ namespace Correlate.Http.Extensions
 	{
 		internal static KeyValuePair<string, string?> GetCorrelationIdHeader(this IDictionary<string, StringValues> httpHeaders, ICollection<string> acceptedHeaders)
 		{
-			if (acceptedHeaders == null)
+			if (acceptedHeaders is null)
 			{
 				throw new ArgumentNullException(nameof(acceptedHeaders));
 			}
@@ -24,14 +24,16 @@ namespace Correlate.Http.Extensions
 
 			foreach (string requestHeaderName in acceptedHeaders)
 			{
-				if (httpHeaders.TryGetValue(requestHeaderName, out StringValues value))
+				if (!httpHeaders.TryGetValue(requestHeaderName, out StringValues value))
 				{
-					headerName = requestHeaderName;
-					correlationId = value.LastOrDefault();
-					if (!string.IsNullOrWhiteSpace(correlationId))
-					{
-						break;
-					}
+					continue;
+				}
+
+				headerName = requestHeaderName;
+				correlationId = value.LastOrDefault();
+				if (!string.IsNullOrWhiteSpace(correlationId))
+				{
+					break;
 				}
 			}
 

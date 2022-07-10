@@ -30,7 +30,7 @@ namespace Correlate
 		CorrelationContext ICorrelationContextFactory.Create(string correlationId)
 		{
 			CorrelationContext correlationContext = Create(correlationId);
-			if (_correlationContextAccessor != null)
+			if (_correlationContextAccessor is not null)
 			{
 				_correlationContextAccessor.CorrelationContext = correlationContext;
 			}
@@ -54,7 +54,7 @@ namespace Correlate
 		/// <inheritdoc />
 		public void Dispose()
 		{
-			if (_correlationContextAccessor != null)
+			if (_correlationContextAccessor is not null)
 			{
 				_correlationContextAccessor.CorrelationContext = null;
 			}

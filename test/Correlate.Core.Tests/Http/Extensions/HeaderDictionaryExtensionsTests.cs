@@ -50,7 +50,7 @@ namespace Correlate.Http.Extensions
 			var expectedHeader = new KeyValuePair<string, string>(CorrelationHttpHeaders.CorrelationId, null);
 
 			// Act
-			KeyValuePair<string, string> header = _sut.GetCorrelationIdHeader(new string[0]);
+			KeyValuePair<string, string> header = _sut.GetCorrelationIdHeader(Array.Empty<string>());
 
 			// Assert
 			header.Should().BeEquivalentTo(expectedHeader, "it should not take correlation id from header dictionary but still return header key");

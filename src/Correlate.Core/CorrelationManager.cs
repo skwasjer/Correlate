@@ -22,7 +22,7 @@ namespace Correlate
 			{
 			}
 
-			public static readonly Void Null = new Void();
+			public static readonly Void Null = new();
 		}
 
 		/// <summary>
@@ -77,7 +77,7 @@ namespace Correlate
 		/// </remarks>
 		public Task CorrelateAsync(string? correlationId, Func<Task> correlatedTask, OnException? onException)
 		{
-			if (correlatedTask == null)
+			if (correlatedTask is null)
 			{
 				throw new ArgumentNullException(nameof(correlatedTask));
 			}
@@ -106,7 +106,7 @@ namespace Correlate
 		/// </remarks>
 		public Task<T> CorrelateAsync<T>(string? correlationId, Func<Task<T>> correlatedTask, OnException<T>? onException)
 		{
-			if (correlatedTask == null)
+			if (correlatedTask is null)
 			{
 				throw new ArgumentNullException(nameof(correlatedTask));
 			}
@@ -114,7 +114,7 @@ namespace Correlate
 			return ExecuteAsync(
 				correlationId,
 				correlatedTask,
-				onException == null ? (OnException?)null : context => onException!((ExceptionContext<T>)context)
+				onException is null ? null : context => onException((ExceptionContext<T>)context)
 			);
 		}
 
@@ -148,7 +148,7 @@ namespace Correlate
 		/// </remarks>
 		public void Correlate(string? correlationId, Action correlatedAction, OnException? onException)
 		{
-			if (correlatedAction == null)
+			if (correlatedAction is null)
 			{
 				throw new ArgumentNullException(nameof(correlatedAction));
 			}
@@ -175,7 +175,7 @@ namespace Correlate
 		/// </remarks>
 		public T Correlate<T>(string? correlationId, Func<T> correlatedFunc, OnException<T>? onException)
 		{
-			if (correlatedFunc == null)
+			if (correlatedFunc is null)
 			{
 				throw new ArgumentNullException(nameof(correlatedFunc));
 			}
@@ -183,7 +183,7 @@ namespace Correlate
 			return Execute(
 				correlationId,
 				correlatedFunc,
-				onException == null ? (OnException?)null : context => onException!((ExceptionContext<T>)context)
+				onException is null ? null : context => onException((ExceptionContext<T>)context)
 			);
 		}
 
@@ -223,7 +223,7 @@ namespace Correlate
 				ex.Data.Add(CorrelateConstants.CorrelationIdKey, correlationContext.CorrelationId);
 			}
 
-			if (onException != null)
+			if (onException is not null)
 			{
 				bool hasResultValue = typeof(T) != typeof(Void);
 

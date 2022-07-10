@@ -43,12 +43,12 @@ namespace Correlate.DependencyInjection
 			builder.Services.Configure(builder.Name, configureOptions);
 			builder.AddHttpMessageHandler(s =>
 			{
-				var allClientOptions = s.GetRequiredService<IOptionsSnapshot<CorrelateClientOptions>>();
-				var thisClientOptions = new OptionsWrapper<CorrelateClientOptions>(allClientOptions.Get(builder.Name));
+				IOptionsSnapshot<CorrelateClientOptions> allClientOptions = s.GetRequiredService<IOptionsSnapshot<CorrelateClientOptions>>();
+				IOptions<CorrelateClientOptions> thisClientOptions = Options.Create(allClientOptions.Get(builder.Name));
 
 				return ActivatorUtilities.CreateInstance<CorrelatingHttpMessageHandler>(
 					s,
-					(IOptions<CorrelateClientOptions>)thisClientOptions
+					thisClientOptions
 				);
 			});
 
