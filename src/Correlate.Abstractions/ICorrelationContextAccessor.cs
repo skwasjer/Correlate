@@ -1,13 +1,12 @@
-﻿namespace Correlate
+﻿namespace Correlate;
+
+/// <summary>
+/// Provides access to the <see cref="CorrelationContext" />.
+/// </summary>
+public interface ICorrelationContextAccessor
 {
-	/// <summary>
-	/// Provides access to the <see cref="CorrelationContext"/>.
-	/// </summary>
-	public interface ICorrelationContextAccessor
-	{
-		/// <summary>
-		/// Gets or sets <see cref="CorrelationContext"/>.
-		/// </summary>
-		CorrelationContext? CorrelationContext { get; set; }
-	}
+    /// <summary>
+    /// Gets or sets <see cref="CorrelationContext" />.
+    /// </summary>
+    CorrelationContext? CorrelationContext { get; set; }
 }

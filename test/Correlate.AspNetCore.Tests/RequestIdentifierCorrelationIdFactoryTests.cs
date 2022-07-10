@@ -1,36 +1,35 @@
 ﻿using FluentAssertions;
 using Xunit;
 
-namespace Correlate
+namespace Correlate;
+
+public class RequestIdentifierCorrelationIdFactoryTests
 {
-	public class RequestIdentifierCorrelationIdFactoryTests
-	{
-		private readonly RequestIdentifierCorrelationIdFactory _sut;
+    private readonly RequestIdentifierCorrelationIdFactory _sut;
 
-		public RequestIdentifierCorrelationIdFactoryTests()
-		{
-			_sut = new RequestIdentifierCorrelationIdFactory();
-		}
+    public RequestIdentifierCorrelationIdFactoryTests()
+    {
+        _sut = new RequestIdentifierCorrelationIdFactory();
+    }
 
-		[Fact]
-		public void When_creating_should_return_value()
-		{
-			// Act
-			string actual = _sut.Create();
-				
-			// Assert
-			actual.Should().NotBeNullOrWhiteSpace();
-		}
+    [Fact]
+    public void When_creating_should_return_value()
+    {
+        // Act
+        string actual = _sut.Create();
 
-		[Fact]
-		public void When_creating_twice_should_not_return_same_value()
-		{
-			// Act
-			string actual = _sut.Create();
-			string other = _sut.Create();
+        // Assert
+        actual.Should().NotBeNullOrWhiteSpace();
+    }
 
-			// Assert
-			actual.Should().NotBe(other);
-		}
-	}
+    [Fact]
+    public void When_creating_twice_should_not_return_same_value()
+    {
+        // Act
+        string actual = _sut.Create();
+        string other = _sut.Create();
+
+        // Assert
+        actual.Should().NotBe(other);
+    }
 }

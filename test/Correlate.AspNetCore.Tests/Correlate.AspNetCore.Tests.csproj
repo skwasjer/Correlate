@@ -17,4 +17,8 @@
     <ProjectReference Include="..\Correlate.Testing\Correlate.Testing.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Using Remove="System.Net.Http.Json" />
+  </ItemGroup>
+
 </Project>

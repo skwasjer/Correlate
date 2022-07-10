@@ -1,8 +1,10 @@
 <Project>
+
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
     <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
     <WarnOnPackingNonPackableProject>false</WarnOnPackingNonPackableProject>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -13,6 +15,6 @@
     <!-- System.Diagnostics.DiagnosticSource -->
     <PackageVersion_DiagnosticSource>6.0.0</PackageVersion_DiagnosticSource>
     <PackageVersion_DiagnosticSource Condition="'$(TargetFramework)'!='net6.0'">4.7.0</PackageVersion_DiagnosticSource>
-
   </PropertyGroup>
+
 </Project>

@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿namespace Correlate.Testing.TestCases;
 
-namespace Correlate.Testing.TestCases
+public class NullArgumentTestCases : List<DelegateTestCase>
 {
-	public class NullArgumentTestCases : List<DelegateTestCase>
-	{
-		public IEnumerable<object[]> Flatten()
-			=> this
-				.SelectMany(tc => tc.GetNullArgumentTestCases())
-				.ToList();
-	}
+    public IEnumerable<object[]> Flatten()
+    {
+        return this
+            .SelectMany(tc => tc.GetNullArgumentTestCases())
+            .ToList();
+    }
 }

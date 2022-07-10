@@ -1,18 +1,16 @@
-﻿using System;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace Correlate.Testing.FluentAssertions
+namespace Correlate.Testing.FluentAssertions;
+
+public static class ShouldExtensions
 {
-	public static class ShouldExtensions
-	{
-		public static ServiceProviderAssertions Should(this IServiceProvider actualValue)
-		{
-			return new ServiceProviderAssertions(actualValue);
-		}
+    public static ServiceProviderAssertions Should(this IServiceProvider actualValue)
+    {
+        return new ServiceProviderAssertions(actualValue);
+    }
 
-		public static ServiceCollectionAssertions Should(this IServiceCollection actualValue)
-		{
-			return new ServiceCollectionAssertions(actualValue);
-		}
-	}
+    public static ServiceCollectionAssertions Should(this IServiceCollection actualValue)
+    {
+        return new ServiceCollectionAssertions(actualValue);
+    }
 }

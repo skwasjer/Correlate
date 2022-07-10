@@ -1,7 +1,6 @@
-﻿namespace Correlate
+﻿namespace Correlate;
+
+internal static class CorrelateConstants
 {
-	internal static class CorrelateConstants
-	{
-		public const string CorrelationIdKey = "CorrelationId";
-	}
+    public const string CorrelationIdKey = "CorrelationId";
 }

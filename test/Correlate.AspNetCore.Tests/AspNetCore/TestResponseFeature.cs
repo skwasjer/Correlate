@@ -1,111 +1,107 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
+﻿using Microsoft.AspNetCore.Http.Features;
 
-namespace Correlate.AspNetCore
+namespace Correlate.AspNetCore;
+
+/// <summary>
+/// Copied from internal <see cref="Microsoft.AspNetCore.TestHost.ResponseFeature" /> implementation.
+/// </summary>
+internal class TestResponseFeature : IHttpResponseFeature
 {
-	/// <summary>
-	/// Copied from internal <see cref="Microsoft.AspNetCore.TestHost.ResponseFeature"/> implementation.
-	/// </summary>
-	internal class TestResponseFeature : IHttpResponseFeature
-	{
-		private Func<Task> _responseStartingAsync = () => Task.FromResult(true);
-		private Func<Task> _responseCompletedAsync = () => Task.FromResult(true);
-		private readonly HeaderDictionary _headers = new();
-		private int _statusCode;
-		private string _reasonPhrase;
+    private readonly HeaderDictionary _headers = new();
+    private string _reasonPhrase;
+    private Func<Task> _responseCompletedAsync = () => Task.FromResult(true);
+    private Func<Task> _responseStartingAsync = () => Task.FromResult(true);
+    private int _statusCode;
 
-		public TestResponseFeature()
-		{
-			Headers = _headers;
-			Body = new MemoryStream();
+    public TestResponseFeature()
+    {
+        Headers = _headers;
+        Body = new MemoryStream();
 
-			// 200 is the default status code all the way down to the host, so we set it
-			// here to be consistent with the rest of the hosts when writing tests.
-			StatusCode = 200;
-		}
+        // 200 is the default status code all the way down to the host, so we set it
+        // here to be consistent with the rest of the hosts when writing tests.
+        StatusCode = 200;
+    }
 
-		public int StatusCode
-		{
-			get => _statusCode;
-			set
-			{
-				if (HasStarted)
-				{
-					throw new InvalidOperationException("The status code cannot be set, the response has already started.");
-				}
-				if (value < 100)
-				{
-					throw new ArgumentOutOfRangeException(nameof(value), value, "The status code cannot be set to a value less than 100");
-				}
+    public int StatusCode
+    {
+        get => _statusCode;
+        set
+        {
+            if (HasStarted)
+            {
+                throw new InvalidOperationException("The status code cannot be set, the response has already started.");
+            }
 
-				_statusCode = value;
-			}
-		}
+            if (value < 100)
+            {
+                throw new ArgumentOutOfRangeException(nameof(value), value, "The status code cannot be set to a value less than 100");
+            }
 
-		public string ReasonPhrase
-		{
-			get => _reasonPhrase;
-			set
-			{
-				if (HasStarted)
-				{
-					throw new InvalidOperationException("The reason phrase cannot be set, the response has already started.");
-				}
+            _statusCode = value;
+        }
+    }
 
-				_reasonPhrase = value;
-			}
-		}
+    public string ReasonPhrase
+    {
+        get => _reasonPhrase;
+        set
+        {
+            if (HasStarted)
+            {
+                throw new InvalidOperationException("The reason phrase cannot be set, the response has already started.");
+            }
 
-		public IHeaderDictionary Headers { get; set; }
+            _reasonPhrase = value;
+        }
+    }
 
-		public Stream Body { get; set; }
+    public IHeaderDictionary Headers { get; set; }
 
-		public bool HasStarted { get; set; }
+    public Stream Body { get; set; }
 
-		public void OnStarting(Func<object, Task> callback, object state)
-		{
-			if (HasStarted)
-			{
-				throw new InvalidOperationException();
-			}
+    public bool HasStarted { get; set; }
 
-			Func<Task> prior = _responseStartingAsync;
-			_responseStartingAsync = async () =>
-			{
-				await callback(state);
-				await prior();
-			};
-		}
+    public void OnStarting(Func<object, Task> callback, object state)
+    {
+        if (HasStarted)
+        {
+            throw new InvalidOperationException();
+        }
 
-		public void OnCompleted(Func<object, Task> callback, object state)
-		{
-			Func<Task> prior = _responseCompletedAsync;
-			_responseCompletedAsync = async () =>
-			{
-				try
-				{
-					await callback(state);
-				}
-				finally
-				{
-					await prior();
-				}
-			};
-		}
+        Func<Task> prior = _responseStartingAsync;
+        _responseStartingAsync = async () =>
+        {
+            await callback(state);
+            await prior();
+        };
+    }
 
-		public async Task FireOnSendingHeadersAsync()
-		{
-			await _responseStartingAsync();
-			HasStarted = true;
-			_headers.IsReadOnly = true;
-		}
+    public void OnCompleted(Func<object, Task> callback, object state)
+    {
+        Func<Task> prior = _responseCompletedAsync;
+        _responseCompletedAsync = async () =>
+        {
+            try
+            {
+                await callback(state);
+            }
+            finally
+            {
+                await prior();
+            }
+        };
+    }
 
-		public Task FireOnResponseCompletedAsync()
-		{
-			return _responseCompletedAsync();
-		}
-	}
+    public async Task FireOnSendingHeadersAsync()
+    {
+        await _responseStartingAsync();
+        HasStarted = true;
+        _headers.IsReadOnly = true;
+    }
+
+    public Task FireOnResponseCompletedAsync()
+    {
+        return _responseCompletedAsync();
+    }
 }
