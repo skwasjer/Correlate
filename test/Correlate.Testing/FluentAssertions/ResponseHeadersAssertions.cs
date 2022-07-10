@@ -23,14 +23,14 @@ public class ResponseHeadersAssertions : ReferenceTypeAssertions<HttpResponseHea
             .WithExpectation("Expected {context:headers} to contain {0}{reason}, ", headerName)
             .Given(() =>
             {
-                Subject.TryGetValues(headerName!, out IEnumerable<string> values);
+                Subject.TryGetValues(headerName!, out IEnumerable<string>? values);
                 return values;
             })
-            .ForCondition(values => values != null)
+            .ForCondition(values => values is not null)
             .FailWith("but found no matching header.")
             ;
 
-        Subject.TryGetValues(headerName!, out IEnumerable<string> obj);
-        return new WhichValueConstraint<ResponseHeadersAssertions, IEnumerable<string>>(this, obj);
+        Subject.TryGetValues(headerName, out IEnumerable<string>? obj);
+        return new WhichValueConstraint<ResponseHeadersAssertions, IEnumerable<string>>(this, obj!);
     }
 }

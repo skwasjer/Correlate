@@ -4,8 +4,8 @@ namespace Correlate.Testing.FluentAssertions;
 
 public class ExpectedRegistration
 {
-    public Type ServiceType { get; set; }
-    public Type ImplementationType { get; set; }
+    public Type ServiceType { get; set; } = default!;
+    public Type ImplementationType { get; set; } = default!;
     public ServiceLifetime Lifetime { get; set; }
 
     public override string ToString()

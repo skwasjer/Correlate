@@ -5,8 +5,8 @@ namespace Correlate.Testing;
 
 public class TestLogger<T> : TestLogger, ILogger<T>
 {
-    public TestLogger(ILogger innerLogger, bool isEnabled = true)
-        : base(innerLogger, typeof(T).FullName, isEnabled)
+    public TestLogger(ILogger? innerLogger, bool isEnabled = true)
+        : base(innerLogger, typeof(T).FullName!, isEnabled)
     {
     }
 
@@ -18,11 +18,11 @@ public class TestLogger<T> : TestLogger, ILogger<T>
 
 public class TestLogger : ILogger
 {
-    private readonly ILogger _innerLogger;
+    private readonly ILogger? _innerLogger;
     private readonly bool _isEnabled;
 
     // ReSharper disable once UnusedParameter.Local
-    public TestLogger(ILogger innerLogger, string name, bool isEnabled = true)
+    public TestLogger(ILogger? innerLogger, string name, bool isEnabled = true)
     {
         _innerLogger = innerLogger;
         _isEnabled = isEnabled;
@@ -33,7 +33,7 @@ public class TestLogger : ILogger
     {
     }
 
-    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
         _innerLogger?.Log(logLevel, eventId, state, exception, formatter);
     }

@@ -28,16 +28,18 @@ public sealed class CorrelatingMessageHandlerTests : IDisposable
 
     public void Dispose()
     {
+        // ReSharper disable ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
         _sut?.Dispose();
         _httpClient?.Dispose();
         _mockHttp?.Dispose();
+        // ReSharper restore ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
     }
 
     [Fact]
     public async Task Given_a_correlation_context_should_add()
     {
         _contextAccessor.CorrelationContext?.CorrelationId.Should().NotBeNull();
-        string correlationId = _contextAccessor.CorrelationContext!.CorrelationId;
+        string? correlationId = _contextAccessor.CorrelationContext?.CorrelationId;
 
         _mockHttp
             .When(matching => matching
@@ -87,7 +89,7 @@ public sealed class CorrelatingMessageHandlerTests : IDisposable
     {
         _correlateClientOptions.RequestHeader = "custom-header";
         _contextAccessor.CorrelationContext?.CorrelationId.Should().NotBeNull();
-        string correlationId = _contextAccessor.CorrelationContext!.CorrelationId;
+        string? correlationId = _contextAccessor.CorrelationContext?.CorrelationId;
 
         _mockHttp
             .When(matching => matching

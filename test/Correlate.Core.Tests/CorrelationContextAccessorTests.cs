@@ -20,7 +20,7 @@ public class CorrelationContextAccessorTests
         await Task.Run(() => Task.Delay(_rnd.Next(100)));
 
         // Do nested run.
-        string childId = null;
+        string? childId = null;
         if (level < recursiveRuns)
         {
             childId = await RunChildTask(id, level + 1);

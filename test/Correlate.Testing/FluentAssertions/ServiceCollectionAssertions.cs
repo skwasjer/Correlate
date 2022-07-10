@@ -37,9 +37,12 @@ public class ServiceCollectionAssertions : ReferenceTypeAssertions<IServiceColle
             .Given(reg => reg.FirstOrDefault(d => d.Lifetime == lifetime))
             .ForCondition(r =>
                 // Match implementation, instance or factory
+                r is not null
+             && (
                 r.ImplementationType == implementationType
-             || (r.ImplementationInstance != null && implementationType.IsInstanceOfType(r.ImplementationInstance))
-             || r.ImplementationFactory != null
+             || (r.ImplementationInstance is not null && implementationType.IsInstanceOfType(r.ImplementationInstance))
+             || r.ImplementationFactory is not null
+                )
             )
             .FailWith("but it does not.")
             ;

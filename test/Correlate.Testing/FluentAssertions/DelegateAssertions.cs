@@ -60,15 +60,15 @@ public class DelegateAssertions : DelegateAssertions<Delegate, DelegateAssertion
         params object[] becauseArgs)
     {
         Execute.Assertion
-            .ForCondition(Subject != null)
+            .ForCondition(Subject is not null)
             .BecauseOf(because, becauseArgs)
             .FailWith("Expected {context} not to throw{reason}, but found <null>.");
         try
         {
             // ReSharper disable once PossibleNullReferenceException
-            return new AndWhichConstraint<DelegateAssertions, object>(this, Subject.DynamicInvoke());
+            return new AndWhichConstraint<DelegateAssertions, object>(this, Subject!.DynamicInvoke()!);
         }
-        catch (TargetInvocationException ex) when (ex.InnerException != null)
+        catch (TargetInvocationException ex) when (ex.InnerException is not null)
         {
             NotThrowInternal(ex.InnerException, because, becauseArgs);
             return new AndWhichConstraint<DelegateAssertions, object>(this, default);
@@ -98,15 +98,15 @@ public class DelegateAssertions : DelegateAssertions<Delegate, DelegateAssertion
         params object[] becauseArgs)
     {
         Execute.Assertion
-            .ForCondition(Subject != null)
+            .ForCondition(Subject is not null)
             .BecauseOf(because, becauseArgs)
             .FailWith("Expected {context} not to throw{reason}, but found <null>.");
         try
         {
             // ReSharper disable once PossibleNullReferenceException
-            return new AndWhichConstraint<DelegateAssertions, object>(this, Subject.DynamicInvoke(args));
+            return new AndWhichConstraint<DelegateAssertions, object>(this, Subject!.DynamicInvoke(args)!);
         }
-        catch (TargetInvocationException ex) when (ex.InnerException != null)
+        catch (TargetInvocationException ex) when (ex.InnerException is not null)
         {
             NotThrowInternal(ex.InnerException, because, becauseArgs);
             return new AndWhichConstraint<DelegateAssertions, object>(this, default);
@@ -118,14 +118,14 @@ public class DelegateAssertions : DelegateAssertions<Delegate, DelegateAssertion
         }
     }
 
-    private Exception InvokeSubjectWithInterception(object[] args)
+    private Exception? InvokeSubjectWithInterception(object[] args)
     {
-        Exception exception = null;
+        Exception? exception = null;
         try
         {
             Subject.DynamicInvoke(args);
         }
-        catch (TargetInvocationException ex) when (ex.InnerException != null)
+        catch (TargetInvocationException ex) when (ex.InnerException is not null)
         {
             exception = ex.InnerException;
         }

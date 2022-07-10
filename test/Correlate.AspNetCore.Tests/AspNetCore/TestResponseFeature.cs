@@ -8,7 +8,7 @@ namespace Correlate.AspNetCore;
 internal class TestResponseFeature : IHttpResponseFeature
 {
     private readonly HeaderDictionary _headers = new();
-    private string _reasonPhrase;
+    private string? _reasonPhrase;
     private Func<Task> _responseCompletedAsync = () => Task.FromResult(true);
     private Func<Task> _responseStartingAsync = () => Task.FromResult(true);
     private int _statusCode;
@@ -42,7 +42,7 @@ internal class TestResponseFeature : IHttpResponseFeature
         }
     }
 
-    public string ReasonPhrase
+    public string? ReasonPhrase
     {
         get => _reasonPhrase;
         set

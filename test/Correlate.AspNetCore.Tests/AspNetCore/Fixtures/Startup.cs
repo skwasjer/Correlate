@@ -6,11 +6,11 @@ namespace Correlate.AspNetCore.Fixtures;
 
 public class Startup
 {
-    public static ITestCorrelatorContext LastRequestContext { get; private set; }
+    public static ITestCorrelatorContext LastRequestContext { get; private set; } = default!;
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddCorrelate();
+        services.AddCorrelate(opts => opts.IncludeInResponse = true);
 
         services
             .AddHttpClient<TestController>(client => client.BaseAddress = new Uri("http://0.0.0.0"))

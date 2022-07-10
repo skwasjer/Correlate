@@ -40,8 +40,10 @@ public class CorrelateMiddlewareTests : IClassFixture<TestAppFactory<Startup>>, 
 
     public void Dispose()
     {
+        // ReSharper disable ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
         _factory?.Dispose();
         _mockHttp?.Dispose();
+        // ReSharper restore ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
         GC.SuppressFinalize(this);
     }
 
@@ -160,7 +162,7 @@ public class CorrelateMiddlewareTests : IClassFixture<TestAppFactory<Startup>>, 
         HttpResponseMessage response = await client.SendAsync(request);
 
         // Assert
-        string errorMessage = null;
+        string? errorMessage = null;
         if (!response.IsSuccessStatusCode)
         {
             errorMessage = await response.Content.ReadAsStringAsync();
@@ -184,11 +186,11 @@ public class CorrelateMiddlewareTests : IClassFixture<TestAppFactory<Startup>>, 
         var responses = (await Task.WhenAll(requestTasks)).ToList();
 
         // Assert
-        string[] correlationIds = responses
+        string?[] correlationIds = responses
             .Select(r => r.Headers.SingleOrDefault(h => h.Key == CorrelationHttpHeaders.CorrelationId).Value.FirstOrDefault())
             .ToArray();
 
-        var distinctCorrelationIds = new HashSet<string>(correlationIds);
+        var distinctCorrelationIds = correlationIds.ToHashSet();
         correlationIds
             .Should()
             .HaveCount(distinctCorrelationIds.Count)

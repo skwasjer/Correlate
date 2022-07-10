@@ -20,7 +20,7 @@ public class HeaderDictionaryExtensionsTests
         _sut.Add(requestHeaderKey, new StringValues(CorrelationId));
 
         // Act
-        KeyValuePair<string, string> header = _sut.GetCorrelationIdHeader(new[] { "first-header", "second-header", "third-header" });
+        KeyValuePair<string, string?> header = _sut.GetCorrelationIdHeader(new[] { "first-header", "second-header", "third-header" });
 
         // Assert
         header.Should().BeEquivalentTo(new KeyValuePair<string, string>(requestHeaderKey, CorrelationId));
@@ -37,7 +37,7 @@ public class HeaderDictionaryExtensionsTests
         _sut.Add(TestHeaderName, new StringValues(CorrelationId));
 
         // Act
-        KeyValuePair<string, string> header = _sut.GetCorrelationIdHeader(new[] { TestHeaderName });
+        KeyValuePair<string, string?> header = _sut.GetCorrelationIdHeader(new[] { TestHeaderName });
 
         // Assert
         header.Should().BeEquivalentTo(new KeyValuePair<string, string>(TestHeaderName, CorrelationId));
@@ -49,7 +49,7 @@ public class HeaderDictionaryExtensionsTests
         _sut.Add(CorrelationHttpHeaders.CorrelationId, new StringValues(CorrelationId));
 
         // Act
-        KeyValuePair<string, string> header = _sut.GetCorrelationIdHeader(new[] { CorrelationHttpHeaders.CorrelationId });
+        KeyValuePair<string, string?> header = _sut.GetCorrelationIdHeader(new[] { CorrelationHttpHeaders.CorrelationId });
 
         // Assert
         header.Should().BeEquivalentTo(new KeyValuePair<string, string>(CorrelationHttpHeaders.CorrelationId, CorrelationId));
@@ -59,20 +59,20 @@ public class HeaderDictionaryExtensionsTests
     public void When_header_is_not_found_should_return_preferred_header_without_value()
     {
         // Act
-        KeyValuePair<string, string> header = _sut.GetCorrelationIdHeader(new[] { TestHeaderName });
+        KeyValuePair<string, string?> header = _sut.GetCorrelationIdHeader(new[] { TestHeaderName });
 
         // Assert
-        header.Should().BeEquivalentTo(new KeyValuePair<string, string>(TestHeaderName, null));
+        header.Should().BeEquivalentTo(new KeyValuePair<string, string?>(TestHeaderName, null));
     }
 
     [Fact]
     public void When_using_empty_accepted_headers_should_throw()
     {
         _sut.Add(CorrelationHttpHeaders.CorrelationId, new StringValues(CorrelationId));
-        var expectedHeader = new KeyValuePair<string, string>(CorrelationHttpHeaders.CorrelationId, null);
+        var expectedHeader = new KeyValuePair<string, string?>(CorrelationHttpHeaders.CorrelationId, null);
 
         // Act
-        KeyValuePair<string, string> header = _sut.GetCorrelationIdHeader(Array.Empty<string>());
+        KeyValuePair<string, string?> header = _sut.GetCorrelationIdHeader(Array.Empty<string>());
 
         // Assert
         header.Should().BeEquivalentTo(expectedHeader, "it should not take correlation id from header dictionary but still return header key");
