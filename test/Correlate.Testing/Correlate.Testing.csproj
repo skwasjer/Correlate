@@ -14,7 +14,7 @@
     <PackageReference Include="Serilog" Version="2.11.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="3.1.0" />
     <PackageReference Include="Serilog.Sinks.TestCorrelator" Version="3.2.0" />
-    <PackageReference Include="skwas.MockHttp" Version="3.1.0-rc0001" />
+    <PackageReference Include="skwas.MockHttp" Version="3.1.0-rc0002" />
   </ItemGroup>
 
 </Project>
