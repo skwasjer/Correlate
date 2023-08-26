@@ -4,5 +4,6 @@ continuous-delivery-fallback-tag: 'ci'
 branches:
   main:
     regex: ^main$
+    tag: 'ci'
 ignore:
   sha: []

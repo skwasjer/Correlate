@@ -4,25 +4,29 @@ on: [push, pull_request]
 
 jobs:
   dotnet:
-    name: ${{ matrix.framework-version }} on ${{ matrix.os }}
+    name: ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        framework-version: [net6.0, netcoreapp3.1]
-
+      fail-fast: false
     steps:
-      - uses: actions/checkout@master
-
-      - name: Setup .NET 6.0
-        uses: actions/setup-dotnet@v1
+      - uses: actions/checkout@v3
+      - uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 6.0.x
+          dotnet-version: |
+            6.0.x
+            3.1.x
 
-      - name: Setup .NET Core 3.1
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: 3.1.x
+      - name: dotnet info
+        run: dotnet --info
 
-      - name: Tests
-        run: dotnet test -c Release -f ${{ matrix.framework-version }}
+      # https://github.com/actions/runner-images/blob/ubuntu22/20230821.1/images/linux/Ubuntu2204-Readme.md
+      # There is an issue with latest SDK on Linux with .NET Framework:
+      # https://github.com/microsoft/vstest/issues/4549
+      # Unfortunatey, it becomes preinstalled with latest GitHub runner images, so have to remove it for now.
+      - name: Remove latest .NET SDK (7.0.400)
+        if: matrix.os != 'windows-latest'
+        run: sudo rm -rf ${DOTNET_ROOT}/sdk/7.0.400
+
+      - run: dotnet test -c Release
