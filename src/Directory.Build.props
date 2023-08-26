@@ -16,11 +16,13 @@
     <RepositoryUrl>https://github.com/skwasjer/Correlate</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageIcon>PackageIcon64.png</PackageIcon>
+    <PackageReleaseNotes>Release notes are at https://github.com/skwasjer/Correlate/releases</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="..\..\assets\PackageIcon64.png" Pack="true" Visible="false" PackagePath="\"/>
   </ItemGroup>
+
   <!--https://docs.microsoft.com/en-us/visualstudio/msbuild/customize-your-build?view=vs-2019#use-case-multi-level-merging -->
   <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
 
