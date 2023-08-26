@@ -3,14 +3,12 @@ using System.Net.Http.Headers;
 using Correlate.AspNetCore.Fixtures;
 using Correlate.Http;
 using Correlate.Testing.FluentAssertions;
-using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Options;
 using MockHttp;
 using Serilog.Events;
 using Serilog.Sinks.TestCorrelator;
-using Xunit;
 
 namespace Correlate.AspNetCore.Middleware;
 

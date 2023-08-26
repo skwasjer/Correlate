@@ -1,14 +1,11 @@
 ﻿using System.Collections;
 using Correlate.Testing;
 using Correlate.Testing.TestCases;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using Moq;
 using Serilog;
 using Serilog.Core;
 using Serilog.Extensions.Logging;
 using Serilog.Sinks.TestCorrelator;
-using Xunit;
 
 namespace Correlate;
 

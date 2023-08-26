@@ -1,6 +1,4 @@
-﻿using FluentAssertions;
-
-namespace Correlate.Testing.FluentAssertions;
+﻿namespace Correlate.Testing.FluentAssertions;
 
 public class WhichValueConstraint<TParentConstraint, TValue> : AndConstraint<TParentConstraint>
 {

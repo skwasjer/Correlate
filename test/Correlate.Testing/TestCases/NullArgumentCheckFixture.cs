@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using Correlate.Testing.FluentAssertions;
-using FluentAssertions;
 
 namespace Correlate.Testing.TestCases;
 

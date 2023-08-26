@@ -1,12 +1,10 @@
 ﻿using System.Net;
 using Correlate.Http;
 using Correlate.Testing.FluentAssertions;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Options;
 using MockHttp;
-using Xunit;
 
 namespace Correlate.DependencyInjection;
 

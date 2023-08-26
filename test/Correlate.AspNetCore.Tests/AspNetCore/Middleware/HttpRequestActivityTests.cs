@@ -1,5 +1,4 @@
 ﻿using Correlate.Http;
-using FluentAssertions;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Primitives;
 using Serilog;
@@ -7,7 +6,6 @@ using Serilog.Core;
 using Serilog.Events;
 using Serilog.Extensions.Logging;
 using Serilog.Sinks.TestCorrelator;
-using Xunit;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace Correlate.AspNetCore.Middleware;

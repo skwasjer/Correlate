@@ -1,6 +1,4 @@
-﻿using FluentAssertions;
-using Microsoft.Extensions.Primitives;
-using Xunit;
+﻿using Microsoft.Extensions.Primitives;
 
 namespace Correlate.Http.Extensions;
 

@@ -1,7 +1,4 @@
-﻿using FluentAssertions;
-using Xunit;
-
-namespace Correlate;
+﻿namespace Correlate;
 
 public class RequestIdentifierCorrelationIdFactoryTests
 {

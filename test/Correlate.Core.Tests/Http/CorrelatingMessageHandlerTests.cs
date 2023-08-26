@@ -1,8 +1,6 @@
 ﻿using System.Net;
-using FluentAssertions;
 using Microsoft.Extensions.Options;
 using MockHttp;
-using Xunit;
 
 namespace Correlate.Http;
 
