@@ -13,7 +13,7 @@ public class CorrelationManagerTests : IDisposable
 {
     private const string GeneratedCorrelationId = "generated-correlation-id";
     private readonly CorrelationContextAccessor _correlationContextAccessor;
-    private readonly Mock<ICorrelationIdFactory> _correlationIdFactoryMock;
+    private readonly ICorrelationIdFactory _correlationIdFactoryMock;
     private readonly ILogger<CorrelationManager> _logger;
     private readonly SerilogLoggerProvider _logProvider;
     private readonly CorrelationManager _sut;
@@ -22,11 +22,10 @@ public class CorrelationManagerTests : IDisposable
     {
         _correlationContextAccessor = new CorrelationContextAccessor();
 
-        _correlationIdFactoryMock = new Mock<ICorrelationIdFactory>();
+        _correlationIdFactoryMock = Substitute.For<ICorrelationIdFactory>();
         _correlationIdFactoryMock
-            .Setup(m => m.Create())
-            .Returns(() => GeneratedCorrelationId)
-            .Verifiable();
+            .Create()
+            .Returns(GeneratedCorrelationId);
 
         Logger serilogLogger = new LoggerConfiguration()
             .WriteTo.TestCorrelator()
@@ -37,7 +36,7 @@ public class CorrelationManagerTests : IDisposable
 
         _sut = new CorrelationManager(
             new CorrelationContextFactory(_correlationContextAccessor),
-            _correlationIdFactoryMock.Object,
+            _correlationIdFactoryMock,
             _correlationContextAccessor,
             _logger
         );
@@ -269,7 +268,7 @@ public class CorrelationManagerTests : IDisposable
                     return Task.CompletedTask;
                 });
 
-            _correlationIdFactoryMock.Verify(m => m.Create(), Times.Never);
+            _correlationIdFactoryMock.DidNotReceive().Create();
         }
 
         [Fact]
@@ -283,7 +282,7 @@ public class CorrelationManagerTests : IDisposable
                 return Task.CompletedTask;
             });
 
-            _correlationIdFactoryMock.Verify();
+            _correlationIdFactoryMock.Received(1).Create();
         }
 
         [Fact]
@@ -576,7 +575,7 @@ public class CorrelationManagerTests : IDisposable
                     _correlationContextAccessor.CorrelationContext?.CorrelationId.Should().Be(correlationId);
                 });
 
-            _correlationIdFactoryMock.Verify(m => m.Create(), Times.Never);
+            _correlationIdFactoryMock.DidNotReceive().Create();
         }
 
         [Fact]
@@ -589,7 +588,7 @@ public class CorrelationManagerTests : IDisposable
                 _correlationContextAccessor.CorrelationContext?.CorrelationId.Should().Be(GeneratedCorrelationId);
             });
 
-            _correlationIdFactoryMock.Verify();
+            _correlationIdFactoryMock.Received(1).Create();
         }
 
         [Fact]
@@ -672,10 +671,10 @@ public class CorrelationManagerTests : IDisposable
         public static IEnumerable<object[]> NullArgumentTestCases()
         {
             var instance = new CorrelationManager(
-                Mock.Of<ICorrelationContextFactory>(),
-                Mock.Of<ICorrelationIdFactory>(),
-                Mock.Of<ICorrelationContextAccessor>(),
-                Mock.Of<ILogger<CorrelationManager>>()
+                Substitute.For<ICorrelationContextFactory>(),
+                Substitute.For<ICorrelationIdFactory>(),
+                Substitute.For<ICorrelationContextAccessor>(),
+                Substitute.For<ILogger<CorrelationManager>>()
             );
 
             static Task CorrelatedTask()
