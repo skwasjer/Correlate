@@ -241,7 +241,7 @@ public class CorrelationManager : IAsyncCorrelationManager, ICorrelationManager,
         return activity.Start(correlationId ?? _correlationContextAccessor?.CorrelationContext?.CorrelationId ?? _correlationIdFactory.Create());
     }
 
-    private class Void
+    private sealed class Void
     {
         public static readonly Void Null = new();
 

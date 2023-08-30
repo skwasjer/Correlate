@@ -41,7 +41,7 @@ public class CorrelationContextAccessor : ICorrelationContextAccessor
         }
     }
 
-    private class CorrelationContextHolder
+    private sealed class CorrelationContextHolder
     {
         public CorrelationContext? Context { get; set; }
         public CorrelationContextHolder? ParentContext { get; set; }
