@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Added .NET 7 target framework
+
 ## v4.0.0
 
 - Added .NET 6 target framework
