@@ -5,7 +5,10 @@ namespace Correlate.AspNetCore;
 /// <summary>
 /// Copied from internal <see cref="Microsoft.AspNetCore.TestHost.ResponseFeature" /> implementation.
 /// </summary>
-internal class TestResponseFeature : IHttpResponseFeature
+internal class TestResponseFeature
+    : IHttpResponseFeature,
+      IDisposable,
+      IAsyncDisposable
 {
     private readonly HeaderDictionary _headers = new();
     private string? _reasonPhrase;
@@ -21,6 +24,16 @@ internal class TestResponseFeature : IHttpResponseFeature
         // 200 is the default status code all the way down to the host, so we set it
         // here to be consistent with the rest of the hosts when writing tests.
         StatusCode = 200;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await Body.DisposeAsync();
+    }
+
+    public void Dispose()
+    {
+        Body.Dispose();
     }
 
     public int StatusCode

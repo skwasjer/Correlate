@@ -3,6 +3,11 @@
 ## Unreleased
 
 - Added .NET 7 target framework
+- Refactored ASP.NET Core integration to be based on `DiagnosticsListener`, by subscribing an observer and watch for HttpRequestIn (activity) events. This gives us the soonest opportunity to create the correlation context. Previously, `.UseCorrelate()` would register middleware. There were a few downsides with that approach, all having to do with _when_ the correlation context actually was being created:
+  - it was depending on the registration order when considering other middleware. F.ex. if `UseCorrelate()` was not called before any other middleware was registered, the correlation context was also not created as soon as possible.
+  - the ASP.NET Core its own built-in request-start and request-stop log messages did not have a Correlation ID property attached because the log scope created by Correlate is created after/disposed before these are emitted.
+  - for unhandled exceptions, the correlation context was already gone in the global exception handler because the request middleware pipeline completes before it gets there (unless you registered a custom one!). Again, this means those (default) log messages would not have a correlation ID property (see previous point).
+  - the middleware had a little too many allocations to my liking (considering that it runs in a fast-path).  
 
 ## v4.0.0
 
