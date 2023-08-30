@@ -9,13 +9,6 @@
     <Description>ASP.NET Core middleware component to correlate requests between microservices using correlation ID request headers.</Description>
     <PackageProjectUrl>https://github.com/skwasjer/Correlate</PackageProjectUrl>
     <PackageTags>correlationid, correlation, correlate, causation, aspnet, middleware, httpclient, httpclientfactory</PackageTags>
-    <PackageReleaseNotes>
-      v4.0.0
-      - Added .NET 6.0 support
-      - Added .NET Core 3.1 support
-      - Dropped .NET 5.0 support (non-LTS)
-      - Removed .NET Core 2.1 support (implicitly by removing .NET Standard 2.0)
-    </PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
