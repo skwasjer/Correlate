@@ -14,11 +14,6 @@
     <PackageVersion_Microsoft_Extensions>7.0.0</PackageVersion_Microsoft_Extensions>
     <PackageVersion_Microsoft_Extensions Condition="'$(TargetFramework)'=='net6.0'">6.0.0</PackageVersion_Microsoft_Extensions>
     <PackageVersion_Microsoft_Extensions Condition="'$(TargetFramework)'!='net6.0' And '$(TargetFramework)'!='net7.0'">3.1.26</PackageVersion_Microsoft_Extensions>
-
-    <!-- System.Diagnostics.DiagnosticSource -->
-    <PackageVersion_DiagnosticSource>7.0.0</PackageVersion_DiagnosticSource>
-    <PackageVersion_DiagnosticSource Condition="'$(TargetFramework)'=='net6.0'">6.0.0</PackageVersion_DiagnosticSource>
-    <PackageVersion_DiagnosticSource Condition="'$(TargetFramework)'!='net6.0' And '$(TargetFramework)'!='net7.0'">4.7.0</PackageVersion_DiagnosticSource>
   </PropertyGroup>
 
 </Project>
