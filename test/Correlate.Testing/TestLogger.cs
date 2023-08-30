@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Correlate.Testing;
 
-public class TestLogger<T> : TestLogger, ILogger<T>
+public sealed class TestLogger<T> : TestLogger, ILogger<T>
 {
     public TestLogger(ILogger? innerLogger, bool isEnabled = true)
         : base(innerLogger, typeof(T).FullName!, isEnabled)
@@ -22,7 +22,9 @@ public class TestLogger : ILogger
     private readonly bool _isEnabled;
 
     // ReSharper disable once UnusedParameter.Local
-    public TestLogger(ILogger? innerLogger, string name, bool isEnabled = true)
+#pragma warning disable IDE0060
+    protected TestLogger(ILogger? innerLogger, string name, bool isEnabled = true)
+#pragma warning restore IDE0060
     {
         _innerLogger = innerLogger;
         _isEnabled = isEnabled;
@@ -43,7 +45,12 @@ public class TestLogger : ILogger
         return _isEnabled;
     }
 
+#if NET7_0_OR_GREATER
     public IDisposable BeginScope<TState>(TState state)
+        where TState : notnull
+#else
+    public IDisposable BeginScope<TState>(TState state)
+#endif
     {
         return _innerLogger?.BeginScope(state) ?? NullLogger.Instance.BeginScope(state);
     }
