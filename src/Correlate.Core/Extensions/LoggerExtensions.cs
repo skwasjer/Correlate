@@ -5,7 +5,7 @@ namespace Correlate.Extensions;
 
 internal static class LoggerExtensions
 {
-    public static IDisposable BeginCorrelatedScope(this ILogger logger, string correlationId)
+    public static IDisposable? BeginCorrelatedScope(this ILogger logger, string correlationId)
     {
         return logger.BeginScope(new CorrelatedLogScope(correlationId));
     }
