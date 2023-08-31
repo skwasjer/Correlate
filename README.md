@@ -26,14 +26,14 @@ dotnet add package Correlate.AspNetCore
 |---|---|---|
 | `Correlate` | [![NuGet](https://img.shields.io/nuget/v/Correlate.svg)](https://www.nuget.org/packages/Correlate/) [![NuGet](https://img.shields.io/nuget/dt/Correlate.svg)](https://www.nuget.org/packages/Correlate/) | Core library, including a `DelegatingHandler` for `HttpClient`. |
 | `Correlate.Abstractions` | [![NuGet](https://img.shields.io/nuget/v/Correlate.Abstractions.svg)](https://www.nuget.org/packages/Correlate.Abstractions/) [![NuGet](https://img.shields.io/nuget/dt/Correlate.Abstractions.svg)](https://www.nuget.org/packages/Correlate.Abstractions/) | Abstractions library. |
-| `Correlate.AspNetCore` | [![NuGet](https://img.shields.io/nuget/v/Correlate.AspNetCore.svg)](https://www.nuget.org/packages/Correlate.AspNetCore/) [![NuGet](https://img.shields.io/nuget/dt/Correlate.AspNetCore.svg)](https://www.nuget.org/packages/Correlate.AspNetCore/) | ASP.NET Core middleware. |
+| `Correlate.AspNetCore` | [![NuGet](https://img.shields.io/nuget/v/Correlate.AspNetCore.svg)](https://www.nuget.org/packages/Correlate.AspNetCore/) [![NuGet](https://img.shields.io/nuget/dt/Correlate.AspNetCore.svg)](https://www.nuget.org/packages/Correlate.AspNetCore/) | ASP.NET Core integration. |
 | `Correlate.DependencyInjection` | [![NuGet](https://img.shields.io/nuget/v/Correlate.DependencyInjection.svg)](https://www.nuget.org/packages/Correlate.DependencyInjection/) [![NuGet](https://img.shields.io/nuget/dt/Correlate.DependencyInjection.svg)](https://www.nuget.org/packages/Correlate.DependencyInjection/) | Extensions for registration in a `IServiceCollection` container. |
 
 ## Usage
 
-In a typical ASP.NET Core (MVC) application, register the middleware and required services to handle incoming requests with a correlation id, and to enrich the response with a relevant correlation id.
+In an ASP.NET Core (MVC) application, register Correlate to handle incoming requests with a correlation id. Correlate will create a request scoped async context holding the correlation id, which can then propagate down the request pipeline.
 
-When using `HttpClient` to call other services, you can use `HttpClientFactory` to attach a delegating handler to any `HttpClient` which will automatically add a correlation id header to the outgoing request for cross service correlation.
+When using `HttpClient` to call other services, you can use `HttpClientFactory` to attach a delegating handler to any `HttpClient` which will propagate the correlation id header to the outgoing request for cross service correlation. Further more, there are other integration packages that also propagate the correlation id to other transports (see down below).
 
 ### Example ###
 
@@ -69,7 +69,7 @@ public class Startup
 
     public void Configure(IApplicationBuilder app)
     {
-        // Use middleware.
+        // Registers a diagnostics request observer.
         app.UseCorrelate();
 
         app.UseMvc();
@@ -82,8 +82,6 @@ Using this setup, for any incoming request that contains a `X-Correlation-ID` or
 Secondly, all responses will receive a matching response header.
 
 Thirdly, for all outbound HTTP calls that are sent via the `HttpClient` provided to `MyService` instances, a `X-Correlation-ID` request header is added.
-
-> In order to capture incoming requests with correlation ids as soon as possible, the middleware should be registered as the first middleware in the pipeline or at least near the top. Otherwise, you have middleware executing outside of the correlation context scope making them untrackable.
 
 ## Logging
 
@@ -113,11 +111,11 @@ public class MyService
 }
 ```
 
-> Note: `correlationContextAccessor.CorrelationContext` can be null, when `MyService` is not scoped to a request. Thus, when used outside of ASP.NET (not using the middleware component), you should create the context using `CorrelationManager` or `IActivityFactory` respectively (depending on the use case) for each unique subprocess.
+> Note: `correlationContextAccessor.CorrelationContext` can be null, when `MyService` is not scoped to a request. Thus, when used outside of ASP.NET (not using the middleware component), you should create the context using `I(Async)CorrelationManager` or `IActivityFactory` respectively (depending on the use case) for each unique subprocess.
 
 ## Correlation outside of ASP.NET request context
 
-To simplify managing correlation contexts, the `CorrelationManager` can be used. It takes care of the logic to create the context properly. This is especially useful when running background tasks, console apps, Windows services, etc. which need to interact with external services. Think of message broker handlers, scheduled task runners, etc.
+To simplify managing correlation contexts, the `I(Async)CorrelationManager` can be used. It takes care of the logic to create the context properly. This is especially useful when running background tasks, console apps, Windows services, etc. which need to interact with external services. Think of message broker handlers, scheduled task runners, etc.
 
 ### Example
 
@@ -195,7 +193,7 @@ services.AddSingleton<ICorrelationIdFactory, RequestIdentifierCorrelationIdFacto
 
 ## Alternatives for more advanced Distributed Tracing
 
-Please consider that .NET Core 3.1 and up now has built-in support for [W3C TraceContext](https://github.com/w3c/trace-context) ([blog](https://devblogs.microsoft.com/aspnet/improvements-in-net-core-3-0-for-troubleshooting-and-monitoring-distributed-apps/)) and that there are other distributed tracing libraries with more functionality than Correlate.
+Please consider that .NET Core 3.1 and up now has built-in support for [W3C TraceContext](https://github.com/w3c/trace-context) ([blog](https://devblogs.microsoft.com/aspnet/improvements-in-net-core-3-0-for-troubleshooting-and-monitoring-distributed-apps/)) and that there are other distributed tracing libraries with more functionality than Correlate. Personally, I am using `System.Diagnostics.ActivitySource` and OpenTelemetry in my professional work.
 
 - [OpenTelemetry](https://opentelemetry.io/)
 - [Jaeger](https://www.jaegertracing.io/)
@@ -204,14 +202,15 @@ Please consider that .NET Core 3.1 and up now has built-in support for [W3C Trac
 ## More info
 
 ### Supported .NET targets
-- .NET 6.0
+- .NET 6.0, .NET 7.0
 - .NET Standard 2.0/.NET Core 3.1
 
 ### ASP.NET Core support
-- ASP.NET Core 3.1/6.0
+- ASP.NET Core 3.1/6.0/7.0
 
 ### Build requirements
 - Visual Studio 2022
+- .NET 7 SDK
 - .NET 6 SDK
 - .NET 3.1 SDK
 
