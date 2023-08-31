@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
 using Correlate.AspNetCore.Fixtures;
-using Correlate.AspNetCore.Middleware;
 using Correlate.Http;
 using Correlate.Testing.FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;

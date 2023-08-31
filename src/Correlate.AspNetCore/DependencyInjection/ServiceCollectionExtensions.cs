@@ -1,4 +1,4 @@
-﻿using Correlate.AspNetCore.Middleware;
+﻿using Correlate.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Correlate.DependencyInjection;

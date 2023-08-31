@@ -1,6 +1,6 @@
 ﻿using Correlate.Http;
 
-namespace Correlate.AspNetCore.Middleware;
+namespace Correlate.AspNetCore;
 
 /// <summary>
 /// Options for handling correlation id on incoming requests.
