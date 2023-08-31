@@ -1,5 +1,8 @@
-﻿using Correlate.AspNetCore.Middleware;
+﻿using System.Diagnostics;
+using Correlate.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Correlate.AspNetCore;
 
@@ -15,6 +18,29 @@ public static class AppBuilderExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IApplicationBuilder UseCorrelate(this IApplicationBuilder appBuilder)
     {
-        return appBuilder.UseMiddleware<CorrelateMiddleware>();
+        if (appBuilder is null)
+        {
+            throw new ArgumentNullException(nameof(appBuilder));
+        }
+
+        if (appBuilder.ServerFeatures.Get<ICorrelateFeature>() is not null)
+        {
+            throw new InvalidOperationException($"{nameof(UseCorrelate)}() should not be called more than once.");
+        }
+
+        // Register HttpRequestIn observer.
+        CorrelateFeature correlateFeature = ActivatorUtilities.CreateInstance<CorrelateFeature>(appBuilder.ApplicationServices);
+        appBuilder.ServerFeatures.Set<ICorrelateFeature>(correlateFeature);
+        IDisposable observerDisposable = DiagnosticListener.AllListeners.Subscribe(new AspNetDiagnosticsObserver(correlateFeature));
+        // Dispose the observer on app shutdown.
+        IHostApplicationLifetime applicationLifetime = appBuilder.ApplicationServices.GetRequiredService<IHostApplicationLifetime>();
+        applicationLifetime.ApplicationStopping.Register(OnShutdown, observerDisposable);
+
+        return appBuilder;
+    }
+
+    private static void OnShutdown(object? service)
+    {
+        (service as IDisposable)?.Dispose();
     }
 }

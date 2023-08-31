@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
 using Correlate.AspNetCore.Fixtures;
+using Correlate.AspNetCore.Middleware;
 using Correlate.Http;
 using Correlate.Testing.FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -10,16 +11,17 @@ using MockHttp;
 using Serilog.Events;
 using Serilog.Sinks.TestCorrelator;
 
-namespace Correlate.AspNetCore.Middleware;
+namespace Correlate.AspNetCore;
 
-public class CorrelateMiddlewareTests : IClassFixture<TestAppFactory<Startup>>, IDisposable
+[Collection(nameof(UsesDiagnosticListener))]
+public sealed class IntegrationTests : IClassFixture<TestAppFactory<Startup>>, IDisposable
 {
     private readonly WebApplicationFactory<Startup> _factory;
     private readonly TestAppFactory<Startup> _rootFactory;
     private readonly CorrelateOptions _options;
     private readonly MockHttpHandler _mockHttp;
 
-    public CorrelateMiddlewareTests(TestAppFactory<Startup> factory)
+    public IntegrationTests(TestAppFactory<Startup> factory)
     {
         _options = new CorrelateOptions();
         _mockHttp = new MockHttpHandler();
@@ -31,18 +33,25 @@ public class CorrelateMiddlewareTests : IClassFixture<TestAppFactory<Startup>>, 
             .ConfigureTestServices(services =>
             {
                 services.AddTransient(_ => _mockHttp);
-                services.AddSingleton<IOptions<CorrelateOptions>>(new OptionsWrapper<CorrelateOptions>(_options));
+                services.AddSingleton(Options.Create(_options));
             })
         );
     }
 
     public void Dispose()
     {
+#if NETCOREAPP3_1
+        // NET Core 3.1 test host does not trigger application stopping token, but our diagnostics observable
+        // (subscribed in UseCorrelate) must unsubscribe before next test run.
+        // This is a bit crude but later versions of .NET test host do it properly.
+        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
+        IHostApplicationLifetime? appLifetime = _factory?.Services.GetRequiredService<IHostApplicationLifetime>();
+        appLifetime?.StopApplication();
+#endif
         // ReSharper disable ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
         _factory?.Dispose();
         _mockHttp?.Dispose();
         // ReSharper restore ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
-        GC.SuppressFinalize(this);
     }
 
     [Fact]
@@ -177,7 +186,8 @@ public class CorrelateMiddlewareTests : IClassFixture<TestAppFactory<Startup>>, 
     public async Task When_executing_multiple_requests_the_response_should_contain_new_correlationIds_for_each_response()
     {
         HttpClient client = _factory.CreateClient();
-        IEnumerable<Task<HttpResponseMessage>> requestTasks = Enumerable.Range(0, 50)
+        const int requestCount = 50;
+        IEnumerable<Task<HttpResponseMessage>> requestTasks = Enumerable.Range(0, requestCount)
             .Select(_ => client.GetAsync(""));
 
         // Act
@@ -191,7 +201,7 @@ public class CorrelateMiddlewareTests : IClassFixture<TestAppFactory<Startup>>, 
         var distinctCorrelationIds = correlationIds.ToHashSet();
         correlationIds
             .Should()
-            .HaveCount(distinctCorrelationIds.Count)
+            .HaveCount(requestCount)
             .And
             .BeEquivalentTo(distinctCorrelationIds, "each request should have a different correlation id");
     }
@@ -210,7 +220,7 @@ public class CorrelateMiddlewareTests : IClassFixture<TestAppFactory<Startup>>, 
     }
 
     [Fact]
-    public async Task When_logging_should_have_correlationId_for_all_logged_events_except_host_start_and_finish()
+    public async Task When_logging_should_have_correlationId_for_all_logged_events()
     {
         const string headerName = CorrelationHttpHeaders.CorrelationId;
         const string correlationId = "my-correlation-id";
@@ -224,7 +234,7 @@ public class CorrelateMiddlewareTests : IClassFixture<TestAppFactory<Startup>>, 
 
         // Assert
         // ReSharper disable once SuggestVarOrType_Elsewhere
-        var logEvents = TestCorrelator.GetLogEventsFromContextGuid(Startup.LastRequestContext.Guid).ToList();
+        var logEvents = TestCorrelator.GetLogEventsFromContextGuid(Startup.LastRequestContext!.Guid).ToList();
         logEvents.Should().HaveCountGreaterThan(2);
 
         logEvents

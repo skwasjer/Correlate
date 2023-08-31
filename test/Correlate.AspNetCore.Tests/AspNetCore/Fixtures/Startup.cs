@@ -1,4 +1,6 @@
-﻿using Correlate.DependencyInjection;
+﻿using System.Diagnostics;
+using Correlate.AspNetCore.Diagnostics;
+using Correlate.DependencyInjection;
 using MockHttp;
 using Serilog.Sinks.TestCorrelator;
 
@@ -6,7 +8,9 @@ namespace Correlate.AspNetCore.Fixtures;
 
 public class Startup
 {
-    public static ITestCorrelatorContext LastRequestContext { get; private set; } = default!;
+    private static readonly TestCorrelatorObserver Observer = new();
+
+    public static ITestCorrelatorContext? LastRequestContext => Observer.Current;
 
     public void ConfigureServices(IServiceCollection services)
     {
@@ -25,7 +29,11 @@ public class Startup
     public void Configure(IApplicationBuilder app)
     {
         // Create context to track log events.
-        app.UseMiddleware<TestContextMiddleware>();
+        DiagnosticListener diagnosticListener = app.ApplicationServices.GetRequiredService<DiagnosticListener>();
+        IHostApplicationLifetime hostAppLifetime = app.ApplicationServices.GetRequiredService<IHostApplicationLifetime>();
+
+        IDisposable subscription = diagnosticListener.Subscribe(Observer, TestCorrelatorObserver.IsEnabled);
+        hostAppLifetime.ApplicationStopping.Register(subscription.Dispose);
 
         app.UseCorrelate();
 
@@ -33,21 +41,36 @@ public class Startup
         app.UseEndpoints(builder => builder.MapControllers());
     }
 
-    private class TestContextMiddleware
+    private sealed class TestCorrelatorObserver
+        : IObserver<KeyValuePair<string, object?>>,
+          IDisposable
     {
-        private readonly RequestDelegate _next;
+        public ITestCorrelatorContext? Current { get; private set; }
 
-        public TestContextMiddleware(RequestDelegate next)
+        public void Dispose()
         {
-            _next = next ?? throw new ArgumentNullException(nameof(next));
+            Current?.Dispose();
         }
 
-        public async Task Invoke(HttpContext httpContext)
+        public void OnCompleted()
         {
-            using (LastRequestContext = TestCorrelator.CreateContext())
-            {
-                await _next.Invoke(httpContext);
-            }
+        }
+
+        public void OnError(Exception error)
+        {
+        }
+
+        public void OnNext(KeyValuePair<string, object?> value)
+        {
+            Current?.Dispose();
+            Current ??= TestCorrelator.CreateContext();
+        }
+
+        public static bool IsEnabled(string operationName)
+        {
+            return operationName is HttpRequestInDiagnosticsObserver.ActivityName
+                or HttpRequestInDiagnosticsObserver.ActivityStartKey
+                or HttpRequestInDiagnosticsObserver.ActivityStopKey;
         }
     }
 }
