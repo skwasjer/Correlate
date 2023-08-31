@@ -1,5 +1,4 @@
-﻿using Correlate.AspNetCore.Middleware;
-using Correlate.Http.Extensions;
+﻿using Correlate.Http.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

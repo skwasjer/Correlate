@@ -1,5 +1,4 @@
-﻿using Correlate.AspNetCore.Middleware;
-using Correlate.DependencyInjection;
+﻿using Correlate.DependencyInjection;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.Extensions.Options;
