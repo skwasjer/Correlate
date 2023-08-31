@@ -6,9 +6,13 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Description>Provides abtractions to correlate requests between microservices.</Description>
+    <Description>Provides abstractions to correlate requests between microservices.</Description>
     <PackageProjectUrl>https://github.com/skwasjer/Correlate</PackageProjectUrl>
     <PackageTags>correlationid, correlation, correlate, causation, aspnet, middleware, httpclient, httpclientfactory</PackageTags>
   </PropertyGroup>
   
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
 </Project>
