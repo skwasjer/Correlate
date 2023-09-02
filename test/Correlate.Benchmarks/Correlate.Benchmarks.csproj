@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net7.0;net6.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsTestProject>false</IsTestProject>
+    <Baseline>true</Baseline>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.13.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Correlate.AspNetCore\Correlate.AspNetCore.csproj" Condition="'$(Baseline)'=='true'" />
+    <ProjectReference Include="..\..\src\Correlate.DependencyInjection\Correlate.DependencyInjection.csproj" Condition="'$(Baseline)'=='true'" />
+  </ItemGroup>
+
+</Project>
