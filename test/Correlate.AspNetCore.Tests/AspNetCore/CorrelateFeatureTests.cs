@@ -194,7 +194,7 @@ public sealed class CorrelateFeatureTests : IDisposable
         _options.RequestHeaders.Should().NotBeNullOrEmpty();
 
         const string existingCorrelationId = "existing-id";
-        _responseFeature.Headers.Add(_options.RequestHeaders[0], existingCorrelationId);
+        _responseFeature.Headers.Append(_options.RequestHeaders[0], existingCorrelationId);
 
         var expectedHeader = new KeyValuePair<string, StringValues>(
             _options.RequestHeaders[0],

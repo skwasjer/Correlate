@@ -1,39 +1,103 @@
-﻿using BenchmarkDotNet.Configs;
+﻿using System.Reflection;
+using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Environments;
 using BenchmarkDotNet.Jobs;
+using BenchmarkDotNet.Order;
 using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Toolchains;
 using BenchmarkDotNet.Toolchains.CsProj;
 using Correlate.Benchmarks;
 
-IToolchain[] toolchains = { CsProjCoreToolchain.NetCoreApp70, CsProjCoreToolchain.NetCoreApp60 };
+Runtime mostCurrentRuntime = CoreRuntime.Core80;
+IToolchain mostCurrentToolchain = CsProjCoreToolchain.NetCoreApp80;
 
-IConfig cfg = DefaultConfig.Instance
-    .ForAllToolchains(toolchains, Job.Default.WithId("Current"), toolchain => toolchain.Equals(CsProjCoreToolchain.NetCoreApp70))
-    .ForAllToolchains(toolchains,
-        Job.Default
-            .WithId("4.0.0")
-            .WithToolchain(CsProjCoreToolchain.NetCoreApp70)
-            .WithNuGet("Correlate.AspNetCore", "4.0.0")
-            .WithNuGet("Correlate.DependencyInjection", "4.0.0")
-            .WithArguments(new[] { new MsBuildArgument("/p:Baseline=false") })
-    );
+Version[] versions =
+{
+    new("4.0.0"), new("5.1.0"), new("0.0.0") // Current
+};
+
+IEnumerable<(Runtime, IToolchain)> runtimes = ConfigExtensions.GetRuntimes(args);
+IEnumerable<(Version version, Runtime runtime, IToolchain toolchain)> runs =
+    (
+    from version in versions
+    from runtime in runtimes
+    orderby version descending, runtime.Item1.ToString() descending
+    select (version, runtime.Item1, runtime.Item2)
+    ).ToList();
 
 #if RELEASE
-BenchmarkRunner.Run<AspNetCoreBenchmark>(cfg);
+IConfig cfg = DefaultConfig.Instance;
 #else
-BenchmarkRunner.Run<AspNetCoreBenchmark>(new DebugInProcessConfig());
+IConfig cfg = new DebugInProcessConfig();
 #endif
+cfg = runs.Aggregate(cfg,
+    (current, run) => current
+        .ForAllRuntimes(
+            run.version,
+            run.runtime,
+            run.toolchain,
+            (runtime, toolchain) => runtime.Equals(mostCurrentRuntime) && toolchain.Equals(mostCurrentToolchain))
+);
+
+cfg.WithOrderer(new DefaultOrderer(SummaryOrderPolicy.Declared));
+
+BenchmarkRunner.Run<AspNetCoreBenchmark>(cfg);
 
 internal static class ConfigExtensions
 {
-    public static IConfig ForAllToolchains(this IConfig config, IEnumerable<IToolchain> toolchains, Job job, Func<IToolchain, bool>? isBaseline = null)
+    public static IReadOnlyCollection<(Runtime, IToolchain)> GetRuntimes(string[] args)
     {
-        foreach (IToolchain toolchain in toolchains)
+        const BindingFlags bf = BindingFlags.Public | BindingFlags.Static;
+
+        var argRuntimes = args
+            .SkipWhile(arg => arg == "--runtimes")
+            .TakeWhile(arg => arg.StartsWith("net"))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        IEnumerable<Runtime> runtimes = typeof(CoreRuntime).GetFields(bf)
+            .Union(typeof(ClrRuntime).GetFields(bf))
+            .Select(fi => fi.GetValue(null))
+            .OfType<Runtime>()
+            .Where(rt => argRuntimes.Contains(rt.RuntimeMoniker.ToString()))
+            .ToList();
+
+        IEnumerable<CsProjCoreToolchain> toolchains = typeof(CsProjCoreToolchain).GetFields(bf)
+            .Select(fi => fi.GetValue(null))
+            .OfType<CsProjCoreToolchain>()
+            .ToList();
+
+        return runtimes
+            .Select(rt => (rt, (IToolchain)toolchains.Single(tc => ((CsProjGenerator)tc.Generator).TargetFrameworkMoniker == rt.MsBuildMoniker)))
+            .ToList();
+    }
+
+    public static IConfig ForAllRuntimes(this IConfig config, Version version, Runtime runtime, IToolchain toolchain, Func<Runtime, IToolchain, bool> isBaselineRuntime)
+    {
+        bool isCurrentVersion = version.Major == 0;
+        string label = isCurrentVersion
+            ? "vNext"
+            : $"v{version.ToString(3)}";
+
+        Job job = JobMode<Job>.Default
+            .WithRuntime(runtime)
+            .WithToolchain(toolchain)
+            .WithId(label);
+
+        if (!isCurrentVersion)
         {
-            Job j = job.WithToolchain(toolchain);
-            config = config.AddJob(isBaseline?.Invoke(toolchain) ?? false ? j.AsBaseline() : j);
+            job = job
+                .WithNuGet("Correlate.AspNetCore", version.ToString(3))
+                .WithNuGet("Correlate.DependencyInjection", version.ToString(3))
+                .WithArguments(new[] { new MsBuildArgument("/p:CurrentVersion=false") });
+        }
+        else
+        {
+            if (isBaselineRuntime(runtime, toolchain))
+            {
+                job = job.AsBaseline();
+            }
         }
 
-        return config;
+        return config.AddJob(job);
     }
 }

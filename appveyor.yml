@@ -8,6 +8,13 @@ install:
   - gitversion /l console /output buildserver
   - choco install opencover.portable -y
   - choco install codecov -y
+  # Install 8.0 preview
+  - ps: $env:DOTNET_INSTALL_DIR = "C:\Program Files\dotnet"
+  - ps: mkdir $env:DOTNET_INSTALL_DIR -Force | Out-Null
+  - ps: Invoke-WebRequest 'https://dotnet.microsoft.com/download/dotnet/scripts/v1/dotnet-install.ps1' -OutFile "$($env:DOTNET_INSTALL_DIR)/dotnet-install.ps1"
+  - ps: '& "$($env:DOTNET_INSTALL_DIR)/dotnet-install.ps1" -Channel 8.0.1xx -Quality preview -InstallDir $env:DOTNET_INSTALL_DIR'
+  - ps: $env:Path = "$env:DOTNET_INSTALL_DIR;$env:Path"
+  - dotnet --list-sdks
 cache:
   - C:\ProgramData\chocolatey\bin -> appveyor.yml, codecov.yml
   - C:\ProgramData\chocolatey\lib -> appveyor.yml, codecov.yml

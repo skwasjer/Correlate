@@ -1,12 +1,12 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net7.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;net7.0;net6.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsTestProject>false</IsTestProject>
-    <Baseline>true</Baseline>
+    <CurrentVersion>true</CurrentVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,8 +14,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Correlate.AspNetCore\Correlate.AspNetCore.csproj" Condition="'$(Baseline)'=='true'" />
-    <ProjectReference Include="..\..\src\Correlate.DependencyInjection\Correlate.DependencyInjection.csproj" Condition="'$(Baseline)'=='true'" />
+    <ProjectReference Include="..\..\src\Correlate.AspNetCore\Correlate.AspNetCore.csproj" Condition="'$(CurrentVersion)'=='true'" />
+    <ProjectReference Include="..\..\src\Correlate.DependencyInjection\Correlate.DependencyInjection.csproj" Condition="'$(CurrentVersion)'=='true'" />
   </ItemGroup>
 
 </Project>
