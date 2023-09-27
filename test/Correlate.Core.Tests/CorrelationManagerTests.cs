@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Diagnostics;
 using Correlate.Testing;
 using Correlate.Testing.TestCases;
 using Microsoft.Extensions.Logging;
@@ -21,7 +20,7 @@ public class CorrelationManagerTests : IDisposable
     private readonly SerilogLoggerProvider _logProvider;
     private readonly CorrelationManager _sut;
 
-    protected CorrelationManagerTests()
+    protected CorrelationManagerTests(CorrelationManagerOptions options)
     {
         _correlationContextAccessor = new CorrelationContextAccessor();
 
@@ -36,7 +35,7 @@ public class CorrelationManagerTests : IDisposable
 
         _logProvider = new SerilogLoggerProvider(serilogLogger);
         _logger = new TestLogger<CorrelationManager>(_logProvider.CreateLogger(nameof(CorrelationManager)));
-        _options = Options.Create(new CorrelationManagerOptions());
+        _options = Options.Create(options);
 
         _sut = new CorrelationManager(
             new CorrelationContextFactory(_correlationContextAccessor),
@@ -55,6 +54,13 @@ public class CorrelationManagerTests : IDisposable
 
     public class Async : CorrelationManagerTests
     {
+        public Async() : base(new()
+        {
+            LoggingScopeKey = "ActivityId"
+        })
+        {
+        }
+
         [Fact]
         public async Task Given_a_task_should_run_task_inside_correlated_context()
         {
@@ -148,7 +154,7 @@ public class CorrelationManagerTests : IDisposable
                 var logEvents = TestCorrelator.GetLogEventsFromCurrentContext().ToList();
                 logEvents.Should()
                     .HaveCount(3)
-                    .And.ContainSingle(ev => ev.MessageTemplate.Text == "Message with correlation id." && ev.Properties.ContainsKey("CorrelationId"));
+                    .And.ContainSingle(ev => ev.MessageTemplate.Text == "Message with correlation id." && ev.Properties.ContainsKey("ActivityId"));
             }
         }
 
@@ -236,7 +242,7 @@ public class CorrelationManagerTests : IDisposable
                 .Cast<DictionaryEntry>()
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
                 .Should()
-                .ContainKey(CorrelateConstants.CorrelationIdKey)
+                .ContainKey("ActivityId")
                 .WhoseValue.Should()
                 .Be(GeneratedCorrelationId);
         }
@@ -366,6 +372,10 @@ public class CorrelationManagerTests : IDisposable
 
     public class Sync : CorrelationManagerTests
     {
+        public Sync() : base(new())
+        {
+        }
+
         [Fact]
         public void Given_a_action_should_run_action_inside_correlated_context()
         {
