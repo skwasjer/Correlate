@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Correlate;
 
@@ -13,6 +14,7 @@ public class CorrelationManager : IAsyncCorrelationManager, ICorrelationManager,
     private readonly ICorrelationIdFactory _correlationIdFactory;
     private readonly DiagnosticListener? _diagnosticListener;
     private readonly ILogger _logger;
+    private readonly CorrelationManagerOptions _options;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CorrelationManager" /> class.
@@ -21,18 +23,21 @@ public class CorrelationManager : IAsyncCorrelationManager, ICorrelationManager,
     /// <param name="correlationIdFactory">The correlation id factory used to generate a new correlation id per context.</param>
     /// <param name="correlationContextAccessor">The correlation context accessor.</param>
     /// <param name="logger">The logger.</param>
+    /// <param name="options">The configuration options.</param>
     public CorrelationManager
     (
         ICorrelationContextFactory correlationContextFactory,
         ICorrelationIdFactory correlationIdFactory,
         ICorrelationContextAccessor correlationContextAccessor,
-        ILogger<CorrelationManager> logger
+        ILogger<CorrelationManager> logger,
+        IOptions<CorrelationManagerOptions> options
     )
     {
         _correlationContextFactory = correlationContextFactory ?? throw new ArgumentNullException(nameof(correlationContextFactory));
         _correlationIdFactory = correlationIdFactory ?? throw new ArgumentNullException(nameof(correlationIdFactory));
         _correlationContextAccessor = correlationContextAccessor ?? throw new ArgumentNullException(nameof(correlationContextAccessor));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _options = options.Value;
     }
 
     /// <summary>
@@ -43,14 +48,16 @@ public class CorrelationManager : IAsyncCorrelationManager, ICorrelationManager,
     /// <param name="correlationContextAccessor">The correlation context accessor.</param>
     /// <param name="logger">The logger.</param>
     /// <param name="diagnosticListener">The diagnostics listener to run activities on.</param>
+    /// <param name="options">The configuration options.</param>
     public CorrelationManager
     (
         ICorrelationContextFactory correlationContextFactory,
         ICorrelationIdFactory correlationIdFactory,
         ICorrelationContextAccessor correlationContextAccessor,
         ILogger<CorrelationManager> logger,
-        DiagnosticListener diagnosticListener
-    ) : this(correlationContextFactory, correlationIdFactory, correlationContextAccessor, logger)
+        DiagnosticListener diagnosticListener,
+        IOptions<CorrelationManagerOptions> options
+    ) : this(correlationContextFactory, correlationIdFactory, correlationContextAccessor, logger, options)
     {
         _diagnosticListener = diagnosticListener ?? throw new ArgumentNullException(nameof(diagnosticListener));
     }
@@ -61,7 +68,7 @@ public class CorrelationManager : IAsyncCorrelationManager, ICorrelationManager,
     /// <returns>The correlated activity.</returns>
     public IActivity CreateActivity()
     {
-        return new RootActivity(_correlationContextFactory, _logger, _diagnosticListener);
+        return new RootActivity(_correlationContextFactory, _logger, _diagnosticListener, _options);
     }
 
     /// <summary>

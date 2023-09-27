@@ -1,7 +1,9 @@
 ﻿using System.Collections;
+using System.Diagnostics;
 using Correlate.Testing;
 using Correlate.Testing.TestCases;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Core;
 using Serilog.Extensions.Logging;
@@ -15,6 +17,7 @@ public class CorrelationManagerTests : IDisposable
     private readonly CorrelationContextAccessor _correlationContextAccessor;
     private readonly ICorrelationIdFactory _correlationIdFactoryMock;
     private readonly ILogger<CorrelationManager> _logger;
+    private readonly IOptions<CorrelationManagerOptions> _options;
     private readonly SerilogLoggerProvider _logProvider;
     private readonly CorrelationManager _sut;
 
@@ -33,12 +36,14 @@ public class CorrelationManagerTests : IDisposable
 
         _logProvider = new SerilogLoggerProvider(serilogLogger);
         _logger = new TestLogger<CorrelationManager>(_logProvider.CreateLogger(nameof(CorrelationManager)));
+        _options = Options.Create(new CorrelationManagerOptions());
 
         _sut = new CorrelationManager(
             new CorrelationContextFactory(_correlationContextAccessor),
             _correlationIdFactoryMock,
             _correlationContextAccessor,
-            _logger
+            _logger,
+            _options
         );
     }
 
@@ -674,7 +679,8 @@ public class CorrelationManagerTests : IDisposable
                 Substitute.For<ICorrelationContextFactory>(),
                 Substitute.For<ICorrelationIdFactory>(),
                 Substitute.For<ICorrelationContextAccessor>(),
-                Substitute.For<ILogger<CorrelationManager>>()
+                Substitute.For<ILogger<CorrelationManager>>(),
+                Substitute.For<IOptions<CorrelationManagerOptions>>()
             );
 
             static Task CorrelatedTask()

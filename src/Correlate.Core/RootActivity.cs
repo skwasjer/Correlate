@@ -8,6 +8,7 @@ internal class RootActivity : IActivity
 {
     private readonly ICorrelationContextFactory _correlationContextFactory;
     private readonly DiagnosticListener? _diagnosticListener;
+    private readonly CorrelationManagerOptions _options;
     private readonly ILogger _logger;
     private IDisposable? _logScope;
 
@@ -15,11 +16,13 @@ internal class RootActivity : IActivity
     (
         ICorrelationContextFactory correlationContextFactory,
         ILogger logger,
-        DiagnosticListener? diagnosticListener)
+        DiagnosticListener? diagnosticListener,
+        CorrelationManagerOptions options)
     {
         _correlationContextFactory = correlationContextFactory ?? throw new ArgumentNullException(nameof(correlationContextFactory));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _diagnosticListener = diagnosticListener;
+        _options = options;
     }
 
     /// <summary>
@@ -49,7 +52,7 @@ internal class RootActivity : IActivity
 
         if (isLoggingEnabled)
         {
-            _logScope = _logger.BeginCorrelatedScope(correlationId);
+            _logScope = _logger.BeginCorrelatedScope(_options.LoggingScopeKey, correlationId);
         }
 
         return context;
