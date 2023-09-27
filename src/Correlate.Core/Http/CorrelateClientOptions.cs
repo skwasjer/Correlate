@@ -3,7 +3,7 @@
 /// <summary>
 /// Client options for adding correlation id to outgoing requests.
 /// </summary>
-public class CorrelateClientOptions
+public class CorrelateClientOptions : CorrelationManagerOptions
 {
     /// <summary>
     /// Gets or sets the request header to set the correlation id in for outgoing requests. Default 'X-Correlation-ID'.

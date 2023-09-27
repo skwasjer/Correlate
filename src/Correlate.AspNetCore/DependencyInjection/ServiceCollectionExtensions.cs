@@ -1,5 +1,6 @@
 ﻿using Correlate.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Correlate.DependencyInjection;
 
@@ -16,8 +17,18 @@ public static class ServiceCollectionExtensions
     /// <returns>The <see cref="IServiceCollection" /> so that additional calls can be chained.</returns>
     public static IServiceCollection AddCorrelate(this IServiceCollection services, Action<CorrelateOptions> configureOptions)
     {
-        return services
-            .Configure(configureOptions)
+        services
+            .Configure(configureOptions);
+
+        services.AddOptions<CorrelationManagerOptions>()
+            .Configure((CorrelationManagerOptions cmo, IOptions<CorrelateOptions> co) =>
+            {
+                cmo.LoggingScopeKey = co.Value.LoggingScopeKey;
+            });
+
+        services
             .AddCorrelate();
+
+        return services;
     }
 }

@@ -35,6 +35,14 @@ public static class IHttpClientBuilderExtensions
             throw new ArgumentNullException(nameof(builder));
         }
 
+        builder.Services.AddOptions<CorrelationManagerOptions>()
+            .Configure((CorrelationManagerOptions cmo) =>
+            {
+                var options = new CorrelateClientOptions();
+                configureOptions(options);
+                cmo.LoggingScopeKey = options.LoggingScopeKey;
+            });
+
         builder.Services.AddCorrelate();
 
         builder.Services.TryAddTransient<CorrelatingHttpMessageHandler>();
