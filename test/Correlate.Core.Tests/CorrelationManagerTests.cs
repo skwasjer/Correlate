@@ -242,7 +242,7 @@ public class CorrelationManagerTests : IDisposable
                 .Cast<DictionaryEntry>()
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
                 .Should()
-                .ContainKey("ActivityId")
+                .ContainKey(CorrelateConstants.CorrelationIdKey)
                 .WhoseValue.Should()
                 .Be(GeneratedCorrelationId);
         }

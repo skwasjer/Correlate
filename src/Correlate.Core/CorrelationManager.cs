@@ -214,10 +214,10 @@ public class CorrelationManager : IAsyncCorrelationManager, ICorrelationManager,
 
     private bool HandlesException<T>(OnException? onException, CorrelationContext correlationContext, Exception ex, out T result)
     {
-        if (!ex.Data.Contains(_options.LoggingScopeKey))
+        if (!ex.Data.Contains(CorrelateConstants.CorrelationIdKey))
         {
             // Because we're about to lose context scope, enrich exception with correlation id for reference by calling code.
-            ex.Data.Add(_options.LoggingScopeKey, correlationContext.CorrelationId);
+            ex.Data.Add(CorrelateConstants.CorrelationIdKey, correlationContext.CorrelationId);
         }
 
         if (onException is not null)
