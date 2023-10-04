@@ -229,7 +229,7 @@ public class CorrelationManager : IAsyncCorrelationManager, ICorrelationManager,
         }
     }
 
-    private bool HandlesException<T>(OnException? onException, CorrelationContext correlationContext, Exception ex, out T result)
+    private static bool HandlesException<T>(OnException? onException, CorrelationContext correlationContext, Exception ex, out T result)
     {
         if (!ex.Data.Contains(CorrelateConstants.CorrelationIdKey))
         {
