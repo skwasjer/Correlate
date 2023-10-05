@@ -693,7 +693,9 @@ public class CorrelationManagerTests : IDisposable
                 Substitute.For<ICorrelationContextFactory>(),
                 Substitute.For<ICorrelationIdFactory>(),
                 Substitute.For<ICorrelationContextAccessor>(),
-                Substitute.For<ILogger<CorrelationManager>>()
+                Substitute.For<ILogger<CorrelationManager>>(),
+                Substitute.For<DiagnosticListener>("test"),
+                Options.Create(new CorrelationManagerOptions())
             );
 
             static Task CorrelatedTask()
