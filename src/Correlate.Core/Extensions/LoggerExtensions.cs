@@ -5,17 +5,19 @@ namespace Correlate.Extensions;
 
 internal static class LoggerExtensions
 {
-    public static IDisposable? BeginCorrelatedScope(this ILogger logger, string correlationId)
+    public static IDisposable? BeginCorrelatedScope(this ILogger logger, string scopeKey, string correlationId)
     {
-        return logger.BeginScope(new CorrelatedLogScope(correlationId));
+        return logger.BeginScope(new CorrelatedLogScope(scopeKey, correlationId));
     }
 
     private sealed class CorrelatedLogScope : IReadOnlyList<KeyValuePair<string, object>>
     {
+        private readonly string _scopeKey;
         private readonly string _correlationId;
 
-        public CorrelatedLogScope(string correlationId)
+        public CorrelatedLogScope(string scopeKey, string correlationId)
         {
+            _scopeKey = scopeKey;
             _correlationId = correlationId;
         }
 
@@ -41,7 +43,7 @@ internal static class LoggerExtensions
             {
                 if (index == 0)
                 {
-                    return new KeyValuePair<string, object>(CorrelateConstants.CorrelationIdKey, _correlationId);
+                    return new KeyValuePair<string, object>(_scopeKey, _correlationId);
                 }
 
                 throw new ArgumentOutOfRangeException(nameof(index));

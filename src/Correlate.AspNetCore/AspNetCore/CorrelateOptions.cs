@@ -5,7 +5,7 @@ namespace Correlate.AspNetCore;
 /// <summary>
 /// Options for handling correlation id on incoming requests.
 /// </summary>
-public sealed class CorrelateOptions
+public sealed class CorrelateOptions: CorrelationManagerOptions
 {
     private static readonly string[] DefaultRequestHeaders = { CorrelationHttpHeaders.CorrelationId };
 

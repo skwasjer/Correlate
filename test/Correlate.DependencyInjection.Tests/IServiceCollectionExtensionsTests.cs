@@ -10,13 +10,18 @@ public class When_adding_correlate_to_container
     private readonly IServiceCollection _services;
     private readonly IServiceProvider _sut;
 
-    public When_adding_correlate_to_container()
+    protected When_adding_correlate_to_container(IServiceCollection services)
     {
-        _services = new ServiceCollection()
-            .AddLogging()
-            .AddCorrelate();
+        _services = services;
 
         _sut = _services.BuildServiceProvider();
+    }
+
+    public When_adding_correlate_to_container()
+        : this(new ServiceCollection()
+            .AddLogging()
+            .AddCorrelate())
+    {
     }
 
     [Theory]
@@ -56,5 +61,15 @@ public class When_adding_correlate_to_container
             yield return new ExpectedRegistration<IActivityFactory, CorrelationManager>(ServiceLifetime.Transient);
             yield return new ExpectedRegistration<ILoggerFactory, LoggerFactory>(ServiceLifetime.Singleton);
         }
+    }
+}
+
+public class When_adding_correlate_to_container_with_options : When_adding_correlate_to_container
+{
+    public When_adding_correlate_to_container_with_options()
+        : base(new ServiceCollection()
+            .AddLogging()
+            .AddCorrelate(o => o.LoggingScopeKey = "CustomLoggingScopeKey"))
+    {
     }
 }

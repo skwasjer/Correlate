@@ -1,7 +1,9 @@
 ﻿using System.Collections;
+using System.Diagnostics;
 using Correlate.Testing;
 using Correlate.Testing.TestCases;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Core;
 using Serilog.Extensions.Logging;
@@ -15,10 +17,12 @@ public class CorrelationManagerTests : IDisposable
     private readonly CorrelationContextAccessor _correlationContextAccessor;
     private readonly ICorrelationIdFactory _correlationIdFactoryMock;
     private readonly ILogger<CorrelationManager> _logger;
+    private readonly DiagnosticListener _diagnosticListener;
+    private readonly IOptions<CorrelationManagerOptions> _options;
     private readonly SerilogLoggerProvider _logProvider;
     private readonly CorrelationManager _sut;
 
-    protected CorrelationManagerTests()
+    protected CorrelationManagerTests(CorrelationManagerOptions options)
     {
         _correlationContextAccessor = new CorrelationContextAccessor();
 
@@ -33,12 +37,16 @@ public class CorrelationManagerTests : IDisposable
 
         _logProvider = new SerilogLoggerProvider(serilogLogger);
         _logger = new TestLogger<CorrelationManager>(_logProvider.CreateLogger(nameof(CorrelationManager)));
+        _diagnosticListener = new DiagnosticListener("test");
+        _options = Options.Create(options);
 
         _sut = new CorrelationManager(
             new CorrelationContextFactory(_correlationContextAccessor),
             _correlationIdFactoryMock,
             _correlationContextAccessor,
-            _logger
+            _logger,
+            _diagnosticListener,
+            _options
         );
     }
 
@@ -50,6 +58,13 @@ public class CorrelationManagerTests : IDisposable
 
     public class Async : CorrelationManagerTests
     {
+        public Async() : base(new()
+        {
+            LoggingScopeKey = "ActivityId"
+        })
+        {
+        }
+
         [Fact]
         public async Task Given_a_task_should_run_task_inside_correlated_context()
         {
@@ -143,7 +158,7 @@ public class CorrelationManagerTests : IDisposable
                 var logEvents = TestCorrelator.GetLogEventsFromCurrentContext().ToList();
                 logEvents.Should()
                     .HaveCount(3)
-                    .And.ContainSingle(ev => ev.MessageTemplate.Text == "Message with correlation id." && ev.Properties.ContainsKey("CorrelationId"));
+                    .And.ContainSingle(ev => ev.MessageTemplate.Text == "Message with correlation id." && ev.Properties.ContainsKey("ActivityId"));
             }
         }
 
@@ -361,6 +376,10 @@ public class CorrelationManagerTests : IDisposable
 
     public class Sync : CorrelationManagerTests
     {
+        public Sync() : base(new())
+        {
+        }
+
         [Fact]
         public void Given_a_action_should_run_action_inside_correlated_context()
         {
@@ -674,7 +693,9 @@ public class CorrelationManagerTests : IDisposable
                 Substitute.For<ICorrelationContextFactory>(),
                 Substitute.For<ICorrelationIdFactory>(),
                 Substitute.For<ICorrelationContextAccessor>(),
-                Substitute.For<ILogger<CorrelationManager>>()
+                Substitute.For<ILogger<CorrelationManager>>(),
+                Substitute.For<DiagnosticListener>("test"),
+                Options.Create(new CorrelationManagerOptions())
             );
 
             static Task CorrelatedTask()

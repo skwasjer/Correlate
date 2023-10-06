@@ -231,6 +231,7 @@ public sealed class CorrelateFeatureTests : IDisposable
                 .ContainSingle(le => le.MessageTemplate.Text.StartsWith("Setting response header"))
                 .Which.Properties
                 .Should()
+                // this tests the {CorrelationId} from log message template in CorrelateFeature.LogRequestHeaderFound, not the one from log scope added by IActivityFactory.CreateActivity
                 .ContainSingle(p => p.Key == expectedLogProperty)
                 .Which.Value
                 .Should()
