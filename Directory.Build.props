@@ -12,7 +12,7 @@
 
   <PropertyGroup>
     <!-- Microsoft.Extensions.* -->
-    <PackageVersion_Microsoft_Extensions>7.0.0</PackageVersion_Microsoft_Extensions>
+    <PackageVersion_Microsoft_Extensions>8.0.0</PackageVersion_Microsoft_Extensions>
     <PackageVersion_Microsoft_Extensions Condition="'$(TargetFramework)'=='net6.0'">6.0.0</PackageVersion_Microsoft_Extensions>
     <PackageVersion_Microsoft_Extensions Condition="'$(TargetFramework)'!='net6.0' And '$(TargetFramework)'!='net7.0'">3.1.26</PackageVersion_Microsoft_Extensions>
   </PropertyGroup>
