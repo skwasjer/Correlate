@@ -18,9 +18,9 @@ dotnet add package Correlate.AspNetCore
 
 ---
 
-[![Build status](https://ci.appveyor.com/api/projects/status/rwfdg9d4i3g0qyga/branch/main?svg=true)](https://ci.appveyor.com/project/skwasjer/correlate)
-[![Tests](https://img.shields.io/appveyor/tests/skwasjer/Correlate/main.svg)](https://ci.appveyor.com/project/skwasjer/correlate/build/tests)
-[![codecov](https://codecov.io/gh/skwasjer/Correlate/branch/main/graph/badge.svg)](https://codecov.io/gh/skwasjer/Correlate)
+[![Main workflow](https://github.com/skwasjer/Correlate/actions/workflows/main.yml/badge.svg)](https://github.com/skwasjer/Correlate/actions/workflows/main.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=skwasjer_Correlate&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=skwasjer_Correlate)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=skwasjer_Correlate&metric=coverage)](https://sonarcloud.io/component_measures?id=skwasjer_Correlate&metric=coverage)
 
 | | | |
 |---|---|---|
