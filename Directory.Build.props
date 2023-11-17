@@ -3,11 +3,16 @@
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
     <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
-    <WarnOnPackingNonPackableProject>false</WarnOnPackingNonPackableProject>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <ContinuousIntegrationBuild Condition="'$(Configuration)'=='Release'">true</ContinuousIntegrationBuild>
-    <WarningsAsErrors>$(WarningsAsErrors);NU1605;NU1701</WarningsAsErrors>
+    <WarnOnPackingNonPackableProject>false</WarnOnPackingNonPackableProject>
+    <NoWarn>$(NoWarn);IDE0079;S1135;CA1510;CA1511;CA1512;CA1513;CA1863</NoWarn>
+    <NoWarn Condition="'$(Configuration)'=='Release'">$(NoWarn);NETSDK1138</NoWarn>
+    <WarningsAsErrors>$(WarningsAsErrors);NU1601;NU1603;NU1605;NU1608;NU1701;MSB3644</WarningsAsErrors>
+    <ContinuousIntegrationBuild Condition="'$(CI)'!=''">true</ContinuousIntegrationBuild>
+
+    <!-- Ignoring all satelite assemblies from external dependencies to reduce build artifact size. -->
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <PropertyGroup>

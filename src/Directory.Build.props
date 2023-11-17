@@ -18,6 +18,7 @@
     <PackageIcon>PackageIcon64.png</PackageIcon>
     <PackageReleaseNotes>Release notes are at https://github.com/skwasjer/Correlate/releases</PackageReleaseNotes>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <AnalysisLevel>latest-All</AnalysisLevel>
   </PropertyGroup>
 
   <ItemGroup>
