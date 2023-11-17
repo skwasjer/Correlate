@@ -9,6 +9,7 @@
     <Using Include="FluentAssertions" />
     <Using Include="NSubstitute" />
     <Using Include="Xunit" />
+    <Using Include="System.Net.Http" />
   </ItemGroup>
 
   <ItemGroup>
