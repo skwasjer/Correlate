@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Microsoft_AspNetCore_Mvc_Testing>8.0.0</Microsoft_AspNetCore_Mvc_Testing>
+    <Microsoft_AspNetCore_Mvc_Testing>8.0.8</Microsoft_AspNetCore_Mvc_Testing>
     <Serilog_AspNetCore>8.0.0</Serilog_AspNetCore>
   </PropertyGroup>
 
