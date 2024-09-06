@@ -49,5 +49,14 @@ internal static class LoggerExtensions
                 throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
+
+        /// <summary>
+        /// Returns a representation of the scope items as a list of comma-separated items,
+        /// matching the default representation provided by the standard Console logger.
+        /// </summary>
+        public override string ToString()
+        {
+            return string.Join(", ", this.Select(kv => $"{kv.Key}:{kv.Value}"));
+        }
     }
 }
