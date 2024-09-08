@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net6.0;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net9.0;net8.0;net6.0;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(NetPreview)'=='true'">$(TargetFrameworks);netx.0</TargetFrameworks>
     <RootNamespace>Correlate</RootNamespace>
   </PropertyGroup>
 
@@ -20,7 +21,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="$(PackageVersion_Microsoft_Extensions)" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="$(PackageVersion_Microsoft_Extensions)" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.7.0" Condition="'$(TargetFramework)'=='netstandard2.0'" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="8.0.0" Condition="'$(TargetFramework)'=='netstandard2.0'" />
   </ItemGroup>
 
   <ItemGroup>
