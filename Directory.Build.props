@@ -21,6 +21,10 @@
     <PackageVersion_Microsoft_Extensions>8.0.0</PackageVersion_Microsoft_Extensions>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(TargetFramework)'=='net9.0'">
+    <PackageVersion_Microsoft_Extensions>9.0.0-preview.7.24405.7</PackageVersion_Microsoft_Extensions>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(TargetFramework)'=='net6.0'">
     <PackageVersion_Microsoft_Extensions>6.0.0</PackageVersion_Microsoft_Extensions>
   </PropertyGroup>
