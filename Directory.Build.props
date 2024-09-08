@@ -21,10 +21,6 @@
     <PackageVersion_Microsoft_Extensions>8.0.0</PackageVersion_Microsoft_Extensions>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='net7.0'">
-    <PackageVersion_Microsoft_Extensions>7.0.0</PackageVersion_Microsoft_Extensions>
-  </PropertyGroup>
-
   <PropertyGroup Condition="'$(TargetFramework)'=='net6.0'">
     <PackageVersion_Microsoft_Extensions>6.0.0</PackageVersion_Microsoft_Extensions>
   </PropertyGroup>

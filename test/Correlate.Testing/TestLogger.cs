@@ -45,7 +45,7 @@ public class TestLogger : ILogger
         return _isEnabled;
     }
 
-#if NET7_0_OR_GREATER
+#if NET8_0_OR_GREATER
     public IDisposable BeginScope<TState>(TState state)
         where TState : notnull
 #else
