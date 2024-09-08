@@ -39,14 +39,6 @@ public sealed class IntegrationTests : IClassFixture<TestAppFactory<Startup>>, I
 
     public void Dispose()
     {
-#if NETCOREAPP3_1
-        // NET Core 3.1 test host does not trigger application stopping token, but our diagnostics observable
-        // (subscribed in UseCorrelate) must unsubscribe before next test run.
-        // This is a bit crude but later versions of .NET test host do it properly.
-        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
-        IHostApplicationLifetime? appLifetime = _factory?.Services.GetRequiredService<IHostApplicationLifetime>();
-        appLifetime?.StopApplication();
-#endif
         // ReSharper disable ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
         _factory?.Dispose();
         _mockHttp?.Dispose();
