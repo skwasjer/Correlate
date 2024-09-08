@@ -56,7 +56,7 @@ internal static class LoggerExtensions
         /// </summary>
         public override string ToString()
         {
-            return string.Join(", ", this.Select(kv => $"{kv.Key}:{kv.Value}"));
+            return _scopeKey + ':' + _correlationId;
         }
     }
 }
