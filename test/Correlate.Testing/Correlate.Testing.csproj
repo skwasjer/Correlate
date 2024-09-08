@@ -1,16 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net7.0;net6.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net8.0;net6.0;netstandard2.1</TargetFrameworks>
     <IsTestProject>false</IsTestProject>
   </PropertyGroup>
 
   <PropertyGroup>
     <Serilog_Extensions_Logging>8.0.0</Serilog_Extensions_Logging>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)'=='net7.0'">
-    <Serilog_Extensions_Logging>7.0.0</Serilog_Extensions_Logging>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='net6.0'">

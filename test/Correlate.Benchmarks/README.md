@@ -13,13 +13,10 @@ Intel Core i7-8700K CPU 3.70GHz (Coffee Lake), 1 CPU, 12 logical and 6 physical 
 | Method  | Job    | Runtime  | Arguments               | NuGetReferences                                                | Mean     | Error   | StdDev  | Ratio | RatioSD | Gen0   | Allocated | Alloc Ratio |
 |-------- |------- |--------- |------------------------ |--------------------------------------------------------------- |---------:|--------:|--------:|------:|--------:|-------:|----------:|------------:|
 | ApiCall | v4.0.0 | .NET 6.0 | /p:CurrentVersion=false | Correlate.AspNetCore 4.0.0,Correlate.DependencyInjection 4.0.0 | 169.6 us | 1.53 us | 1.36 us |  1.04 |    0.01 | 0.4883 |   4.33 KB |        1.15 |
-| ApiCall | v4.0.0 | .NET 7.0 | /p:CurrentVersion=false | Correlate.AspNetCore 4.0.0,Correlate.DependencyInjection 4.0.0 | 174.8 us | 1.96 us | 1.64 us |  1.07 |    0.01 | 0.4883 |   4.06 KB |        1.08 |
 | ApiCall | v4.0.0 | .NET 8.0 | /p:CurrentVersion=false | Correlate.AspNetCore 4.0.0,Correlate.DependencyInjection 4.0.0 | 165.5 us | 2.35 us | 2.20 us |  1.02 |    0.02 | 0.4883 |   3.87 KB |        1.03 |
 | ApiCall | v5.1.0 | .NET 6.0 | /p:CurrentVersion=false | Correlate.AspNetCore 5.1.0,Correlate.DependencyInjection 5.1.0 | 168.7 us | 2.30 us | 2.15 us |  1.03 |    0.01 | 0.4883 |   4.17 KB |        1.11 |
-| ApiCall | v5.1.0 | .NET 7.0 | /p:CurrentVersion=false | Correlate.AspNetCore 5.1.0,Correlate.DependencyInjection 5.1.0 | 169.9 us | 0.78 us | 0.65 us |  1.04 |    0.01 | 0.4883 |   3.91 KB |        1.04 |
 | ApiCall | v5.1.0 | .NET 8.0 | /p:CurrentVersion=false | Correlate.AspNetCore 5.1.0,Correlate.DependencyInjection 5.1.0 | 162.6 us | 2.31 us | 2.05 us |  0.99 |    0.01 | 0.4883 |   3.75 KB |        1.00 |
 | ApiCall | vNext  | .NET 6.0 | Default                 | Default                                                        | 166.2 us | 1.70 us | 1.50 us |  1.02 |    0.02 | 0.4883 |   4.17 KB |        1.11 |
-| ApiCall | vNext  | .NET 7.0 | Default                 | Default                                                        | 170.6 us | 1.15 us | 1.02 us |  1.05 |    0.01 | 0.4883 |   3.91 KB |        1.04 |
 | ApiCall | vNext  | .NET 8.0 | Default                 | Default                                                        | 163.2 us | 1.60 us | 1.34 us |  1.00 |    0.00 | 0.4883 |   3.75 KB |        1.00 |
 
 ### CLI
@@ -27,5 +24,5 @@ Intel Core i7-8700K CPU 3.70GHz (Coffee Lake), 1 CPU, 12 logical and 6 physical 
 To run the benchmark:
 ```
 cd ./test/Correlate.Benchmarks
-dotnet run -c Release -f net8.0 --runtimes net80 net70 net60
+dotnet run -c Release -f net8.0 --runtimes net80 net60
 ```
