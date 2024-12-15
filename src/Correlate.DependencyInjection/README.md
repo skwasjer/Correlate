@@ -1,4 +1,4 @@
-Dependency injection extensions for Correlate.
+Dependency injection extensions to register the Correlate services.
 
 ### Dependency registration example
 
