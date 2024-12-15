@@ -9,17 +9,14 @@
 
   <PropertyGroup>
     <Microsoft_AspNetCore_Mvc_Testing>9.0.0</Microsoft_AspNetCore_Mvc_Testing>
-    <Serilog_AspNetCore>9.0.0</Serilog_AspNetCore>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='net8.0'">
-    <Microsoft_AspNetCore_Mvc_Testing>8.0.8</Microsoft_AspNetCore_Mvc_Testing>
-    <Serilog_AspNetCore>8.0.0</Serilog_AspNetCore>
+    <Microsoft_AspNetCore_Mvc_Testing>8.0.11</Microsoft_AspNetCore_Mvc_Testing>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(Microsoft_AspNetCore_Mvc_Testing)" />
-    <PackageReference Include="Serilog.AspNetCore" Version="$(Serilog_AspNetCore)" />
   </ItemGroup>
 
   <ItemGroup>

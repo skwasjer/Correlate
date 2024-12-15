@@ -10,7 +10,7 @@ internal static class LoggerExtensions
         return logger.BeginScope(new CorrelatedLogScope(scopeKey, correlationId));
     }
 
-    private sealed class CorrelatedLogScope : IReadOnlyList<KeyValuePair<string, object>>
+    internal sealed class CorrelatedLogScope : IReadOnlyList<KeyValuePair<string, object>>
     {
         private readonly string _scopeKey;
         private readonly string _correlationId;
