@@ -18,7 +18,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(PackageVersion_Microsoft_Extensions)" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" Version="$(Microsoft_Extensions_Diagnostics_Testing)" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="$(PackageVersion_Microsoft_Extensions)" />
-    <PackageReference Include="skwas.MockHttp" Version="4.4.0" />
+    <PackageReference Include="skwas.MockHttp" Version="4.5.0" />
   </ItemGroup>
 
 </Project>
