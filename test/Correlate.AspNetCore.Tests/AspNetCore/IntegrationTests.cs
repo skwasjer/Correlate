@@ -2,13 +2,14 @@
 using System.Net.Http.Headers;
 using Correlate.AspNetCore.Fixtures;
 using Correlate.Http;
+using Correlate.Testing;
 using Correlate.Testing.FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Options;
 using MockHttp;
-using Serilog.Events;
-using Serilog.Sinks.TestCorrelator;
+using LoggerExtensions = Correlate.Extensions.LoggerExtensions;
 
 namespace Correlate.AspNetCore;
 
@@ -19,6 +20,7 @@ public sealed class IntegrationTests : IClassFixture<TestAppFactory<Startup>>, I
     private readonly TestAppFactory<Startup> _rootFactory;
     private readonly CorrelateOptions _options;
     private readonly MockHttpHandler _mockHttp;
+    private readonly FakeLogCollector _logCollector;
 
     public IntegrationTests(TestAppFactory<Startup> factory)
     {
@@ -35,6 +37,8 @@ public sealed class IntegrationTests : IClassFixture<TestAppFactory<Startup>>, I
                 services.AddSingleton(Options.Create(_options));
             })
         );
+
+        _logCollector = _factory.Services.GetFakeLogCollector();
     }
 
     public void Dispose()
@@ -198,7 +202,7 @@ public sealed class IntegrationTests : IClassFixture<TestAppFactory<Startup>>, I
     }
 
     [Fact]
-    public async Task When_logging_and_diagnostics_is_disabled_should_not_throw_in_controller()
+    public async Task When_logging_and_diagnostics_is_disabled_should_not_throw_in_controller_and_not_create_logScope()
     {
         _rootFactory.LoggingEnabled = false;
 
@@ -208,6 +212,9 @@ public sealed class IntegrationTests : IClassFixture<TestAppFactory<Startup>>, I
 
         // Assert
         await act.Should().NotThrowAsync<Exception>();
+
+        IReadOnlyList<FakeLogRecord> logEvents = _logCollector.GetSnapshot(true);
+        logEvents.Should().BeEmpty();
     }
 
     [Fact]
@@ -219,24 +226,19 @@ public sealed class IntegrationTests : IClassFixture<TestAppFactory<Startup>>, I
         var request = new HttpRequestMessage();
         request.Headers.Add(headerName, correlationId);
 
+        _logCollector.Clear();
+
         // Act
         HttpClient client = _factory.CreateClient();
         await client.SendAsync(request);
 
         // Assert
-        // ReSharper disable once SuggestVarOrType_Elsewhere
-        var logEvents = TestCorrelator.GetLogEventsFromContextGuid(Startup.LastRequestContext!.Guid).ToList();
-        logEvents.Should().HaveCountGreaterThan(2);
-
-        logEvents
-            .ToList()
-            .ForEach(le => le.Properties
-                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
+        IReadOnlyList<FakeLogRecord> logEvents = _logCollector.GetSnapshot(Startup.LastRequestContext!.Id, true);
+        logEvents.Should()
+            .HaveCountGreaterThan(2)
+            .And.AllSatisfy(ev => ev.Scopes
                 .Should()
-                .ContainKey(CorrelateConstants.CorrelationIdKey)
-                .WhoseValue.Should()
-                .BeOfType<ScalarValue>()
-                .Which.Value.Should()
-                .Be(correlationId));
+                .ContainEquivalentOf(new LoggerExtensions.CorrelatedLogScope(CorrelateConstants.CorrelationIdKey, correlationId))
+            );
     }
 }

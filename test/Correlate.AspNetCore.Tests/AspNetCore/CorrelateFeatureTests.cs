@@ -1,12 +1,9 @@
 ﻿using Correlate.Http;
+using Correlate.Testing;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
-using Serilog;
-using Serilog.Core;
-using Serilog.Events;
-using Serilog.Extensions.Logging;
-using Serilog.Sinks.TestCorrelator;
 
 namespace Correlate.AspNetCore;
 
@@ -19,19 +16,24 @@ public sealed class CorrelateFeatureTests : IDisposable
     private readonly IActivityFactory _activityFactoryMock;
     private readonly CorrelateOptions _options;
     private readonly ICorrelationIdFactory _correlationIdFactory;
+    private readonly ServiceProvider _services;
+    private readonly FakeLogCollector _logCollector;
 
     private static readonly string CorrelationId = Guid.NewGuid().ToString("D");
 
     public CorrelateFeatureTests()
     {
         _httpContext = new DefaultHttpContext();
-        _httpContext.Features.Set<IHttpResponseFeature>(_responseFeature = new TestResponseFeature());
+        _responseFeature = new TestResponseFeature();
+        _httpContext.Features.Set<IHttpResponseFeature>(_responseFeature);
 
-        Logger serilog = new LoggerConfiguration()
-            .MinimumLevel.Verbose()
-            .WriteTo.TestCorrelator()
-            .CreateLogger();
-        var loggerFactory = new LoggerFactory(new[] { new SerilogLoggerProvider(serilog) });
+        _services = new ServiceCollection()
+            .AddLogging(
+                builder => builder
+                    .SetMinimumLevel(LogLevel.Trace)
+                    .AddFakeLogging()
+                    .AddDebug())
+            .BuildServiceProvider();
 
         _activityMock = Substitute.For<IActivity>();
         _activityFactoryMock = Substitute.For<IActivityFactory>();
@@ -41,11 +43,18 @@ public sealed class CorrelateFeatureTests : IDisposable
         _correlationIdFactory.Create().Returns(CorrelationId);
 
         _options = new CorrelateOptions();
-        _sut = new CorrelateFeature(loggerFactory, _correlationIdFactory, _activityFactoryMock, Options.Create(_options));
+        _sut = new CorrelateFeature(
+            _services.GetRequiredService<ILoggerFactory>(),
+            _correlationIdFactory,
+            _activityFactoryMock,
+            Options.Create(_options));
+
+        _logCollector = _services.GetFakeLogCollector();
     }
 
     public void Dispose()
     {
+        _services.Dispose();
         _responseFeature.Dispose();
     }
 
@@ -219,27 +228,24 @@ public sealed class CorrelateFeatureTests : IDisposable
         _options.RequestHeaders.Should().NotBeNullOrEmpty();
         const string expectedLogProperty = CorrelateConstants.CorrelationIdKey;
 
-        // Act
-        using (TestCorrelator.CreateContext())
-        {
-            _sut.StartCorrelating(_httpContext);
-            await _responseFeature.FireOnSendingHeadersAsync();
+        _logCollector.Clear();
+        using FakeLogContext context = _services.CreateLoggerContext();
 
-            // Assert
-            TestCorrelator.GetLogEventsFromCurrentContext()
-                .Should()
-                .ContainSingle(le => le.MessageTemplate.Text.StartsWith("Setting response header"))
-                .Which.Properties
-                .Should()
-                // this tests the {CorrelationId} from log message template in CorrelateFeature.LogRequestHeaderFound, not the one from log scope added by IActivityFactory.CreateActivity
-                .ContainSingle(p => p.Key == expectedLogProperty)
-                .Which.Value
-                .Should()
-                .BeOfType<ScalarValue>()
-                .Which.Value
-                .Should()
-                .Be(CorrelationId);
-        }
+        // Act
+        _sut.StartCorrelating(_httpContext);
+        await _responseFeature.FireOnSendingHeadersAsync();
+
+        // Assert
+        IReadOnlyList<FakeLogRecord> logEvents = _logCollector.GetSnapshot(context, true);
+        logEvents
+            .Should()
+            .ContainSingle(le => le.Message.StartsWith("Setting response header"))
+            .Which.StructuredState
+            .Should()
+            // this tests the {CorrelationId} from log message template in CorrelateFeature.LogRequestHeaderFound, not the one from log scope added by IActivityFactory.CreateActivity
+            .ContainKey(expectedLogProperty)
+            .WhoseValue.Should()
+            .Be(CorrelationId);
 
         _correlationIdFactory.Received(1).Create();
         _activityFactoryMock.Received(1).CreateActivity();

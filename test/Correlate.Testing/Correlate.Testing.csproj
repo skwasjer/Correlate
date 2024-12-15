@@ -7,19 +7,17 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Serilog_Extensions_Logging>8.0.0</Serilog_Extensions_Logging>
+    <Microsoft_Extensions_Diagnostics_Testing>9.0.0</Microsoft_Extensions_Diagnostics_Testing>
   </PropertyGroup>
 
-  <PropertyGroup Condition="$(TargetFramework.StartsWith('netstandard2')) Or '$(TargetFramework)'=='net6.0'">
-    <Serilog_Extensions_Logging>3.1.0</Serilog_Extensions_Logging>
+  <PropertyGroup Condition="'$(TargetFramework)'!='net9.0'">
+    <Microsoft_Extensions_Diagnostics_Testing>8.9.1</Microsoft_Extensions_Diagnostics_Testing>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(PackageVersion_Microsoft_Extensions)" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(PackageVersion_Microsoft_Extensions)" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" Version="$(Microsoft_Extensions_Diagnostics_Testing)" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="$(PackageVersion_Microsoft_Extensions)" />
-    <PackageReference Include="Serilog" Version="3.1.1" />
-    <PackageReference Include="Serilog.Extensions.Logging" Version="$(Serilog_Extensions_Logging)" />
-    <PackageReference Include="Serilog.Sinks.TestCorrelator" Version="3.2.0" />
     <PackageReference Include="skwas.MockHttp" Version="4.4.0" />
   </ItemGroup>
 

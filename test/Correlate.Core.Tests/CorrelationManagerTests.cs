@@ -3,23 +3,21 @@ using System.Diagnostics;
 using Correlate.Testing;
 using Correlate.Testing.TestCases;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Options;
-using Serilog;
-using Serilog.Core;
-using Serilog.Extensions.Logging;
-using Serilog.Sinks.TestCorrelator;
+using LoggerExtensions = Correlate.Extensions.LoggerExtensions;
 
 namespace Correlate;
 
-public class CorrelationManagerTests : IDisposable
+public class CorrelationManagerTests
 {
     private const string GeneratedCorrelationId = "generated-correlation-id";
     private readonly CorrelationContextAccessor _correlationContextAccessor;
     private readonly ICorrelationIdFactory _correlationIdFactoryMock;
-    private readonly ILogger<CorrelationManager> _logger;
+    private readonly FakeLogCollector _logCollector;
+    private readonly FakeLogger<CorrelationManager> _logger;
     private readonly DiagnosticListener _diagnosticListener;
     private readonly IOptions<CorrelationManagerOptions> _options;
-    private readonly SerilogLoggerProvider _logProvider;
     private readonly CorrelationManager _sut;
 
     protected CorrelationManagerTests(CorrelationManagerOptions options)
@@ -31,12 +29,8 @@ public class CorrelationManagerTests : IDisposable
             .Create()
             .Returns(GeneratedCorrelationId);
 
-        Logger serilogLogger = new LoggerConfiguration()
-            .WriteTo.TestCorrelator()
-            .CreateLogger();
-
-        _logProvider = new SerilogLoggerProvider(serilogLogger);
-        _logger = new TestLogger<CorrelationManager>(_logProvider.CreateLogger(nameof(CorrelationManager)));
+        _logCollector = new FakeLogCollector();
+        _logger = new FakeLogger<CorrelationManager>(_logCollector);
         _diagnosticListener = new DiagnosticListener("test");
         _options = Options.Create(options);
 
@@ -50,18 +44,9 @@ public class CorrelationManagerTests : IDisposable
         );
     }
 
-    public void Dispose()
-    {
-        _logProvider.Dispose();
-        GC.SuppressFinalize(this);
-    }
-
     public class Async : CorrelationManagerTests
     {
-        public Async() : base(new()
-        {
-            LoggingScopeKey = "ActivityId"
-        })
+        public Async() : base(new CorrelationManagerOptions { LoggingScopeKey = "ActivityId" })
         {
         }
 
@@ -141,25 +126,38 @@ public class CorrelationManagerTests : IDisposable
         [Fact]
         public async Task Should_create_log_scope()
         {
-            using (TestCorrelator.CreateContext())
+            using FakeLogContext context = _logger.CreateLoggerContext();
+
+            _logger.LogInformation("Start message without correlation id.");
+
+            // Act
+            await _sut.CorrelateAsync(() =>
             {
-                _logger.LogInformation("Start message without correlation id.");
+                _logger.LogInformation("Message with correlation id.");
+                return Task.CompletedTask;
+            });
 
-                // Act
-                await _sut.CorrelateAsync(() =>
-                {
-                    _logger.LogInformation("Message with correlation id.");
-                    return Task.CompletedTask;
-                });
+            _logger.LogInformation("End message without correlation id.");
 
-                _logger.LogInformation("End message without correlation id.");
+            // Assert
+            IReadOnlyList<FakeLogRecord> logEvents = _logCollector.GetSnapshot(context);
+            logEvents.Should().HaveCount(3);
 
-                // Assert
-                var logEvents = TestCorrelator.GetLogEventsFromCurrentContext().ToList();
-                logEvents.Should()
-                    .HaveCount(3)
-                    .And.ContainSingle(ev => ev.MessageTemplate.Text == "Message with correlation id." && ev.Properties.ContainsKey("ActivityId"));
-            }
+            logEvents.Should()
+                .ContainSingle(ev => ev.Message == "Start message without correlation id.")
+                .Which.Scopes
+                .Should()
+                .NotContainItemsAssignableTo<LoggerExtensions.CorrelatedLogScope>();
+            logEvents.Should()
+                .ContainSingle(ev => ev.Message == "Message with correlation id.")
+                .Which.Scopes
+                .Should()
+                .ContainItemsAssignableTo<LoggerExtensions.CorrelatedLogScope>();
+            logEvents.Should()
+                .ContainSingle(ev => ev.Message == "End message without correlation id.")
+                .Which.Scopes
+                .Should()
+                .NotContainItemsAssignableTo<LoggerExtensions.CorrelatedLogScope>();
         }
 
         [Fact]
@@ -376,7 +374,7 @@ public class CorrelationManagerTests : IDisposable
 
     public class Sync : CorrelationManagerTests
     {
-        public Sync() : base(new())
+        public Sync() : base(new CorrelationManagerOptions())
         {
         }
 
@@ -455,24 +453,36 @@ public class CorrelationManagerTests : IDisposable
         [Fact]
         public void Should_create_log_scope()
         {
-            using (TestCorrelator.CreateContext())
+            using FakeLogContext context = _logger.CreateLoggerContext();
+            _logger.LogInformation("Start message without correlation id.");
+
+            // Act
+            _sut.Correlate(() =>
             {
-                _logger.LogInformation("Start message without correlation id.");
+                _logger.LogInformation("Message with correlation id.");
+            });
 
-                // Act
-                _sut.Correlate(() =>
-                {
-                    _logger.LogInformation("Message with correlation id.");
-                });
+            _logger.LogInformation("End message without correlation id.");
 
-                _logger.LogInformation("End message without correlation id.");
+            // Assert
+            IReadOnlyList<FakeLogRecord> logEvents = _logCollector.GetSnapshot(context);
+            logEvents.Should().HaveCount(3);
 
-                // Assert
-                var logEvents = TestCorrelator.GetLogEventsFromCurrentContext().ToList();
-                logEvents.Should()
-                    .HaveCount(3)
-                    .And.ContainSingle(ev => ev.MessageTemplate.Text == "Message with correlation id." && ev.Properties.ContainsKey("CorrelationId"));
-            }
+            logEvents.Should()
+                .ContainSingle(ev => ev.Message == "Start message without correlation id.")
+                .Which.Scopes
+                .Should()
+                .NotContainItemsAssignableTo<LoggerExtensions.CorrelatedLogScope>();
+            logEvents.Should()
+                .ContainSingle(ev => ev.Message == "Message with correlation id.")
+                .Which.Scopes
+                .Should()
+                .ContainItemsAssignableTo<LoggerExtensions.CorrelatedLogScope>();
+            logEvents.Should()
+                .ContainSingle(ev => ev.Message == "End message without correlation id.")
+                .Which.Scopes
+                .Should()
+                .NotContainItemsAssignableTo<LoggerExtensions.CorrelatedLogScope>();
         }
 
         [Fact]

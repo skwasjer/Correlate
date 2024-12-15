@@ -1,8 +1,9 @@
 ﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using Correlate.AspNetCore.Diagnostics;
 using Correlate.DependencyInjection;
+using Correlate.Testing;
 using MockHttp;
-using Serilog.Sinks.TestCorrelator;
 
 namespace Correlate.AspNetCore.Fixtures;
 
@@ -10,7 +11,7 @@ public class Startup
 {
     private static readonly TestCorrelatorObserver Observer = new();
 
-    public static ITestCorrelatorContext? LastRequestContext => Observer.Current;
+    public static FakeLogContext? LastRequestContext { get => Observer.Current; }
 
     public void ConfigureServices(IServiceCollection services)
     {
@@ -45,7 +46,7 @@ public class Startup
         : IObserver<KeyValuePair<string, object?>>,
           IDisposable
     {
-        public ITestCorrelatorContext? Current { get; private set; }
+        public FakeLogContext? Current { get; private set; }
 
         public void Dispose()
         {
@@ -62,8 +63,18 @@ public class Startup
 
         public void OnNext(KeyValuePair<string, object?> value)
         {
-            Current?.Dispose();
-            Current ??= TestCorrelator.CreateContext();
+            if (value.Key == HttpRequestInDiagnosticsObserver.ActivityStartKey)
+            {
+                HttpContext? httpContext = Unsafe.As<HttpContext>(value.Value);
+                if (httpContext is not null)
+                {
+                    Current = httpContext.RequestServices.CreateLoggerContext();
+                }
+            }
+            else if (value.Key == HttpRequestInDiagnosticsObserver.ActivityStopKey)
+            {
+                Current?.Dispose();
+            }
         }
 
         public static bool IsEnabled(string operationName)
