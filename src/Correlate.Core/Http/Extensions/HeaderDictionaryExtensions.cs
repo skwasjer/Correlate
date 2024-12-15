@@ -11,7 +11,7 @@ internal static class HeaderDictionaryExtensions
             throw new ArgumentNullException(nameof(acceptedHeaders));
         }
 
-        if (!acceptedHeaders.Any())
+        if (acceptedHeaders.Count == 0)
         {
             return new KeyValuePair<string, string?>(CorrelationHttpHeaders.CorrelationId, null);
         }
