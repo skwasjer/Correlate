@@ -18,15 +18,15 @@
 
   <PropertyGroup>
     <!-- Microsoft.Extensions.* -->
+    <PackageVersion_Microsoft_Extensions>9.0.0</PackageVersion_Microsoft_Extensions>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)'!='net9.0' And '$(TargetFramework)'!='net6.0'">
     <PackageVersion_Microsoft_Extensions>8.0.0</PackageVersion_Microsoft_Extensions>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='net6.0'">
     <PackageVersion_Microsoft_Extensions>6.0.0</PackageVersion_Microsoft_Extensions>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="$(TargetFramework.StartsWith('netstandard2')) Or '$(TargetFramework)'=='netcoreapp3.1'">
-    <PackageVersion_Microsoft_Extensions>3.1.26</PackageVersion_Microsoft_Extensions>
   </PropertyGroup>
 
 </Project>
