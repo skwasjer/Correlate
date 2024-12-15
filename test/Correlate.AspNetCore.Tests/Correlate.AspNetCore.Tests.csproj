@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFrameworks>net9.0;net8.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>net9.0;net8.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(NetPreview)'=='true'">$(TargetFrameworks);netx.0</TargetFrameworks>
     <IsTestProject>true</IsTestProject>
     <RootNamespace>Correlate</RootNamespace>
@@ -15,11 +15,6 @@
   <PropertyGroup Condition="'$(TargetFramework)'=='net8.0'">
     <Microsoft_AspNetCore_Mvc_Testing>8.0.8</Microsoft_AspNetCore_Mvc_Testing>
     <Serilog_AspNetCore>8.0.0</Serilog_AspNetCore>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)'=='net6.0'">
-    <Microsoft_AspNetCore_Mvc_Testing>6.0.21</Microsoft_AspNetCore_Mvc_Testing>
-    <Serilog_AspNetCore>6.1.0</Serilog_AspNetCore>
   </PropertyGroup>
 
   <ItemGroup>

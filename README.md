@@ -193,7 +193,7 @@ services.AddSingleton<ICorrelationIdFactory, RequestIdentifierCorrelationIdFacto
 
 ## Alternatives for more advanced Distributed Tracing
 
-Please consider that .NET Core 3.1 and up now has built-in support for [W3C TraceContext](https://github.com/w3c/trace-context) ([blog](https://devblogs.microsoft.com/aspnet/improvements-in-net-core-3-0-for-troubleshooting-and-monitoring-distributed-apps/)) and that there are other distributed tracing libraries with more functionality than Correlate. Personally, I am using `System.Diagnostics.ActivitySource` and OpenTelemetry in my professional work.
+Please consider that since .NET Core 3.1 and up there is built-in support for [W3C TraceContext](https://github.com/w3c/trace-context) ([blog](https://devblogs.microsoft.com/aspnet/improvements-in-net-core-3-0-for-troubleshooting-and-monitoring-distributed-apps/)) and that there are other distributed tracing libraries with more functionality than Correlate. Personally, I am using `System.Diagnostics.ActivitySource` and OpenTelemetry in my professional work.
 
 - [OpenTelemetry](https://opentelemetry.io/)
 - [Jaeger](https://www.jaegertracing.io/)
@@ -202,16 +202,16 @@ Please consider that .NET Core 3.1 and up now has built-in support for [W3C Trac
 ## More info
 
 ### Supported .NET targets
-- .NET 6.0, .NET 8.0
+- .NET 9.0, .NET 8.0
 - .NET Standard 2.0
 
 ### ASP.NET Core support
-- ASP.NET Core 6.0/8.0
+- ASP.NET Core 9.0/8.0
 
 ### Build/test requirements
 - Visual Studio 2022
+- .NET 9 SDK
 - .NET 8 SDK
-- .NET 6 SDK
 - .NET 3.1 SDK
 
 #### Contributions
