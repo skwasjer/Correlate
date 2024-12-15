@@ -96,12 +96,16 @@ jobs:
     needs: build
     strategy:
       matrix:
-        os:
-          - ubuntu-latest
-          - windows-latest
-          - macos-13
+        include:
+          - os: ubuntu-latest
+            # https://forum.manjaro.org/t/dotnet-3-1-builds-fail-after-icu-system-package-updated-to-71-1-1/114232
+            CLR_ICU_VERSION_OVERRIDE: "71.1"
+          - os: windows-latest
+          - os: macos-13
       fail-fast: false
     runs-on: ${{ matrix.os }}
+    env:
+      CLR_ICU_VERSION_OVERRIDE: ${{matrix.CLR_ICU_VERSION_OVERRIDE}}
     steps:
       # Setup
       - uses: actions/setup-dotnet@v4

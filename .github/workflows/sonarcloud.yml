@@ -31,6 +31,8 @@ jobs:
   analysis:
     needs: authorize
     runs-on: ubuntu-latest
+    env:
+      CLR_ICU_VERSION_OVERRIDE: "71.1"
     steps:
       - uses: actions/setup-dotnet@v4
         with:
