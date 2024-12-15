@@ -1,17 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net9.0;net8.0;net6.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net9.0;net8.0;netstandard2.1</TargetFrameworks>
     <TargetFrameworks Condition="'$(NetPreview)'=='true'">$(TargetFrameworks);netx.0</TargetFrameworks>
     <IsTestProject>false</IsTestProject>
   </PropertyGroup>
 
   <PropertyGroup>
     <Serilog_Extensions_Logging>8.0.0</Serilog_Extensions_Logging>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)'=='net6.0'">
-    <Serilog_Extensions_Logging>3.1.0</Serilog_Extensions_Logging>
   </PropertyGroup>
 
   <PropertyGroup Condition="$(TargetFramework.StartsWith('netstandard2')) Or '$(TargetFramework)'=='netcoreapp3.1'">
