@@ -60,11 +60,7 @@ public class When_adding_correlation_delegating_handler_to_httpClient
 
             // AddHttpMessageHandler with options:
             yield return new ExpectedRegistration<IConfigureOptions<CorrelateClientOptions>, ConfigureNamedOptions<CorrelateClientOptions>>(ServiceLifetime.Singleton);
-#if NETCOREAPP3_1_OR_GREATER
             yield return new ExpectedRegistration<IConfigureOptions<HttpClientFactoryOptions>>(ServiceLifetime.Singleton);
-#else
-				yield return new ExpectedRegistration<IConfigureOptions<HttpClientFactoryOptions>>(ServiceLifetime.Transient);
-#endif
             yield return new ExpectedRegistration<MyService>(ServiceLifetime.Transient);
         }
     }
