@@ -4,11 +4,11 @@ using System.Diagnostics.CodeAnalysis;
 namespace Correlate;
 
 /// <summary>
-/// Represents a context that provides access to the exception that occurred inside a correlated activity, with the ability to mark the exception as handled.
+/// Represents a context that provides access to the exception that occurred inside a correlated activity, with the ability to mark the error as handled.
 /// </summary>
-public class ExceptionContext
+public class ErrorContext
 {
-    internal ExceptionContext(CorrelationContext correlationContext, Exception exception)
+    internal ErrorContext(CorrelationContext correlationContext, Exception exception)
     {
         CorrelationContext = correlationContext;
         Exception = exception;
@@ -25,21 +25,21 @@ public class ExceptionContext
     public Exception Exception { get; }
 
     /// <summary>
-    /// Gets or sets whether the exception is considered handled.
+    /// Gets or sets whether the error is considered handled.
     /// </summary>
-    public bool IsExceptionHandled { get; set; }
+    public bool IsErrorHandled { get; set; }
 }
 
 /// <summary>
-/// Represents a context that provides access to the exception that occurred inside a correlated activity, with the ability to mark the exception as handled and provide a return value.
+/// Represents a context that provides access to the exception that occurred inside a correlated activity, with the ability to mark the error as handled and provide a return value.
 /// </summary>
-public class ExceptionContext<T> : ExceptionContext
+public class ErrorContext<T> : ErrorContext
 {
     // ReSharper disable once RedundantDefaultMemberInitializer
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private T _result = default!;
 
-    internal ExceptionContext(CorrelationContext correlationContext, Exception exception)
+    internal ErrorContext(CorrelationContext correlationContext, Exception exception)
         : base(correlationContext, exception)
     {
     }
@@ -53,7 +53,7 @@ public class ExceptionContext<T> : ExceptionContext
         get => _result;
         set
         {
-            IsExceptionHandled = true;
+            IsErrorHandled = true;
             _result = value!;
         }
     }
