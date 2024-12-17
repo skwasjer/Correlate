@@ -1,6 +1,6 @@
 # Correlate
 
-Correlate provides flexible .NET Core support for correlation ID in ASP.NET Core and HttpClient.
+Correlate provides flexible .NET support (ASP.NET Core/HttpClient) to correlate activities between decoupled components (eg. microservices) using a correlation ID.
 
 ## Installation
 
@@ -31,7 +31,7 @@ dotnet add package Correlate.AspNetCore
 
 ## Usage
 
-In an ASP.NET Core (MVC) application, register Correlate to handle incoming requests with a correlation id. Correlate will create a request scoped async context holding the correlation id, which can then propagate down the request pipeline.
+In an ASP.NET Core application, register Correlate to handle incoming requests with a correlation id. Correlate will create a request scoped async context holding the correlation id, which can then propagate down the request pipeline.
 
 When using `HttpClient` to call other services, you can use `HttpClientFactory` to attach a delegating handler to any `HttpClient` which will propagate the correlation id header to the outgoing request for cross service correlation. Further more, there are other integration packages that also propagate the correlation id to other transports (see down below).
 
@@ -51,12 +51,11 @@ public class Startup
     {
         // Register services.
         services.AddCorrelate(options => 
-            options.RequestHeaders = new []
-            {
+            options.RequestHeaders = [
               // List of incoming headers possible. First that is set on given request is used and also returned in the response.
               "X-Correlation-ID",
               "My-Correlation-ID"
-            }
+            ]
         );
 
         // Register a typed client that will include the correlation id in outgoing request.
@@ -171,7 +170,7 @@ await _correlationManager.CorrelateAsync(orderId, () => {
 - `ICorrelationManager`
 - `IAsyncCorrelationManager`
 
-> Note that the Correlate internals are intrinsically asynchronous as it relies on [`AsyncLocal<T>`](https://docs.microsoft.com/en-us/dotnet/api/system.threading.asynclocal-1) to save the correlation context. The synchronous implementation is useful for integrations that have a synchronous API surface but are still used in asynchronous context, but should only be used as such.
+> Note that the Correlate internals are intrinsically asynchronous as it relies on [`AsyncLocal<T>`](https://docs.microsoft.com/en-us/dotnet/api/system.threading.asynclocal-1) to save the correlation context. The synchronous implementation is useful for integrations that have a synchronous API surface but are still used in asynchronous context, and thus Correlate should only be used as such.
 
 ## ICorrelationIdFactory
 
@@ -212,7 +211,7 @@ Please consider that since .NET Core 3.1 and up there is built-in support for [W
 - Visual Studio 2022
 - .NET 9 SDK
 - .NET 8 SDK
-- .NET 3.1 SDK
+- .NET 6.0 SDK
 
 #### Contributions
 PR's are welcome. Please rebase before submitting, provide test coverage, and ensure the AppVeyor build passes. I will not consider PR's otherwise.

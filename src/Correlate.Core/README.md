@@ -1,4 +1,4 @@
-Correlate requests between microservices using a correlation ID.
+The core implementation to correlate activities between decoupled components (eg. microservices) using a correlation ID.
 
 ### Useful links
 

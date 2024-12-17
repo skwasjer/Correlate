@@ -1,4 +1,4 @@
-ASP.NET Core middleware component to correlate requests between microservices using correlation ID request headers.
+Abstractions to correlate activities between decoupled components (eg. microservices).
 
 ### Useful links
 
