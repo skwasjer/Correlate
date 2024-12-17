@@ -1,6 +1,5 @@
-﻿
+﻿// ReSharper disable once CheckNamespace - Justification: common extension methods for the manager should be readily accessible.
 
-// ReSharper disable once CheckNamespace - Justification: common extension methods for the manager should be readily accessible.
 namespace Correlate;
 
 /// <summary>
@@ -27,19 +26,19 @@ public static class AsyncCorrelationManagerExtensions
     /// </summary>
     /// <param name="asyncCorrelationManager">The async correlation manager.</param>
     /// <param name="correlatedTask">The task to execute.</param>
-    /// <param name="onException">A delegate to handle the exception inside the correlation scope, before it is disposed. Returns <see langword="true" /> to consider the exception handled, or <see langword="false" /> to throw.</param>
+    /// <param name="onError">A delegate to handle the error inside the correlation scope, before it is disposed. Returns <see langword="true" /> to consider the error handled, or <see langword="false" /> to throw.</param>
     /// <returns>An awaitable that completes once the <paramref name="correlatedTask" /> has executed and the correlation context has disposed.</returns>
     /// <remarks>
     /// When logging and tracing are both disabled, no correlation context is created and the task simply executed as it normally would.
     /// </remarks>
-    public static Task CorrelateAsync(this IAsyncCorrelationManager asyncCorrelationManager, Func<Task> correlatedTask, OnException? onException)
+    public static Task CorrelateAsync(this IAsyncCorrelationManager asyncCorrelationManager, Func<Task> correlatedTask, OnError? onError)
     {
         if (asyncCorrelationManager is null)
         {
             throw new ArgumentNullException(nameof(asyncCorrelationManager));
         }
 
-        return asyncCorrelationManager.CorrelateAsync(null, correlatedTask, onException);
+        return asyncCorrelationManager.CorrelateAsync(null, correlatedTask, onError);
     }
 
     /// <summary>
@@ -83,19 +82,19 @@ public static class AsyncCorrelationManagerExtensions
     /// <typeparam name="T">The return type of the awaitable task.</typeparam>
     /// <param name="asyncCorrelationManager">The async correlation manager.</param>
     /// <param name="correlatedTask">The task to execute.</param>
-    /// <param name="onException">A delegate to handle the exception inside the correlation scope, before it is disposed. Returns <see langword="true" /> to consider the exception handled, or <see langword="false" /> to throw.</param>
+    /// <param name="onError">A delegate to handle the error inside the correlation scope, before it is disposed. Returns <see langword="true" /> to consider the error handled, or <see langword="false" /> to throw.</param>
     /// <returns>An awaitable that completes with a result <typeparamref name="T" />  once the <paramref name="correlatedTask" /> has executed and the correlation context has disposed.</returns>
     /// <remarks>
     /// When logging and tracing are both disabled, no correlation context is created and the task simply executed as it normally would.
     /// </remarks>
-    public static Task<T> CorrelateAsync<T>(this IAsyncCorrelationManager asyncCorrelationManager, Func<Task<T>> correlatedTask, OnException<T>? onException)
+    public static Task<T> CorrelateAsync<T>(this IAsyncCorrelationManager asyncCorrelationManager, Func<Task<T>> correlatedTask, OnError<T>? onError)
     {
         if (asyncCorrelationManager is null)
         {
             throw new ArgumentNullException(nameof(asyncCorrelationManager));
         }
 
-        return asyncCorrelationManager.CorrelateAsync(null, correlatedTask, onException);
+        return asyncCorrelationManager.CorrelateAsync(null, correlatedTask, onError);
     }
 
     /// <summary>

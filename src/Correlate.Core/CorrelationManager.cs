@@ -14,7 +14,7 @@ public class CorrelationManager : IAsyncCorrelationManager, ICorrelationManager,
     private readonly ICorrelationIdFactory _correlationIdFactory;
     private readonly DiagnosticListener? _diagnosticListener;
     private readonly ILogger _logger;
-    private readonly CorrelationManagerOptions _options = new CorrelationManagerOptions();
+    private readonly CorrelationManagerOptions _options = new();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CorrelationManager" /> class.
@@ -93,12 +93,12 @@ public class CorrelationManager : IAsyncCorrelationManager, ICorrelationManager,
     /// </summary>
     /// <param name="correlationId">The correlation id to use, or null to generate a new one.</param>
     /// <param name="correlatedTask">The task to execute.</param>
-    /// <param name="onException">A delegate to handle the exception inside the correlation scope, before it is disposed. Returns <see langword="true" /> to consider the exception handled, or <see langword="false" /> to throw.</param>
+    /// <param name="onError">A delegate to handle the error inside the correlation scope, before it is disposed. Returns <see langword="true" /> to consider the error handled, or <see langword="false" /> to throw.</param>
     /// <returns>An awaitable that completes once the <paramref name="correlatedTask" /> has executed and the correlation context has disposed.</returns>
     /// <remarks>
     /// When logging and tracing are both disabled, no correlation context is created and the task simply executed as it normally would.
     /// </remarks>
-    public Task CorrelateAsync(string? correlationId, Func<Task> correlatedTask, OnException? onException)
+    public Task CorrelateAsync(string? correlationId, Func<Task> correlatedTask, OnError? onError)
     {
         if (correlatedTask is null)
         {
@@ -112,7 +112,7 @@ public class CorrelationManager : IAsyncCorrelationManager, ICorrelationManager,
                 await correlatedTask().ConfigureAwait(false);
                 return Void.Null;
             },
-            onException
+            onError
         );
     }
 
@@ -122,12 +122,12 @@ public class CorrelationManager : IAsyncCorrelationManager, ICorrelationManager,
     /// <typeparam name="T">The return type of the awaitable task.</typeparam>
     /// <param name="correlationId">The correlation id to use, or null to generate a new one.</param>
     /// <param name="correlatedTask">The task to execute.</param>
-    /// <param name="onException">A delegate to handle the exception inside the correlation scope, before it is disposed. Returns <see langword="true" /> to consider the exception handled, or <see langword="false" /> to throw.</param>
+    /// <param name="onError">A delegate to handle the error inside the correlation scope, before it is disposed. Returns <see langword="true" /> to consider the error handled, or <see langword="false" /> to throw.</param>
     /// <returns>An awaitable that completes with a result <typeparamref name="T" /> once the <paramref name="correlatedTask" /> has executed and the correlation context has disposed.</returns>
     /// <remarks>
     /// When logging and tracing are both disabled, no correlation context is created and the task simply executed as it normally would.
     /// </remarks>
-    public Task<T> CorrelateAsync<T>(string? correlationId, Func<Task<T>> correlatedTask, OnException<T>? onException)
+    public Task<T> CorrelateAsync<T>(string? correlationId, Func<Task<T>> correlatedTask, OnError<T>? onError)
     {
         if (correlatedTask is null)
         {
@@ -137,7 +137,9 @@ public class CorrelationManager : IAsyncCorrelationManager, ICorrelationManager,
         return ExecuteAsync(
             correlationId,
             correlatedTask,
-            onException is null ? null : context => onException((ExceptionContext<T>)context)
+            onError is null
+                ? null
+                : context => onError((ErrorContext<T>)context)
         );
     }
 
@@ -146,11 +148,11 @@ public class CorrelationManager : IAsyncCorrelationManager, ICorrelationManager,
     /// </summary>
     /// <param name="correlationId">The correlation id to use, or null to generate a new one.</param>
     /// <param name="correlatedAction">The action to execute.</param>
-    /// <param name="onException">A delegate to handle the exception inside the correlation scope, before it is disposed. Returns <see langword="true" /> to consider the exception handled, or <see langword="false" /> to throw.</param>
+    /// <param name="onError">A delegate to handle the error inside the correlation scope, before it is disposed. Returns <see langword="true" /> to consider the error handled, or <see langword="false" /> to throw.</param>
     /// <remarks>
     /// When logging and tracing are both disabled, no correlation context is created and the action simply executed as it normally would.
     /// </remarks>
-    public void Correlate(string? correlationId, Action correlatedAction, OnException? onException)
+    public void Correlate(string? correlationId, Action correlatedAction, OnError? onError)
     {
         if (correlatedAction is null)
         {
@@ -163,7 +165,7 @@ public class CorrelationManager : IAsyncCorrelationManager, ICorrelationManager,
                 correlatedAction();
                 return Void.Null;
             },
-            onException);
+            onError);
     }
 
     /// <summary>
@@ -172,12 +174,12 @@ public class CorrelationManager : IAsyncCorrelationManager, ICorrelationManager,
     /// <typeparam name="T">The return type.</typeparam>
     /// <param name="correlationId">The correlation id to use, or null to generate a new one.</param>
     /// <param name="correlatedFunc">The func to execute.</param>
-    /// <param name="onException">A delegate to handle the exception inside the correlation scope, before it is disposed. Returns <see langword="true" /> to consider the exception handled, or <see langword="false" /> to throw.</param>
+    /// <param name="onError">A delegate to handle the error inside the correlation scope, before it is disposed. Returns <see langword="true" /> to consider the error handled, or <see langword="false" /> to throw.</param>
     /// <returns>Returns the result of the <paramref name="correlatedFunc" />.</returns>
     /// <remarks>
     /// When logging and tracing are both disabled, no correlation context is created and the action simply executed as it normally would.
     /// </remarks>
-    public T Correlate<T>(string? correlationId, Func<T> correlatedFunc, OnException<T>? onException)
+    public T Correlate<T>(string? correlationId, Func<T> correlatedFunc, OnError<T>? onError)
     {
         if (correlatedFunc is null)
         {
@@ -187,11 +189,13 @@ public class CorrelationManager : IAsyncCorrelationManager, ICorrelationManager,
         return Execute(
             correlationId,
             correlatedFunc,
-            onException is null ? null : context => onException((ExceptionContext<T>)context)
+            onError is null
+                ? null
+                : context => onError((ErrorContext<T>)context)
         );
     }
 
-    private async Task<T> ExecuteAsync<T>(string? correlationId, Func<Task<T>> correlatedTask, OnException? onException)
+    private async Task<T> ExecuteAsync<T>(string? correlationId, Func<Task<T>> correlatedTask, OnError? onError)
     {
         IActivity activity = CreateActivity();
         CorrelationContext correlationContext = StartActivity(correlationId, activity);
@@ -200,7 +204,7 @@ public class CorrelationManager : IAsyncCorrelationManager, ICorrelationManager,
         {
             return await correlatedTask().ConfigureAwait(false);
         }
-        catch (Exception ex) when (HandlesException(onException, correlationContext, ex, out T exceptionResult))
+        catch (Exception ex) when (HandlesException(onError, correlationContext, ex, out T exceptionResult))
         {
             return exceptionResult;
         }
@@ -210,7 +214,7 @@ public class CorrelationManager : IAsyncCorrelationManager, ICorrelationManager,
         }
     }
 
-    private T Execute<T>(string? correlationId, Func<T> correlatedFunc, OnException? onException)
+    private T Execute<T>(string? correlationId, Func<T> correlatedFunc, OnError? onError)
     {
         IActivity activity = CreateActivity();
         CorrelationContext correlationContext = StartActivity(correlationId, activity);
@@ -219,7 +223,7 @@ public class CorrelationManager : IAsyncCorrelationManager, ICorrelationManager,
         {
             return correlatedFunc();
         }
-        catch (Exception ex) when (HandlesException(onException, correlationContext, ex, out T exceptionResult))
+        catch (Exception ex) when (HandlesException(onError, correlationContext, ex, out T exceptionResult))
         {
             return exceptionResult;
         }
@@ -229,7 +233,7 @@ public class CorrelationManager : IAsyncCorrelationManager, ICorrelationManager,
         }
     }
 
-    private static bool HandlesException<T>(OnException? onException, CorrelationContext correlationContext, Exception ex, out T result)
+    private static bool HandlesException<T>(OnError? onError, CorrelationContext correlationContext, Exception ex, out T result)
     {
         if (!ex.Data.Contains(CorrelateConstants.CorrelationIdKey))
         {
@@ -237,20 +241,20 @@ public class CorrelationManager : IAsyncCorrelationManager, ICorrelationManager,
             ex.Data.Add(CorrelateConstants.CorrelationIdKey, correlationContext.CorrelationId);
         }
 
-        if (onException is not null)
+        if (onError is not null)
         {
             bool hasResultValue = typeof(T) != typeof(Void);
 
             // Allow caller to handle exception inline before losing context scope.
-            ExceptionContext exceptionContext = hasResultValue
-                ? new ExceptionContext<T>(correlationContext, ex)
-                : new ExceptionContext(correlationContext, ex);
+            ErrorContext errorContext = hasResultValue
+                ? new ErrorContext<T>(correlationContext, ex)
+                : new ErrorContext(correlationContext, ex);
 
-            onException(exceptionContext);
-            if (exceptionContext.IsExceptionHandled)
+            onError(errorContext);
+            if (errorContext.IsErrorHandled)
             {
                 result = hasResultValue
-                    ? ((ExceptionContext<T>)exceptionContext).Result
+                    ? ((ErrorContext<T>)errorContext).Result
                     : default!;
                 return true;
             }
