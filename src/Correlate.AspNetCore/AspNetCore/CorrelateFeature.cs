@@ -1,4 +1,5 @@
-﻿using Correlate.Http.Extensions;
+﻿using Correlate.Http;
+using Correlate.Http.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -88,7 +89,7 @@ internal sealed class CorrelateFeature
 
     private (string? headerName, string correlationId) GetOrCreateCorrelationHeaderAndId(HttpContext httpContext)
     {
-        (string requestHeaderName, string? requestCorrelationId) = httpContext.Request.Headers.GetCorrelationIdHeader(_options.RequestHeaders);
+        (string requestHeaderName, string? requestCorrelationId) = httpContext.Request.Headers.GetCorrelationIdHeader(_options.RequestHeaders ?? [CorrelationHttpHeaders.CorrelationId]);
         if (requestCorrelationId is not null)
         {
             LogRequestHeaderFound(_logger, requestHeaderName, requestCorrelationId, null);

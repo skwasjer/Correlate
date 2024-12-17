@@ -4,7 +4,7 @@ namespace Correlate.Http.Extensions;
 
 internal static class HeaderDictionaryExtensions
 {
-    internal static KeyValuePair<string, string?> GetCorrelationIdHeader(this IDictionary<string, StringValues> httpHeaders, ICollection<string> acceptedHeaders)
+    internal static KeyValuePair<string, string?> GetCorrelationIdHeader(this IDictionary<string, StringValues> httpHeaders, IReadOnlyCollection<string> acceptedHeaders)
     {
         if (acceptedHeaders is null)
         {

@@ -1,27 +1,21 @@
-﻿using Correlate.Http;
-
-namespace Correlate.AspNetCore;
+﻿namespace Correlate.AspNetCore;
 
 /// <summary>
 /// Options for handling correlation id on incoming requests.
 /// </summary>
-public sealed class CorrelateOptions: CorrelationManagerOptions
+public sealed class CorrelateOptions : CorrelationManagerOptions
 {
-    private static readonly string[] DefaultRequestHeaders = { CorrelationHttpHeaders.CorrelationId };
-
-    private string[]? _requestHeaders;
-
     /// <summary>
-    /// Gets or sets the request headers to retrieve the correlation id from. Defaults to <c>X-Correlation-ID</c>.
+    /// Gets or sets the request headers to retrieve the correlation id from.
+    /// <para>
+    /// To disable using the correlation ID from an incoming request, explicitly set this to an empty list.
+    /// When <see langword="null" />, internally defaults to <c>["X-Correlation-ID"]</c>.
+    /// </para>
     /// </summary>
     /// <remarks>
     /// The first matching request header will be used.
     /// </remarks>
-    public string[] RequestHeaders
-    {
-        get => _requestHeaders ?? DefaultRequestHeaders;
-        set => _requestHeaders = value;
-    }
+    public IReadOnlyList<string>? RequestHeaders { get; set; }
 
     /// <summary>
     /// Gets or sets whether to include the correlation id in the response.

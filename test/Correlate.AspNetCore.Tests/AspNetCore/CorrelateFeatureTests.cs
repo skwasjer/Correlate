@@ -42,7 +42,7 @@ public sealed class CorrelateFeatureTests : IDisposable
         _correlationIdFactory = Substitute.For<ICorrelationIdFactory>();
         _correlationIdFactory.Create().Returns(CorrelationId);
 
-        _options = new CorrelateOptions();
+        _options = new CorrelateOptions { RequestHeaders = [CorrelationHttpHeaders.CorrelationId] };
         _sut = new CorrelateFeature(
             _services.GetRequiredService<ILoggerFactory>(),
             _correlationIdFactory,
@@ -67,11 +67,11 @@ public sealed class CorrelateFeatureTests : IDisposable
         _options.RequestHeaders.Should().NotBeNullOrEmpty();
         if (requestHeader is not null)
         {
-            _options.RequestHeaders = new[] { requestHeader };
+            _options.RequestHeaders = [requestHeader];
         }
 
         var expectedHeader = new KeyValuePair<string, StringValues>(
-            _options.RequestHeaders[0],
+            _options.RequestHeaders![0],
             new StringValues(CorrelationId)
         );
 
@@ -91,7 +91,7 @@ public sealed class CorrelateFeatureTests : IDisposable
     [InlineData(CorrelationHttpHeaders.RequestId)]
     public async Task Given_that_request_contains_correlationId_header_in_allowed_list_when_correlating_has_started_it_should_have_used_that_correlationId(string headerName)
     {
-        _options.RequestHeaders = new[] { CorrelationHttpHeaders.CorrelationId, CorrelationHttpHeaders.RequestId };
+        _options.RequestHeaders = [CorrelationHttpHeaders.CorrelationId, CorrelationHttpHeaders.RequestId];
 
         string correlationId = Guid.NewGuid().ToString("D");
         _httpContext.Features.Get<IHttpRequestFeature>()!
@@ -203,7 +203,7 @@ public sealed class CorrelateFeatureTests : IDisposable
         _options.RequestHeaders.Should().NotBeNullOrEmpty();
 
         const string existingCorrelationId = "existing-id";
-        _responseFeature.Headers.Append(_options.RequestHeaders[0], existingCorrelationId);
+        _responseFeature.Headers.Append(_options.RequestHeaders![0], existingCorrelationId);
 
         var expectedHeader = new KeyValuePair<string, StringValues>(
             _options.RequestHeaders[0],
