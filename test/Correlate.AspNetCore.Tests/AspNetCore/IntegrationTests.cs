@@ -53,7 +53,7 @@ public sealed class IntegrationTests : IClassFixture<TestAppFactory<Startup>>, I
     public async Task Given_custom_header_is_defined_when_executing_request_the_response_should_contain_custom_header()
     {
         const string headerName = "my-header";
-        _options.RequestHeaders = new[] { headerName };
+        _options.RequestHeaders = [headerName];
 
         // Act
         HttpClient client = _factory.CreateClient();
@@ -90,7 +90,7 @@ public sealed class IntegrationTests : IClassFixture<TestAppFactory<Startup>>, I
     [Fact]
     public async Task Given_no_headers_are_defined_when_executing_request_the_response_should_contain_default_header()
     {
-        _options.RequestHeaders = Array.Empty<string>();
+        _options.RequestHeaders = [];
 
         // Act
         HttpClient client = _factory.CreateClient();
@@ -240,5 +240,53 @@ public sealed class IntegrationTests : IClassFixture<TestAppFactory<Startup>>, I
                 .Should()
                 .ContainEquivalentOf(new LoggerExtensions.CorrelatedLogScope(CorrelateConstants.CorrelationIdKey, correlationId))
             );
+    }
+
+    [Theory]
+    [MemberData(nameof(GetOptionBindingTestCases))]
+    public void Options_should_deserialize_from_config(Dictionary<string, string?> configDict, CorrelateOptions expectedOptions)
+    {
+        IConfigurationRoot config = new ConfigurationBuilder()
+            .AddInMemoryCollection(configDict)
+            .Build();
+
+        // Act
+        using ServiceProvider services = new ServiceCollection()
+            .Configure<CorrelateOptions>(config.Bind)
+            .BuildServiceProvider();
+
+        // Assert
+        CorrelateOptions opts = services.GetRequiredService<IOptions<CorrelateOptions>>().Value;
+        opts.Should().BeEquivalentTo(expectedOptions);
+    }
+
+    public static IEnumerable<object[]> GetOptionBindingTestCases()
+    {
+        yield return
+        [
+            new Dictionary<string, string?>(),
+            new CorrelateOptions
+            {
+                IncludeInResponse = true,
+                LoggingScopeKey = CorrelateConstants.CorrelationIdKey,
+                RequestHeaders = null
+            }
+        ];
+        yield return
+        [
+            new Dictionary<string, string?>
+            {
+                { "LoggingScopeKey", "LogKey1" },
+                { "IncludeInResponse", "false" },
+                { "RequestHeaders:0", "Header1" },
+                { "RequestHeaders:1", "Header2" }
+            },
+            new CorrelateOptions
+            {
+                LoggingScopeKey = "LogKey1",
+                IncludeInResponse = false,
+                RequestHeaders = ["Header1", "Header2"]
+            }
+        ];
     }
 }
