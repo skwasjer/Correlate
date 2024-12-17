@@ -1,0 +1,30 @@
+﻿[assembly: System.Reflection.AssemblyMetadata("RepositoryUrl", "https://github.com/skwasjer/Correlate")]
+[assembly: System.Runtime.Versioning.TargetFramework(".NETCoreApp,Version=v8.0", FrameworkDisplayName=".NET 8.0")]
+namespace Correlate.AspNetCore
+{
+    public static class AppBuilderExtensions
+    {
+        public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseCorrelate(this Microsoft.AspNetCore.Builder.IApplicationBuilder appBuilder) { }
+    }
+    public sealed class CorrelateOptions : Correlate.CorrelationManagerOptions
+    {
+        public CorrelateOptions() { }
+        public bool IncludeInResponse { get; set; }
+        public System.Collections.Generic.IReadOnlyList<string>? RequestHeaders { get; set; }
+    }
+}
+namespace Correlate.DependencyInjection
+{
+    public static class ServiceCollectionExtensions
+    {
+        public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddCorrelate(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, System.Action<Correlate.AspNetCore.CorrelateOptions> configureOptions) { }
+    }
+}
+namespace Correlate
+{
+    public class RequestIdentifierCorrelationIdFactory : Correlate.ICorrelationIdFactory
+    {
+        public RequestIdentifierCorrelationIdFactory() { }
+        public string Create() { }
+    }
+}
