@@ -1,0 +1,54 @@
+﻿[assembly: System.Reflection.AssemblyMetadata("RepositoryUrl", "https://github.com/skwasjer/Correlate")]
+[assembly: System.Runtime.Versioning.TargetFramework(".NETStandard,Version=v2.0", FrameworkDisplayName=".NET Standard 2.0")]
+namespace Correlate
+{
+    public class CorrelationContext
+    {
+        public CorrelationContext() { }
+        public string? CorrelationId { get; set; }
+    }
+    public class ErrorContext
+    {
+        public Correlate.CorrelationContext CorrelationContext { get; }
+        public System.Exception Exception { get; }
+        public bool IsErrorHandled { get; set; }
+    }
+    public class ErrorContext<T> : Correlate.ErrorContext
+    {
+        public T Result { get; set; }
+    }
+    public interface IActivity
+    {
+        Correlate.CorrelationContext Start(string correlationId);
+        void Stop();
+    }
+    public interface IActivityFactory
+    {
+        Correlate.IActivity CreateActivity();
+    }
+    public interface IAsyncCorrelationManager
+    {
+        System.Threading.Tasks.Task CorrelateAsync(string? correlationId, System.Func<System.Threading.Tasks.Task> correlatedTask, Correlate.OnError? onError);
+        System.Threading.Tasks.Task<T> CorrelateAsync<T>(string? correlationId, System.Func<System.Threading.Tasks.Task<T>> correlatedTask, Correlate.OnError<T>? onError);
+    }
+    public interface ICorrelationContextAccessor
+    {
+        Correlate.CorrelationContext? CorrelationContext { get; set; }
+    }
+    public interface ICorrelationContextFactory
+    {
+        Correlate.CorrelationContext Create(string correlationId);
+        void Dispose();
+    }
+    public interface ICorrelationIdFactory
+    {
+        string Create();
+    }
+    public interface ICorrelationManager
+    {
+        void Correlate(string? correlationId, System.Action correlatedAction, Correlate.OnError? onError);
+        T Correlate<T>(string? correlationId, System.Func<T> correlatedFunc, Correlate.OnError<T>? onError);
+    }
+    public delegate void OnError(Correlate.ErrorContext errorContext);
+    public delegate void OnError<T>(Correlate.ErrorContext<T> errorContext);
+}

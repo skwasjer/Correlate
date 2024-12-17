@@ -14,6 +14,18 @@
     <Microsoft_Extensions_Diagnostics_Testing>8.9.1</Microsoft_Extensions_Diagnostics_Testing>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <VerifyVersion>28.6.0</VerifyVersion>
+    <VerifyVersion Condition="'$(TargetFramework)'=='net6.0'">28.2.1</VerifyVersion>
+    <VerifyPublicApi Condition="'$(VerifyPublicApi)'==''">true</VerifyPublicApi>
+    <DefineConstants Condition="'$(VerifyPublicApi)'=='true'">$(DefineConstants);VERIFY_PUBLIC_API</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(VerifyPublicApi)'=='true'">
+    <PackageReference Include="PublicApiGenerator" Version="11.2.0" />
+    <PackageReference Include="Verify.Xunit" Version="$(VerifyVersion)" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(PackageVersion_Microsoft_Extensions)" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" Version="$(Microsoft_Extensions_Diagnostics_Testing)" />

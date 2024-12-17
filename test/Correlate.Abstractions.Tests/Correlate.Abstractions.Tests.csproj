@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net9.0;net8.0;net6.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(NetPreview)'=='true'">$(TargetFrameworks);netx.0</TargetFrameworks>
+    <IsTestProject>true</IsTestProject>
+    <RootNamespace>Correlate</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Correlate.Abstractions\Correlate.Abstractions.csproj" />
+    <ProjectReference Include="..\Correlate.Testing\Correlate.Testing.csproj" />
+  </ItemGroup>
+
+</Project>
