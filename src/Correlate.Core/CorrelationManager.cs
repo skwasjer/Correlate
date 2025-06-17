@@ -264,14 +264,8 @@ public class CorrelationManager : IAsyncCorrelationManager, ICorrelationManager,
         return false;
     }
 
-    /// <inheritdoc />
-    public CorrelationContext StartActivity(string? correlationId, IActivity activity)
+    private CorrelationContext StartActivity(string? correlationId, IActivity activity)
     {
-        if (activity is null)
-        {
-            throw new ArgumentNullException(nameof(activity));
-        }
-
         return activity.Start(correlationId ?? _correlationContextAccessor?.CorrelationContext?.CorrelationId ?? _correlationIdFactory.Create());
     }
 
