@@ -1,4 +1,4 @@
-﻿namespace Correlate.AspNetCore;
+﻿namespace Correlate.DependencyInjection;
 
 /// <summary>
 /// Options for handling correlation id on incoming requests.

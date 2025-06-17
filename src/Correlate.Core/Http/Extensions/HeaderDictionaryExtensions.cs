@@ -2,10 +2,25 @@
 
 namespace Correlate.Http.Extensions;
 
-internal static class HeaderDictionaryExtensions
+/// <summary>
+/// Provides extension methods for <see cref="IDictionary{TKey, TValue}"/> to retrieve correlation ID headers.
+/// </summary>
+public static class HeaderDictionaryExtensions
 {
-    internal static KeyValuePair<string, string?> GetCorrelationIdHeader(this IDictionary<string, StringValues> httpHeaders, IReadOnlyCollection<string> acceptedHeaders)
+    /// <summary>
+    /// Gets the correlation ID header from the provided HTTP headers.
+    /// </summary>
+    /// <param name="httpHeaders"></param>
+    /// <param name="acceptedHeaders"></param>
+    /// <returns>A key value pair with correlation id and its header name</returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    public static KeyValuePair<string, string?> GetCorrelationIdHeader(this IDictionary<string, StringValues> httpHeaders, IReadOnlyCollection<string> acceptedHeaders)
     {
+        if (httpHeaders is null)
+        {
+            throw new ArgumentNullException(nameof(httpHeaders));
+        }
+        
         if (acceptedHeaders is null)
         {
             throw new ArgumentNullException(nameof(acceptedHeaders));
