@@ -5,12 +5,11 @@ using System.Linq;
 using Correlate.Http.Extensions;
 using Microsoft.Extensions.Primitives;
 
-namespace Correlate.WebApiTestNet48.Extensions;
+namespace Correlate.AspNet.Extensions;
 
-public static class NameValueCollectionExtensions
+internal static class NameValueCollectionExtensions
 {
-    
-    public static KeyValuePair<string, string?> GetCorrelationIdHeader(this NameValueCollection httpHeaders, IReadOnlyCollection<string> acceptedHeaders)
+    internal static KeyValuePair<string, string?> GetCorrelationIdHeader(this NameValueCollection httpHeaders, IReadOnlyCollection<string> acceptedHeaders)
     {
         if (httpHeaders is null)
         {
@@ -34,7 +33,7 @@ public static class NameValueCollectionExtensions
         return typedDictionary.GetCorrelationIdHeader(acceptedHeaders);
     }
 
-    public static bool TryAdd(this NameValueCollection httpHeaders, string key, string value)
+    internal static bool TryAdd(this NameValueCollection httpHeaders, string key, string value)
     {
         if (httpHeaders is null)
         {

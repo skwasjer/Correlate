@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Web;
+using Correlate.AspNet.Extensions;
 using Correlate.DependencyInjection;
 using Correlate.Http;
 using Correlate.WebApiTestNet48.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Correlate.WebApiTestNet48.Middlewares;
+namespace Correlate.AspNet.Middlewares;
 
 /// <summary>
 /// Implementation of Correlate feature for .NET Framework 4.8.
@@ -72,9 +73,9 @@ public class CorrelateFeatureNet48 : ICorrelateFeatureNet48
             (string? responseHeaderName, string correlationId) = GetOrCreateCorrelationHeaderAndId(httpContext);
 
             // If already set, ignore.
-            if (httpContext.Response.Headers.TryAdd(responseHeaderName, correlationId))
+            if (httpContext.Response.Headers.TryAdd(responseHeaderName!, correlationId))
             {
-                LogResponseHeaderAdded(_logger, responseHeaderName, correlationId, null);
+                LogResponseHeaderAdded(_logger, responseHeaderName!, correlationId, null);
             }
 
         }

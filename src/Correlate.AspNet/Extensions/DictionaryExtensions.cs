@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace Correlate.WebApiTestNet48.Extensions;
 
-public static class DictionaryExtensions
+internal static class DictionaryExtensions
 {
     public static bool TryGetValue<TKey, TValue>(this IDictionary dictionary, TKey key, out TValue? value) where TKey : notnull
     {

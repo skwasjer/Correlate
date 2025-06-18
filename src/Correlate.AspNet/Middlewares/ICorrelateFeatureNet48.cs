@@ -1,6 +1,6 @@
 using System.Web;
 
-namespace Correlate.WebApiTestNet48.Middlewares;
+namespace Correlate.AspNet.Middlewares;
 
 public interface ICorrelateFeatureNet48
 {

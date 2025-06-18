@@ -47,6 +47,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "apitest", "apitest", "{AB00
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Correlate.WebApiTestNet48", "apitest\Correlate.WebApiTestNet48\Correlate.WebApiTestNet48.csproj", "{6059E268-BAA5-47FC-95D5-BB265B474621}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Correlate.AspNet", "src\Correlate.AspNet\Correlate.AspNet.csproj", "{68160FA2-F4E5-4E56-A919-3576F41628B4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,6 +99,10 @@ Global
 		{6059E268-BAA5-47FC-95D5-BB265B474621}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6059E268-BAA5-47FC-95D5-BB265B474621}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6059E268-BAA5-47FC-95D5-BB265B474621}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68160FA2-F4E5-4E56-A919-3576F41628B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68160FA2-F4E5-4E56-A919-3576F41628B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68160FA2-F4E5-4E56-A919-3576F41628B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68160FA2-F4E5-4E56-A919-3576F41628B4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -113,6 +119,7 @@ Global
 		{3CDE7B0E-5527-4106-A208-1FA6BC06F2B9} = {45C7B4DF-E612-4301-B2D3-164650B05FC6}
 		{BE4DCDBB-F8F7-42E1-899E-DE1F51471D1F} = {45C7B4DF-E612-4301-B2D3-164650B05FC6}
 		{6059E268-BAA5-47FC-95D5-BB265B474621} = {AB00C87A-4DAC-4550-982F-2D100BAAB727}
+		{68160FA2-F4E5-4E56-A919-3576F41628B4} = {2001D98D-994A-4553-97E0-588F65E3F785}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BE2CCEF9-2685-4DF3-B085-B6FB083E8E56}
