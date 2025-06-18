@@ -33,7 +33,7 @@ public class CorrelateHttpModule : IHttpModule
             IDependencyResolver? resolver = GlobalConfiguration.Configuration.DependencyResolver;
             ICorrelateFeatureNet48 correlateFeatureNet48 = (ICorrelateFeatureNet48)resolver.GetService(typeof(ICorrelateFeatureNet48))
              ?? throw new InvalidOperationException("CorrelateFeatureNet48 service is not registered.");
-            correlateFeatureNet48.StartCorrelating(((HttpApplication)sender).Context);
+            correlateFeatureNet48.StartCorrelating(new HttpContextWrapper(((HttpApplication)sender).Context));
         };
 
         context.PreSendRequestHeaders += (sender, _) =>
@@ -41,7 +41,7 @@ public class CorrelateHttpModule : IHttpModule
             IDependencyResolver? resolver = GlobalConfiguration.Configuration.DependencyResolver;
             ICorrelateFeatureNet48 correlateFeatureNet48 = (ICorrelateFeatureNet48)resolver.GetService(typeof(ICorrelateFeatureNet48))
              ?? throw new InvalidOperationException("CorrelateFeatureNet48 service is not registered.");
-            correlateFeatureNet48.StopCorrelating(((HttpApplication)sender).Context);
+            correlateFeatureNet48.StopCorrelating(new HttpContextWrapper(((HttpApplication)sender).Context));
         };
     }
 

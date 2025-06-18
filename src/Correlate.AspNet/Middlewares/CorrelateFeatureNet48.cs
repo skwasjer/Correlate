@@ -11,7 +11,7 @@ namespace Correlate.AspNet.Middlewares;
 
 /// <summary>
 /// Implementation of Correlate feature for .NET Framework 4.8.
-/// This wihll micmic the behavior of the Correlate feature in .NET 8+.
+/// This will mimic the behavior of the Correlate feature in .NET 8+.<br/>
 /// See <see cref="Correlate.AspNetCore.CorrelateFeature"/> for more details.
 /// </summary>
 public class CorrelateFeatureNet48 : ICorrelateFeatureNet48
@@ -25,6 +25,7 @@ public class CorrelateFeatureNet48 : ICorrelateFeatureNet48
         LoggerMessage.Define<string, string>(LogLevel.Trace, 0xC001, "Setting response header '{HeaderName}' to correlation id '{CorrelationId}'.");
 
     internal static readonly string RequestActivityKey = $"{typeof(CorrelateFeatureNet48).FullName}, {nameof(RequestActivityKey)}";
+    internal static readonly string CorrelationContextKey = $"{typeof(CorrelateFeatureNet48).FullName}, {nameof(CorrelationContextKey)}";
 
     private readonly IActivityFactory _activityFactory;
     private readonly ICorrelationIdFactory _correlationIdFactory;
@@ -53,50 +54,64 @@ public class CorrelateFeatureNet48 : ICorrelateFeatureNet48
         _options = options?.Value ?? throw new ArgumentException("The 'Value' returns null.", nameof(options));
     }
     
-    public void StartCorrelating(HttpContext httpContext)
+    public void StartCorrelating(HttpContextBase httpContext)
     {
         (string? _, string correlationId) = GetOrCreateCorrelationHeaderAndId(httpContext);
 
         IActivity activity = _activityFactory.CreateActivity();
-        activity.Start(correlationId);
+        CorrelationContext correlationContext = activity.Start(correlationId);
         // Save the activity so we can clean it up later.
         httpContext.Items[RequestActivityKey] = activity;
+        httpContext.Items[CorrelationContextKey] = correlationContext;
     }
 
-    public void StopCorrelating(HttpContext httpContext)
+    public void StopCorrelating(HttpContextBase httpContext)
     {
-        if (httpContext.Items.TryGetValue(RequestActivityKey, out object? activityObj)
-         && activityObj is IActivity activity)
+        // ReSharper disable once InvertIf
+        if (httpContext.Items.TryGetValue(RequestActivityKey, out object? activityObj) &&
+            activityObj is IActivity activity)
         {
-            activity.Stop();
             (string? responseHeaderName, string correlationId) = GetOrCreateCorrelationHeaderAndId(httpContext);
+            activity.Stop();
 
             // If already set, ignore.
             if (httpContext.Response.Headers.TryAdd(responseHeaderName!, correlationId))
             {
                 LogResponseHeaderAdded(_logger, responseHeaderName!, correlationId, null);
             }
-
         }
-        
     }
 
-    private (string? headerName, string correlationId) GetOrCreateCorrelationHeaderAndId(HttpContext httpContext)
+    private (string? headerName, string correlationId) GetOrCreateCorrelationHeaderAndId(HttpContextBase httpContext)
     {
         KeyValuePair<string, string?> keyValuePair = httpContext.Request.Headers.GetCorrelationIdHeader(_options.RequestHeaders ?? [CorrelationHttpHeaders.CorrelationId]);
         string requestHeaderName = keyValuePair.Key;
         string? requestCorrelationId = keyValuePair.Value;
 
+        string correlationId;
         if (requestCorrelationId is not null)
         {
             LogRequestHeaderFound(_logger, requestHeaderName, requestCorrelationId, null);
+            correlationId = requestCorrelationId;
+        }
+        else
+        {
+            if (httpContext.Items.TryGetValue(CorrelationContextKey, out object? correlationContextObj) &&
+                correlationContextObj is CorrelationContext correlationContext)
+            {
+                correlationId = correlationContext.CorrelationId!;
+            }
+            else
+            {
+                correlationId = _correlationIdFactory.Create();
+            }
         }
 
         return (
             _options.IncludeInResponse
                 ? requestHeaderName
                 : null,
-            requestCorrelationId ?? _correlationIdFactory.Create()
+            correlationId
             );
     }
 }
