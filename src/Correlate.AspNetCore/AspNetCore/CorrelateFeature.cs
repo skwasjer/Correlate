@@ -1,5 +1,4 @@
-﻿using Correlate.DependencyInjection;
-using Correlate.Http;
+﻿using Correlate.Http;
 using Correlate.Http.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;

@@ -1,8 +1,8 @@
 ﻿using System.Web;
 using System.Web.Http;
 using Correlate.AspNet;
+using Correlate.AspNet.Extensions;
 using Correlate.DependencyInjection;
-using Correlate.WebApiTestNet48.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -28,8 +28,7 @@ public class WebApiApplication : HttpApplication
             x.SetMinimumLevel(LogLevel.Trace);
         });
 
-        services.AddCorrelate(opts => opts.IncludeInResponse = true);
-        services.AddCorrelateNet48();
+        services.AddCorrelateNet48(opts => opts.IncludeInResponse = true);
 
         ServiceProvider serviceProvider = services.BuildServiceProvider();
         GlobalConfiguration.Configuration.DependencyResolver = new DependencyResolver(serviceProvider);

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
-using Correlate.Http.Extensions;
+using Correlate.Http;
 using Microsoft.Extensions.Primitives;
 
 namespace Correlate.AspNet.Extensions;
@@ -11,46 +11,52 @@ internal static class NameValueCollectionExtensions
 {
     internal static KeyValuePair<string, string?> GetCorrelationIdHeader(this NameValueCollection httpHeaders, IReadOnlyCollection<string> acceptedHeaders)
     {
-        if (httpHeaders is null)
+        if (acceptedHeaders is null)
         {
-            throw new ArgumentNullException(nameof(httpHeaders));
+            throw new ArgumentNullException(nameof(acceptedHeaders));
         }
 
-        var typedDictionary = new Dictionary<string, StringValues>();
-        foreach (string key in httpHeaders.AllKeys)
+        if (acceptedHeaders.Count == 0)
         {
-            if (key is null)
+            return new KeyValuePair<string, string?>(CorrelationHttpHeaders.CorrelationId, null);
+        }
+
+        string? correlationId = null;
+        string? headerName = null;
+
+        foreach (string requestHeaderName in acceptedHeaders)
+        {
+            if (!httpHeaders.TryGetValue(requestHeaderName, out StringValues value))
             {
                 continue;
             }
 
-            if (acceptedHeaders.Contains(key, StringComparer.OrdinalIgnoreCase))
+            headerName = requestHeaderName;
+            correlationId = value.LastOrDefault();
+            if (!string.IsNullOrWhiteSpace(correlationId))
             {
-                typedDictionary[key] = new StringValues(httpHeaders.GetValues(key));
+                break;
             }
         }
 
-        return typedDictionary.GetCorrelationIdHeader(acceptedHeaders);
+        return new KeyValuePair<string, string?>(
+            headerName ?? acceptedHeaders.First(),
+            correlationId
+        );
     }
 
-    internal static bool TryAdd(this NameValueCollection httpHeaders, string key, string value)
+    internal static bool TryAdd(this NameValueCollection nameValueCollection, string key, string value)
     {
-        if (httpHeaders is null)
-        {
-            throw new ArgumentNullException(nameof(httpHeaders));
-        }
+        return nameValueCollection.AllKeys
+            .ToDictionary(key2 => key2, _ => nameValueCollection[key])
+            .TryAdd(key, value);
 
-        if (string.IsNullOrEmpty(key))
-        {
-            throw new ArgumentException("Key cannot be null or empty.", nameof(key));
-        }
-        
-        if (httpHeaders.GetValues(key) == null)
-        {
-            httpHeaders.Add(key, value);
-            return true;
-        }
+    }
 
-        return false;
+    private static bool TryGetValue(this NameValueCollection nameValueCollection, string key, out StringValues value)
+    {
+        return nameValueCollection.AllKeys
+            .ToDictionary(key2 => key2, _ => (StringValues)nameValueCollection.GetValues(key))
+            .TryGetValue(key, out value);
     }
 }

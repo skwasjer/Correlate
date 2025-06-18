@@ -2,9 +2,8 @@
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Dependencies;
+using Correlate.AspNet.Extensions;
 using Correlate.AspNet.Middlewares;
-using Correlate.DependencyInjection;
-using Correlate.WebApiTestNet48.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -60,8 +59,7 @@ public class CorrelateHttpModule : IHttpModule
                     x.SetMinimumLevel(LogLevel.Trace);
                 });
             
-                services.AddCorrelateNet48();
-                services.AddCorrelate(opts => opts.IncludeInResponse = true);
+                services.AddCorrelateNet48(opts => opts.IncludeInResponse = true);
             
                 ServiceProvider serviceProvider = services.BuildServiceProvider();
                 GlobalConfiguration.Configuration.DependencyResolver = new DependencyResolver(serviceProvider);
@@ -73,10 +71,10 @@ public class CorrelateHttpModule : IHttpModule
                 IDependencyResolver resolver = GlobalConfiguration.Configuration.DependencyResolver;
                 _ = resolver.GetService(typeof(ICorrelationIdFactory)) ?? 
                     throw new InvalidOperationException("ICorrelationIdFactory service is not registered in the current dependency resolver. " +
-                        "Please ensure that you have called services.AddCorrelate() in your dependency injection setup.");
+                        "Please ensure that you have setup your dependency injection correctly.");
                 _ = resolver.GetService(typeof(ICorrelateFeatureNet48)) ??
                     throw new InvalidOperationException("CorrelateFeatureNet48 service is not registered in the current dependency resolver. " +
-                        "Please ensure that you have called services.AddCorrelateNet48() in your dependency injection setup.");
+                        "Please ensure that you have setup your dependency injection correctly.");
                 break;
             }
         }
