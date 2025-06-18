@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Web;
 using Correlate.AspNet.Extensions;
-using Correlate.DependencyInjection;
+using Correlate.AspNet.Options;
 using Correlate.Http;
-using Correlate.WebApiTestNet48.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -30,14 +29,14 @@ public class CorrelateFeatureNet48 : ICorrelateFeatureNet48
     private readonly IActivityFactory _activityFactory;
     private readonly ICorrelationIdFactory _correlationIdFactory;
     private readonly ILogger _logger;
-    private readonly CorrelateOptions _options;
+    private readonly CorrelateOptionsNet48 _options;
     
     public CorrelateFeatureNet48
     (
         ILoggerFactory loggerFactory,
         ICorrelationIdFactory correlationIdFactory,
         IActivityFactory activityFactory,
-        IOptions<CorrelateOptions> options
+        IOptions<CorrelateOptionsNet48> options
     )
     {
         if (loggerFactory is null)

@@ -1,9 +1,8 @@
-﻿namespace Correlate.DependencyInjection;
+using System.Collections.Generic;
 
-/// <summary>
-/// Options for handling correlation id on incoming requests.
-/// </summary>
-public sealed class CorrelateOptions : CorrelationManagerOptions
+namespace Correlate.AspNet.Options;
+
+public sealed class CorrelateOptionsNet48 : CorrelationManagerOptions
 {
     /// <summary>
     /// Gets or sets the request headers to retrieve the correlation id from.
