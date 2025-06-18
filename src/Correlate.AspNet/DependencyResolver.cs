@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Web.Http.Dependencies;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Correlate.WebApiTestNet48;
+namespace Correlate.AspNet;
 
 public class DependencyResolver(IServiceProvider serviceProvider) : IDependencyResolver
 {

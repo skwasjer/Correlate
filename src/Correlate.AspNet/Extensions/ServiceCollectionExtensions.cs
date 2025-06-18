@@ -1,4 +1,4 @@
-﻿using Correlate.WebApiTestNet48.Middlewares;
+﻿using Correlate.AspNet.Middlewares;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Correlate.WebApiTestNet48.Extensions;
