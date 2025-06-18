@@ -4,7 +4,7 @@ namespace Correlate.AspNet.Middlewares;
 
 public interface ICorrelateFeatureNet48
 {
-    void StartCorrelating(HttpContext httpContext);
+    void StartCorrelating(HttpContextBase httpContext);
 
-    void StopCorrelating(HttpContext httpContext);
+    void StopCorrelating(HttpContextBase httpContext);
 }

@@ -29,7 +29,7 @@ public static class ServiceCollectionExtensions
     /// Adds services required for using correlation.
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection" /> to add the services to.</param>
-    /// <param name="configureOptions">The action used to configure <see cref="CorrelateOptions" />.</param>
+    /// <param name="configureOptions">The action used to configure <see cref="CorrelateOptionsNet48" />.</param>
     /// <returns>The <see cref="IServiceCollection" /> so that additional calls can be chained.</returns>
     private static IServiceCollection AddCorrelate(this IServiceCollection services, Action<CorrelateOptionsNet48> configureOptions)
     {

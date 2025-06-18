@@ -47,16 +47,53 @@ internal static class NameValueCollectionExtensions
 
     internal static bool TryAdd(this NameValueCollection nameValueCollection, string key, string value)
     {
-        return nameValueCollection.AllKeys
-            .ToDictionary(key2 => key2, _ => nameValueCollection[key])
-            .TryAdd(key, value);
+        if (nameValueCollection == null)
+        {
+            throw new ArgumentNullException(nameof(nameValueCollection));
+        }
 
+        if (key == null)
+        {
+            throw new ArgumentNullException(nameof(key));
+        }
+
+        bool keyExists = nameValueCollection
+            .AllKeys
+            .Any(x => string.Equals(x, key, StringComparison.OrdinalIgnoreCase));
+
+        if (keyExists)
+        {
+            return false;
+        }
+
+        nameValueCollection.Add(key, value);
+        return true;
     }
 
     private static bool TryGetValue(this NameValueCollection nameValueCollection, string key, out StringValues value)
     {
-        return nameValueCollection.AllKeys
-            .ToDictionary(key2 => key2, _ => (StringValues)nameValueCollection.GetValues(key))
-            .TryGetValue(key, out value);
+        if (nameValueCollection == null)
+        {
+            throw new ArgumentNullException(nameof(nameValueCollection));
+        }
+
+        if (key == null)
+        {
+            throw new ArgumentNullException(nameof(key));
+        }
+
+        string? foundKey = nameValueCollection
+            .AllKeys
+            .FirstOrDefault(k => string.Equals(k, key, StringComparison.OrdinalIgnoreCase));
+
+        if (foundKey != null)
+        {
+            string[] values = nameValueCollection.GetValues(foundKey)!;
+            value = new StringValues(values);
+            return true;
+        }
+
+        value = StringValues.Empty;
+        return false;
     }
 }

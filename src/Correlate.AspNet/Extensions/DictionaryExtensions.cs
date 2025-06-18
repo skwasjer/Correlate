@@ -1,37 +1,39 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Correlate.AspNet.Extensions;
 
 internal static class DictionaryExtensions
 {
-    /// <summary>
-    /// Adding missing method introduced in .net core<br/>
-    /// <see href="https://stackoverflow.com/a/68711860/2890855" />
-    /// </summary>
-    public static bool TryAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue value)
+    public static bool TryGetValue<TKey, TValue>(
+        this IDictionary dictionary, 
+        TKey key, 
+        [MaybeNullWhen(false)] out TValue value
+    ) where TKey : notnull
     {
         if (dictionary == null)
         {
             throw new ArgumentNullException(nameof(dictionary));
         }
 
-        if (!dictionary.ContainsKey(key))
+        if (key == null)
         {
-            dictionary.Add(key, value);
-            return true;
+            throw new ArgumentNullException(nameof(key));
         }
 
+        if (dictionary.Contains(key))
+        {
+            object? result = dictionary[key];
+        
+            if (result is TValue typedValue)
+            {
+                value = typedValue;
+                return true;
+            }
+        }
+
+        value = default!;
         return false;
-    }
-    
-    public static bool TryGetValue<TKey, TValue>(this IDictionary dictionary, TKey key, out TValue? value) where TKey : notnull
-    {
-        return dictionary.Keys
-            .Cast<object>()
-            .ToDictionary<object, object, TValue?>(key2 => key2, value => (TValue?)dictionary[key])
-            .TryGetValue(key, out value);
     }
 }

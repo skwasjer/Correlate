@@ -38,6 +38,7 @@
 	  <Compile Include="Extensions\DictionaryExtensions.cs" />
 	  <Compile Include="Extensions\NameValueCollectionExtensions.cs" />
 	  <Compile Include="Extensions\ServiceCollectionExtensions.cs" />
+	  <Compile Include="InternalsVisibleTo.cs" />
 	  <Compile Include="Middlewares\CorrelateFeatureNet48.cs" />
 	  <Compile Include="Middlewares\ICorrelateFeatureNet48.cs" />
 	  <Compile Include="Options\CorrelateOptionsNet48.cs" />
