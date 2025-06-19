@@ -2,7 +2,6 @@
 using System.Web.Http;
 using Correlate.AspNet;
 using Correlate.AspNet.Extensions;
-using Correlate.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
