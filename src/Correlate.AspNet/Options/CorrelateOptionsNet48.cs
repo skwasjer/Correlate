@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Correlate.AspNet.Options;
 
 public sealed class CorrelateOptionsNet48 : CorrelationManagerOptions

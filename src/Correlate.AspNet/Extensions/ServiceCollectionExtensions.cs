@@ -1,5 +1,4 @@
-﻿using System;
-using Correlate.AspNet.Middlewares;
+﻿using Correlate.AspNet.Middlewares;
 using Correlate.AspNet.Options;
 using Correlate.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;

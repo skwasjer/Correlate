@@ -1,10 +1,7 @@
 ﻿using System.Web;
 using System.Web.Http;
 using System.Web.Http.Dependencies;
-using Correlate.AspNet.Extensions;
 using Correlate.AspNet.Middlewares;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Correlate.AspNet;
 
@@ -48,21 +45,10 @@ public class CorrelateHttpModule : IHttpModule
     {
         switch (GlobalConfiguration.Configuration.DependencyResolver.GetType().Name)
         {
-            // This is the default resolver used by Web API if GlobalConfiguration.Configuration.DependencyResolver haven't been set.
             case "EmptyResolver":
             {
-                var services = new ServiceCollection();
-                services.AddLogging(x =>
-                {
-                    x.AddConsole();
-                    x.SetMinimumLevel(LogLevel.Trace);
-                });
-            
-                services.AddCorrelateNet48(opts => opts.IncludeInResponse = true);
-            
-                ServiceProvider serviceProvider = services.BuildServiceProvider();
-                GlobalConfiguration.Configuration.DependencyResolver = new DependencyResolver(serviceProvider);
-                break;
+                // This is the default resolver used by Web API if GlobalConfiguration.Configuration.DependencyResolver haven't been set.
+                throw new InvalidOperationException("Correlate needs a resolver to handle its dependencies. Please use Microsoft.Extensions.DependencyInjection or similar.");
             }
             
             default:
