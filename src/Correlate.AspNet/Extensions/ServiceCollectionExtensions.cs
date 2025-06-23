@@ -6,8 +6,16 @@ using Microsoft.Extensions.Options;
 
 namespace Correlate.AspNet.Extensions;
 
+/// <summary>
+/// Provides extension methods for <see cref="IServiceCollection"/> to add Correlate services for .NET Framework 4.8.
+/// </summary>
 public static class ServiceCollectionExtensions
 {
+    /// <summary>
+    /// Adds services required for using correlation.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection" /> to add the services to.</param>
+    /// <returns>The <see cref="IServiceCollection" /> so that additional calls can be chained.</returns>
     public static IServiceCollection AddCorrelateNet48(this IServiceCollection services)
     {
         services.AddSingleton<ICorrelateFeatureNet48, CorrelateFeatureNet48>();
@@ -16,21 +24,28 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
+    /// <summary>
+    /// Adds services required for using correlation.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection" /> to add the services to.</param>
+    /// <param name="configureNet48">The action used to configure <see cref="CorrelateOptionsNet48" />.</param>
+    /// <returns>The <see cref="IServiceCollection" /> so that additional calls can be chained.</returns>
     public static IServiceCollection AddCorrelateNet48(this IServiceCollection services, Action<CorrelateOptionsNet48> configureNet48)
     {
         services.AddSingleton<ICorrelateFeatureNet48, CorrelateFeatureNet48>();
+#pragma warning disable CA1062
         services.AddCorrelate(configureNet48.Invoke);
+#pragma warning restore CA1062
 
         return services;
     }
-    
+
     /// <summary>
     /// Adds services required for using correlation.
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection" /> to add the services to.</param>
     /// <param name="configureOptions">The action used to configure <see cref="CorrelateOptionsNet48" />.</param>
-    /// <returns>The <see cref="IServiceCollection" /> so that additional calls can be chained.</returns>
-    private static IServiceCollection AddCorrelate(this IServiceCollection services, Action<CorrelateOptionsNet48> configureOptions)
+    private static void AddCorrelate(this IServiceCollection services, Action<CorrelateOptionsNet48> configureOptions)
     {
         services
             .Configure(configureOptions);
@@ -43,7 +58,5 @@ public static class ServiceCollectionExtensions
 
         services
             .AddCorrelate();
-
-        return services;
     }
 }

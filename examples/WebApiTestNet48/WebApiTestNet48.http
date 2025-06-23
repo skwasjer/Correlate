@@ -1,0 +1,11 @@
+###
+# @name: Get without Correlation ID
+GET http://localhost:53460/api/foo
+
+###
+# @name: Get with Correlation ID
+
+GET http://localhost:53460/api/foo
+X-Correlation-ID: your-correlation-id-value
+###
+

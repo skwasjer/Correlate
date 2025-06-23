@@ -5,11 +5,19 @@ using Correlate.AspNet.Middlewares;
 
 namespace Correlate.AspNet;
 
+/// <summary>
+/// ASP.NET HTTP module for correlating requests and responses with correlation IDs.
+/// </summary>
 public class CorrelateHttpModule : IHttpModule
 {
     private static bool _initialized;
     private static readonly object Lock = new();
 
+    /// <summary>
+    /// Initializes the Correlate HTTP module and sets up the necessary event handlers for request and response correlation.
+    /// </summary>
+    /// <param name="context"></param>
+    /// <exception cref="InvalidOperationException"></exception>
     public void Init(HttpApplication context)
     {
         if (!_initialized)
@@ -24,7 +32,9 @@ public class CorrelateHttpModule : IHttpModule
             }
         }
         
+#pragma warning disable CA1062
         context.BeginRequest += (sender, _) =>
+#pragma warning restore CA1062
         {
             IDependencyResolver? resolver = GlobalConfiguration.Configuration.DependencyResolver;
             ICorrelateFeatureNet48 correlateFeatureNet48 = (ICorrelateFeatureNet48)resolver.GetService(typeof(ICorrelateFeatureNet48))
@@ -54,8 +64,8 @@ public class CorrelateHttpModule : IHttpModule
             default:
             {
                 IDependencyResolver resolver = GlobalConfiguration.Configuration.DependencyResolver;
-                _ = resolver.GetService(typeof(ICorrelationIdFactory)) ?? 
-                    throw new InvalidOperationException("ICorrelationIdFactory service is not registered in the current dependency resolver. " +
+                _ = resolver.GetService(typeof(ICorrelationContextFactory)) ?? 
+                    throw new InvalidOperationException("ICorrelationContextFactory service is not registered in the current dependency resolver. " +
                         "Please ensure that you have setup your dependency injection correctly.");
                 _ = resolver.GetService(typeof(ICorrelateFeatureNet48)) ??
                     throw new InvalidOperationException("CorrelateFeatureNet48 service is not registered in the current dependency resolver. " +
@@ -65,5 +75,8 @@ public class CorrelateHttpModule : IHttpModule
         }
     }
 
+    /// <summary>
+    /// Disposes of the Correlate HTTP module.
+    /// </summary>
     public void Dispose() { }
 }

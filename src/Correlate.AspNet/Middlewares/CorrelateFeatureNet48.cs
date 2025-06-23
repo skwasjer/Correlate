@@ -10,9 +10,9 @@ namespace Correlate.AspNet.Middlewares;
 /// <summary>
 /// Implementation of Correlate feature for .NET Framework 4.8.
 /// This will mimic the behavior of the Correlate feature in .NET 8+.<br/>
-/// See <see cref="Correlate.AspNetCore.CorrelateFeature"/> for more details.
+/// See Correlate.AspNetCore.CorrelateFeature for more details.
 /// </summary>
-public class CorrelateFeatureNet48 : ICorrelateFeatureNet48
+internal class CorrelateFeatureNet48 : ICorrelateFeatureNet48
 {
     private const string LoggerCategory = "Correlate.AspNet";
 
@@ -54,14 +54,14 @@ public class CorrelateFeatureNet48 : ICorrelateFeatureNet48
     
     public void StartCorrelating(HttpContextBase httpContext)
     {
-        Tuple<string?, string> correlationContext =
+        (string? responseHeaderName, string correlationId) =
             GetOrCreateCorrelationHeaderAndId(httpContext);
 
         IActivity activity = _activityFactory.CreateActivity();
-        activity.Start(correlationContext.Item2);
+        activity.Start(correlationId);
         // Save the activity so we can clean it up later.
         httpContext.Items[RequestActivityKey] = activity;
-        httpContext.Items[CorrelationContextKey] = correlationContext;
+        httpContext.Items[CorrelationContextKey] = (responseHeaderName, correlationId);
     }
 
     public void StopCorrelating(HttpContextBase httpContext)
@@ -71,20 +71,27 @@ public class CorrelateFeatureNet48 : ICorrelateFeatureNet48
             activityObj is IActivity activity)
         {
             if (httpContext.Items.TryGetValue(CorrelationContextKey, out object? correlationContextObj) &&
-                correlationContextObj is Tuple<string?, string> correlationContext)
+                correlationContextObj is ValueTuple<string?, string> valueTuple)
             {
+                (string? responseHeaderName, string correlationId) = valueTuple;
                 activity.Stop();
 
-                // If already set, ignore.
-                if (httpContext.Response.Headers.TryAdd(correlationContext.Item1!, correlationContext.Item2))
+                // No response header needs to be attached, so done.
+                if (responseHeaderName is null)
                 {
-                    LogResponseHeaderAdded(_logger, correlationContext.Item1!, correlationContext.Item2, null);
+                    return;
+                }
+                
+                // If already set, ignore.
+                if (httpContext.Response.Headers.TryAdd(responseHeaderName, correlationId))
+                {
+                    LogResponseHeaderAdded(_logger, responseHeaderName, correlationId, null);
                 }
             }
         }
     }
 
-    private Tuple<string?, string> GetOrCreateCorrelationHeaderAndId(HttpContextBase httpContext)
+    private (string? headerName, string correlationId) GetOrCreateCorrelationHeaderAndId(HttpContextBase httpContext)
     {
         KeyValuePair<string, string?> keyValuePair = httpContext.Request.Headers.GetCorrelationIdHeader(_options.RequestHeaders ?? [CorrelationHttpHeaders.CorrelationId]);
         string requestHeaderName = keyValuePair.Key;
@@ -95,10 +102,8 @@ public class CorrelateFeatureNet48 : ICorrelateFeatureNet48
             LogRequestHeaderFound(_logger, requestHeaderName, requestCorrelationId, null);
         }
 
-        return new Tuple<string?, string>(
-            _options.IncludeInResponse
-                ? requestHeaderName
-                : null,
+        return (
+            _options.IncludeInResponse ? requestHeaderName : null,
             requestCorrelationId ?? _correlationIdFactory.Create()
             );
     }

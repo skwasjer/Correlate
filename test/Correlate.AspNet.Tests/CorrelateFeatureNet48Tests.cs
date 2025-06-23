@@ -310,6 +310,7 @@ public class CorrelateFeatureNet48Tests : IDisposable
 
         // Act
         _sut.StartCorrelating(_httpContext);
+        _sut.StopCorrelating(_httpContext);
 
         // Assert
         _httpContext.Response.Headers.Keys.Cast<string>().Should().BeEmpty();

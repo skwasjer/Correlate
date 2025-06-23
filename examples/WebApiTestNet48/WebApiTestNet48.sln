@@ -5,6 +5,11 @@ VisualStudioVersion = 17.14.36121.58
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApiTestNet48", "WebApiTestNet48.csproj", "{3E4F9850-E188-4021-B175-3BF7B76369E8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{D30BA610-2A6E-49A4-8D64-09C253C636AB}"
+	ProjectSection(SolutionItems) = preProject
+		nuget\update-nuget.ps1 = nuget\update-nuget.ps1
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

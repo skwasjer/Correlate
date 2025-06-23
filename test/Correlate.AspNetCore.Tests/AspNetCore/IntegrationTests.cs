@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
 using Correlate.AspNetCore.Fixtures;
-using Correlate.DependencyInjection;
 using Correlate.Http;
 using Correlate.Testing;
 using Correlate.Testing.FluentAssertions;

@@ -1,5 +1,8 @@
 namespace Correlate.AspNet.Options;
 
+/// <summary>
+/// Options for handling correlation id on incoming requests.
+/// </summary>
 public sealed class CorrelateOptionsNet48 : CorrelationManagerOptions
 {
     /// <summary>
