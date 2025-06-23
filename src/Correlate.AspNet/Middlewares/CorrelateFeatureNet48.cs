@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Web;
+﻿using System.Web;
 using Correlate.AspNet.Extensions;
 using Correlate.AspNet.Options;
 using Correlate.Http;
@@ -16,7 +14,7 @@ namespace Correlate.AspNet.Middlewares;
 /// </summary>
 public class CorrelateFeatureNet48 : ICorrelateFeatureNet48
 {
-    private const string LoggerCategory = "Correlate.AspNetCore";
+    private const string LoggerCategory = "Correlate.AspNet";
 
     private static readonly Action<ILogger, string, string, Exception?> LogRequestHeaderFound =
         LoggerMessage.Define<string, string>(LogLevel.Trace, 0xC000, "Request header '{HeaderName}' found with correlation id '{CorrelationId}'.");
@@ -56,10 +54,11 @@ public class CorrelateFeatureNet48 : ICorrelateFeatureNet48
     
     public void StartCorrelating(HttpContextBase httpContext)
     {
-        (string? _, string correlationId) = GetOrCreateCorrelationHeaderAndId(httpContext);
+        Tuple<string?, string> correlationContext =
+            GetOrCreateCorrelationHeaderAndId(httpContext);
 
         IActivity activity = _activityFactory.CreateActivity();
-        CorrelationContext correlationContext = activity.Start(correlationId);
+        activity.Start(correlationContext.Item2);
         // Save the activity so we can clean it up later.
         httpContext.Items[RequestActivityKey] = activity;
         httpContext.Items[CorrelationContextKey] = correlationContext;
@@ -71,47 +70,36 @@ public class CorrelateFeatureNet48 : ICorrelateFeatureNet48
         if (httpContext.Items.TryGetValue(RequestActivityKey, out object? activityObj) &&
             activityObj is IActivity activity)
         {
-            (string? responseHeaderName, string correlationId) = GetOrCreateCorrelationHeaderAndId(httpContext);
-            activity.Stop();
-
-            // If already set, ignore.
-            if (httpContext.Response.Headers.TryAdd(responseHeaderName!, correlationId))
+            if (httpContext.Items.TryGetValue(CorrelationContextKey, out object? correlationContextObj) &&
+                correlationContextObj is Tuple<string?, string> correlationContext)
             {
-                LogResponseHeaderAdded(_logger, responseHeaderName!, correlationId, null);
+                activity.Stop();
+
+                // If already set, ignore.
+                if (httpContext.Response.Headers.TryAdd(correlationContext.Item1!, correlationContext.Item2))
+                {
+                    LogResponseHeaderAdded(_logger, correlationContext.Item1!, correlationContext.Item2, null);
+                }
             }
         }
     }
 
-    private (string? headerName, string correlationId) GetOrCreateCorrelationHeaderAndId(HttpContextBase httpContext)
+    private Tuple<string?, string> GetOrCreateCorrelationHeaderAndId(HttpContextBase httpContext)
     {
         KeyValuePair<string, string?> keyValuePair = httpContext.Request.Headers.GetCorrelationIdHeader(_options.RequestHeaders ?? [CorrelationHttpHeaders.CorrelationId]);
         string requestHeaderName = keyValuePair.Key;
         string? requestCorrelationId = keyValuePair.Value;
 
-        string correlationId;
         if (requestCorrelationId is not null)
         {
             LogRequestHeaderFound(_logger, requestHeaderName, requestCorrelationId, null);
-            correlationId = requestCorrelationId;
-        }
-        else
-        {
-            if (httpContext.Items.TryGetValue(CorrelationContextKey, out object? correlationContextObj) &&
-                correlationContextObj is CorrelationContext correlationContext)
-            {
-                correlationId = correlationContext.CorrelationId!;
-            }
-            else
-            {
-                correlationId = _correlationIdFactory.Create();
-            }
         }
 
-        return (
+        return new Tuple<string?, string>(
             _options.IncludeInResponse
                 ? requestHeaderName
                 : null,
-            correlationId
+            requestCorrelationId ?? _correlationIdFactory.Create()
             );
     }
 }

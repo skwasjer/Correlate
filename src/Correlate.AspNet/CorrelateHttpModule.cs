@@ -1,5 +1,4 @@
-﻿using System;
-using System.Web;
+﻿using System.Web;
 using System.Web.Http;
 using System.Web.Http.Dependencies;
 using Correlate.AspNet.Extensions;
@@ -49,7 +48,7 @@ public class CorrelateHttpModule : IHttpModule
     {
         switch (GlobalConfiguration.Configuration.DependencyResolver.GetType().Name)
         {
-            // This  is the default resolver used by Web API if GlobalConfiguration.Configuration.DependencyResolver haven't been set.
+            // This is the default resolver used by Web API if GlobalConfiguration.Configuration.DependencyResolver haven't been set.
             case "EmptyResolver":
             {
                 var services = new ServiceCollection();

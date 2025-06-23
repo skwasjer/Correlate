@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Linq;
+﻿using System.Collections.Specialized;
 using System.Web;
 using Correlate.AspNet.Middlewares;
 using Correlate.AspNet.Options;
 using Correlate.Http;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
-using NSubstitute;
-using Xunit;
 
 namespace Correlate.AspNet.Tests;
 
@@ -215,14 +209,15 @@ public class CorrelateFeatureNet48Tests : IDisposable
     [Fact]
     public void Given_that_response_already_contains_correlation_header_when_firing_to_send_headers_it_should_not_overwrite_the_correlationId_header()
     {
+        const string existingCorrelationId = "existing-id";
+        
+        _httpContext.Response.Headers[CorrelationHttpHeaders.CorrelationId] = existingCorrelationId;
+        
         _options.IncludeInResponse.Should().BeTrue();
         _options.RequestHeaders.Should().NotBeNullOrEmpty();
 
-        const string existingCorrelationId = "existing-id";
-        _httpContext.Request.Headers.Add(_options.RequestHeaders![0], existingCorrelationId);
-
         var expectedHeader = new KeyValuePair<string, StringValues>(
-            _options.RequestHeaders[0],
+            _options.RequestHeaders![0],
             existingCorrelationId
         );
 
@@ -233,7 +228,7 @@ public class CorrelateFeatureNet48Tests : IDisposable
         // Assert
         _httpContext.Response.Headers.Keys.Cast<string>().Should().Contain(expectedHeader.Key);
         _httpContext.Response.Headers[expectedHeader.Key].Should().Contain(expectedHeader.Value);
-        _correlationIdFactory.Received(0).Create(); // No new correlation ID should be created, this is diverging from the original behavior in CorrelateFeature
+        _correlationIdFactory.Received(1).Create();
         _activityFactoryMock.Received(1).CreateActivity();
         _activityMock.Received(1).Start(Arg.Any<string>());
     }
