@@ -32,8 +32,14 @@ public class CorrelateFeatureNet48Tests : IDisposable
         _httpContext.Request.Headers.Returns(new NameValueCollection());
 
         _httpContext.Response.Returns(Substitute.For<HttpResponseBase>());
-        _httpContext.Response.Headers.Returns(new NameValueCollection());
-        
+
+        var responseHeaders = new NameValueCollection();
+        _httpContext.Response.Headers.Returns(responseHeaders);
+        _httpContext.Response.When(x => x.AppendHeader(Arg.Any<string>(), Arg.Any<string>()))
+            .Do(callInfo => {
+                responseHeaders.Add((string)callInfo[0], (string)callInfo[1]);
+            });
+
         _httpContext.Items.Returns(new Dictionary<string, object>());
         
         _services = new ServiceCollection()

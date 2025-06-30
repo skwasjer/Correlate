@@ -8,6 +8,7 @@ namespace Correlate.AspNet;
 /// <summary>
 /// ASP.NET HTTP module for correlating requests and responses with correlation IDs.
 /// </summary>
+// ReSharper disable once UnusedType.Global - Used from Web.config
 public class CorrelateHttpModule : IHttpModule
 {
     private static bool _initialized;
