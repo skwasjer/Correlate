@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Correlate.AspNet.Tests.Fixtures;
 
-internal class DefaultDependencyResolver(IServiceProvider serviceProvider) : IDependencyResolver
+internal sealed class DefaultDependencyResolver(IServiceProvider serviceProvider) : IDependencyResolver
 {
     public object? GetService(Type serviceType)
     {

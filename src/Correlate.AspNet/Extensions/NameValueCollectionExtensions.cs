@@ -69,16 +69,6 @@ internal static class NameValueCollectionExtensions
 
     private static bool TryGetValue(this NameValueCollection nameValueCollection, string key, out StringValues value)
     {
-        if (nameValueCollection == null)
-        {
-            throw new ArgumentNullException(nameof(nameValueCollection));
-        }
-
-        if (key == null)
-        {
-            throw new ArgumentNullException(nameof(key));
-        }
-
         string? foundKey = nameValueCollection
             .AllKeys
             .FirstOrDefault(k => string.Equals(k, key, StringComparison.OrdinalIgnoreCase));

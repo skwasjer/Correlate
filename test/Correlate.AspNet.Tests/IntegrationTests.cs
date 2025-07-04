@@ -59,7 +59,7 @@ public sealed class IntegrationTests : IClassFixture<TestAppFactory<Startup>>, I
         response.StatusCode.Should().Be(HttpStatusCode.OK, $"Unexpected response: {await response.Content.ReadAsStringAsync()}");
         var headerValues = response.Headers.GetValues(headerName).ToList();
         Assert.Single(headerValues);
-        Assert.NotEmpty(headerValues.First());
+        Assert.NotEmpty(headerValues[0]);
     }
 
     [Fact]

@@ -11,7 +11,7 @@ using Microsoft.Extensions.Primitives;
 
 namespace Correlate.AspNet.Tests;
 
-public class CorrelateFeatureNet48Tests : IDisposable
+public class CorrelateFeatureNet48Tests
 {
     private readonly HttpContextBase _httpContext;
     
@@ -67,11 +67,6 @@ public class CorrelateFeatureNet48Tests : IDisposable
             new OptionsWrapper<CorrelateOptionsNet48>(_options));
         
         _logCollector = _services.GetFakeLogCollector();
-    }
-    
-    public void Dispose()
-    {
-        _services.Dispose();
     }
 
     [Theory]

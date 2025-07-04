@@ -68,25 +68,23 @@ internal class CorrelateFeatureNet48 : ICorrelateFeatureNet48
     {
         // ReSharper disable once InvertIf
         if (httpContext.Items.TryGetValue(RequestActivityKey, out object? activityObj) &&
-            activityObj is IActivity activity)
+            activityObj is IActivity activity &&
+            httpContext.Items.TryGetValue(CorrelationContextKey, out object? correlationContextObj) &&
+            correlationContextObj is ValueTuple<string?, string> valueTuple)
         {
-            if (httpContext.Items.TryGetValue(CorrelationContextKey, out object? correlationContextObj) &&
-                correlationContextObj is ValueTuple<string?, string> valueTuple)
-            {
-                (string? responseHeaderName, string correlationId) = valueTuple;
-                activity.Stop();
+            (string? responseHeaderName, string correlationId) = valueTuple;
+            activity.Stop();
 
-                // No response header needs to be attached, so done.
-                if (responseHeaderName is null)
-                {
-                    return;
-                }
+            // No response header needs to be attached, so done.
+            if (responseHeaderName is null)
+            {
+                return;
+            }
                 
-                // If already set, ignore.
-                if (httpContext.Response.Headers.TryAdd(responseHeaderName, correlationId))
-                {
-                    LogResponseHeaderAdded(_logger, responseHeaderName, correlationId, null);
-                }
+            // If already set, ignore.
+            if (httpContext.Response.Headers.TryAdd(responseHeaderName, correlationId))
+            {
+                LogResponseHeaderAdded(_logger, responseHeaderName, correlationId, null);
             }
         }
     }

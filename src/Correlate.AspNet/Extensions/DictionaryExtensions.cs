@@ -16,7 +16,7 @@ internal static class DictionaryExtensions
             throw new ArgumentNullException(nameof(dictionary));
         }
 
-        if (key == null)
+        if (EqualityComparer<TKey>.Default.Equals(key, default))
         {
             throw new ArgumentNullException(nameof(key));
         }

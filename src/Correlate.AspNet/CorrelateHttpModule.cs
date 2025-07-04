@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Web;
 using System.Web.Http;
 using System.Web.Http.Dependencies;
 using Correlate.AspNet.Middlewares;
@@ -8,6 +9,7 @@ namespace Correlate.AspNet;
 /// <summary>
 /// ASP.NET HTTP module for correlating requests and responses with correlation IDs.
 /// </summary>
+[ExcludeFromCodeCoverage]
 // ReSharper disable once UnusedType.Global - Used from Web.config
 public class CorrelateHttpModule : IHttpModule
 {

@@ -8,6 +8,7 @@ using Owin;
 
 namespace Correlate.AspNet.Tests.Fixtures;
 
+// ReSharper disable once ClassNeverInstantiated.Global - used by TestAppFactory
 public class Startup
 {
     public ServiceProvider? ServiceProvider { get; private set;}
@@ -39,7 +40,7 @@ public class Startup
         app.UseWebApi(config);
     }
 
-    private void ConfigureServices(IServiceCollection services)
+    private static void ConfigureServices(IServiceCollection services)
     {
         services.AddCorrelateNet48(opts => opts.IncludeInResponse = true);
 
