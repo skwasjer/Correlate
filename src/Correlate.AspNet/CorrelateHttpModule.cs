@@ -23,17 +23,7 @@ public class CorrelateHttpModule : IHttpModule
     /// <exception cref="InvalidOperationException"></exception>
     public void Init(HttpApplication context)
     {
-        if (!_initialized)
-        {
-            lock (Lock)
-            {
-                if (!_initialized)
-                {
-                    SetupDependencyResolver();
-                    _initialized = true;
-                }
-            }
-        }
+        InitializeOnce();
         
 #pragma warning disable CA1062
         context.BeginRequest += (sender, _) =>
@@ -54,6 +44,21 @@ public class CorrelateHttpModule : IHttpModule
         };
     }
 
+    private static void InitializeOnce()
+    {
+        if (!_initialized)
+        {
+            lock (Lock)
+            {
+                if (!_initialized)
+                {
+                    SetupDependencyResolver();
+                    _initialized = true;
+                }
+            }
+        }
+    }
+    
     private static void SetupDependencyResolver()
     {
         switch (GlobalConfiguration.Configuration.DependencyResolver.GetType().Name)
