@@ -42,6 +42,11 @@ public class TestAppFactory<TStartup> : WebApplicationFactory<TStartup>
             )
             .ConfigureWebHost(webHostBuilder => webHostBuilder
                 .UseStartup<TStartup>()
+#if NET10_0_OR_GREATER
+                .ConfigureServices(s => s.Configure<ConsoleLifetimeOptions>(o => o.SuppressStatusMessages = true))
+#else
+                .SuppressStatusMessages(true)
+#endif
             );
     }
 
