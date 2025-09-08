@@ -1,0 +1,75 @@
+﻿[assembly: System.Reflection.AssemblyMetadata("RepositoryUrl", "https://github.com/skwasjer/Correlate")]
+[assembly: System.Runtime.Versioning.TargetFramework(".NETCoreApp,Version=v10.0", FrameworkDisplayName=".NET 10.0")]
+namespace Correlate
+{
+    public static class AsyncCorrelationManagerExtensions
+    {
+        public static System.Threading.Tasks.Task CorrelateAsync(this Correlate.IAsyncCorrelationManager asyncCorrelationManager, System.Func<System.Threading.Tasks.Task> correlatedTask) { }
+        public static System.Threading.Tasks.Task CorrelateAsync(this Correlate.IAsyncCorrelationManager asyncCorrelationManager, System.Func<System.Threading.Tasks.Task> correlatedTask, Correlate.OnError? onError) { }
+        public static System.Threading.Tasks.Task CorrelateAsync(this Correlate.IAsyncCorrelationManager asyncCorrelationManager, string? correlationId, System.Func<System.Threading.Tasks.Task> correlatedTask) { }
+        public static System.Threading.Tasks.Task<T> CorrelateAsync<T>(this Correlate.IAsyncCorrelationManager asyncCorrelationManager, System.Func<System.Threading.Tasks.Task<T>> correlatedTask) { }
+        public static System.Threading.Tasks.Task<T> CorrelateAsync<T>(this Correlate.IAsyncCorrelationManager asyncCorrelationManager, System.Func<System.Threading.Tasks.Task<T>> correlatedTask, Correlate.OnError<T>? onError) { }
+        public static System.Threading.Tasks.Task<T> CorrelateAsync<T>(this Correlate.IAsyncCorrelationManager asyncCorrelationManager, string? correlationId, System.Func<System.Threading.Tasks.Task<T>> correlatedTask) { }
+    }
+    public class CorrelationContextAccessor : Correlate.ICorrelationContextAccessor
+    {
+        public CorrelationContextAccessor() { }
+        public Correlate.CorrelationContext? CorrelationContext { get; set; }
+    }
+    public class CorrelationContextFactory : Correlate.ICorrelationContextFactory
+    {
+        public CorrelationContextFactory() { }
+        public CorrelationContextFactory(Correlate.ICorrelationContextAccessor correlationContextAccessor) { }
+        public virtual Correlate.CorrelationContext Create(string correlationId) { }
+        public void Dispose() { }
+    }
+    public class CorrelationManager : Correlate.IActivityFactory, Correlate.IAsyncCorrelationManager, Correlate.ICorrelationManager
+    {
+        public CorrelationManager(Correlate.ICorrelationContextFactory correlationContextFactory, Correlate.ICorrelationIdFactory correlationIdFactory, Correlate.ICorrelationContextAccessor correlationContextAccessor, Microsoft.Extensions.Logging.ILogger<Correlate.CorrelationManager> logger) { }
+        public CorrelationManager(Correlate.ICorrelationContextFactory correlationContextFactory, Correlate.ICorrelationIdFactory correlationIdFactory, Correlate.ICorrelationContextAccessor correlationContextAccessor, Microsoft.Extensions.Logging.ILogger<Correlate.CorrelationManager> logger, System.Diagnostics.DiagnosticListener diagnosticListener) { }
+        public CorrelationManager(Correlate.ICorrelationContextFactory correlationContextFactory, Correlate.ICorrelationIdFactory correlationIdFactory, Correlate.ICorrelationContextAccessor correlationContextAccessor, Microsoft.Extensions.Logging.ILogger<Correlate.CorrelationManager> logger, System.Diagnostics.DiagnosticListener diagnosticListener, Microsoft.Extensions.Options.IOptions<Correlate.CorrelationManagerOptions> options) { }
+        public void Correlate(string? correlationId, System.Action correlatedAction, Correlate.OnError? onError) { }
+        public T Correlate<T>(string? correlationId, System.Func<T> correlatedFunc, Correlate.OnError<T>? onError) { }
+        public System.Threading.Tasks.Task CorrelateAsync(string? correlationId, System.Func<System.Threading.Tasks.Task> correlatedTask, Correlate.OnError? onError) { }
+        public System.Threading.Tasks.Task<T> CorrelateAsync<T>(string? correlationId, System.Func<System.Threading.Tasks.Task<T>> correlatedTask, Correlate.OnError<T>? onError) { }
+        public Correlate.IActivity CreateActivity() { }
+    }
+    public static class CorrelationManagerExtensions
+    {
+        public static void Correlate(this Correlate.ICorrelationManager correlationManager, System.Action correlatedAction) { }
+        public static void Correlate(this Correlate.ICorrelationManager correlationManager, System.Action correlatedAction, Correlate.OnError? onError) { }
+        public static void Correlate(this Correlate.ICorrelationManager correlationManager, string? correlationId, System.Action correlatedAction) { }
+        public static T Correlate<T>(this Correlate.ICorrelationManager correlationManager, System.Func<T> correlatedFunc) { }
+        public static T Correlate<T>(this Correlate.ICorrelationManager correlationManager, System.Func<T> correlatedFunc, Correlate.OnError<T>? onError) { }
+        public static T Correlate<T>(this Correlate.ICorrelationManager correlationManager, string? correlationId, System.Func<T> correlatedFunc) { }
+    }
+    public class CorrelationManagerOptions
+    {
+        public CorrelationManagerOptions() { }
+        public string LoggingScopeKey { get; set; }
+    }
+    public class GuidCorrelationIdFactory : Correlate.ICorrelationIdFactory
+    {
+        public GuidCorrelationIdFactory() { }
+        public string Create() { }
+    }
+}
+namespace Correlate.Http
+{
+    public class CorrelateClientOptions
+    {
+        public CorrelateClientOptions() { }
+        public string RequestHeader { get; set; }
+    }
+    public class CorrelatingHttpMessageHandler : System.Net.Http.DelegatingHandler
+    {
+        public CorrelatingHttpMessageHandler(Correlate.ICorrelationContextAccessor correlationContextAccessor, Microsoft.Extensions.Options.IOptions<Correlate.Http.CorrelateClientOptions> options) { }
+        public CorrelatingHttpMessageHandler(Correlate.ICorrelationContextAccessor correlationContextAccessor, Microsoft.Extensions.Options.IOptions<Correlate.Http.CorrelateClientOptions> options, System.Net.Http.HttpMessageHandler innerHandler) { }
+        protected override System.Threading.Tasks.Task<System.Net.Http.HttpResponseMessage> SendAsync(System.Net.Http.HttpRequestMessage request, System.Threading.CancellationToken cancellationToken) { }
+    }
+    public static class CorrelationHttpHeaders
+    {
+        public const string CorrelationId = "X-Correlation-ID";
+        public const string RequestId = "X-Request-ID";
+    }
+}
