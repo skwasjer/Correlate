@@ -13,7 +13,7 @@ IToolchain mostCurrentToolchain = CsProjCoreToolchain.NetCoreApp80;
 
 Version[] versions =
 {
-    new("4.0.0"), new("5.1.0"), new("0.0.0") // Current
+    new("0.0.0") // Current
 };
 
 IEnumerable<(Runtime, IToolchain)> runtimes = ConfigExtensions.GetRuntimes(args);
