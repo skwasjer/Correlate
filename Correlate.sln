@@ -43,9 +43,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Correlate.Benchmarks", "tes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Correlate.Abstractions.Tests", "test\Correlate.Abstractions.Tests\Correlate.Abstractions.Tests.csproj", "{BE4DCDBB-F8F7-42E1-899E-DE1F51471D1F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Correlate.AspNet", "src\Correlate.AspNet\Correlate.AspNet.csproj", "{68160FA2-F4E5-4E56-A919-3576F41628B4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Correlate.AspNet.WebApi", "src\Correlate.AspNet.WebApi\Correlate.AspNet.WebApi.csproj", "{68160FA2-F4E5-4E56-A919-3576F41628B4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Correlate.AspNet.Tests", "test\Correlate.AspNet.Tests\Correlate.AspNet.Tests.csproj", "{F7829937-1944-42B5-9A7E-65F05D6FC116}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Correlate.AspNet.WebApi.Tests", "test\Correlate.AspNet.WebApi.Tests\Correlate.AspNet.WebApi.Tests.csproj", "{F7829937-1944-42B5-9A7E-65F05D6FC116}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

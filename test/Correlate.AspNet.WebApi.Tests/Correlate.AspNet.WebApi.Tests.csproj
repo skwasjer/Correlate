@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <IsTestProject>true</IsTestProject>
+    <!-- This project cannot be tested with .NET preview CI builds. -->
+    <IsTestProject Condition="'$(NetPreview)'=='true'">false</IsTestProject>
+    <RootNamespace>Correlate</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Web" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNet.WebApi.Owin" Version="5.3.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.9" />
+    <PackageReference Include="Microsoft.Owin.Testing" Version="4.2.3" />
+    <PackageReference Include="skwas.MockHttp" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Correlate.AspNet.WebApi\Correlate.AspNet.WebApi.csproj" />
+    <ProjectReference Include="..\Correlate.Testing\Correlate.Testing.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <!--VSTestNoBuild-->
+  </PropertyGroup>
+
+</Project>

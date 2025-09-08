@@ -10,6 +10,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{D30BA610
 		nuget\update-nuget.ps1 = nuget\update-nuget.ps1
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Correlate.AspNet.WebApi", "..\..\src\Correlate.AspNet.WebApi\Correlate.AspNet.WebApi.csproj", "{AA861292-0F24-57CE-2DFE-73A43F259078}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,9 +24,16 @@ Global
 		{3E4F9850-E188-4021-B175-3BF7B76369E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3E4F9850-E188-4021-B175-3BF7B76369E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3E4F9850-E188-4021-B175-3BF7B76369E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA861292-0F24-57CE-2DFE-73A43F259078}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA861292-0F24-57CE-2DFE-73A43F259078}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA861292-0F24-57CE-2DFE-73A43F259078}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA861292-0F24-57CE-2DFE-73A43F259078}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{AA861292-0F24-57CE-2DFE-73A43F259078} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {ADE468E0-03AA-49CB-89CC-DBA2D6FF4248}
