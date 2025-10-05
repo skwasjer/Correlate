@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Correlate.Http.Server;
 
 namespace Correlate.AspNetCore;
 
 internal interface ICorrelateFeature
 {
-    void StartCorrelating(HttpContext httpContext);
+    void StartCorrelating(IHttpListenerContext context);
 
-    void StopCorrelating(HttpContext httpContext);
+    void StopCorrelating(IHttpListenerContext context);
 }

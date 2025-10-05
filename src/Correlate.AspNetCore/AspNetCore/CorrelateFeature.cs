@@ -1,6 +1,6 @@
 ﻿using Correlate.Http;
 using Correlate.Http.Extensions;
-using Microsoft.AspNetCore.Http;
+using Correlate.Http.Server;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -51,14 +51,14 @@ internal sealed class CorrelateFeature
         _options = options?.Value ?? throw new ArgumentException("The 'Value' returns null.", nameof(options));
     }
 
-    public void StartCorrelating(HttpContext httpContext)
+    public void StartCorrelating(IHttpListenerContext context)
     {
-        (string? responseHeaderName, string correlationId) = GetOrCreateCorrelationHeaderAndId(httpContext);
+        (string? responseHeaderName, string correlationId) = GetOrCreateCorrelationHeaderAndId(context);
 
         IActivity activity = _activityFactory.CreateActivity();
         activity.Start(correlationId);
         // Save the activity so we can clean it up later.
-        httpContext.Items[RequestActivityKey] = activity;
+        context.Items[RequestActivityKey] = activity;
 
         // No response header needs to be attached, so done.
         if (responseHeaderName is null)
@@ -66,30 +66,28 @@ internal sealed class CorrelateFeature
             return;
         }
 
-        httpContext.Response.OnStarting(() =>
+        context.OnStartingResponse(() =>
         {
             // If already set, ignore.
-            if (httpContext.Response.Headers.TryAdd(responseHeaderName, correlationId))
+            if (context.TryAddResponseHeader(responseHeaderName, correlationId))
             {
                 LogResponseHeaderAdded(_logger, responseHeaderName, correlationId, null);
             }
-
-            return Task.CompletedTask;
         });
     }
 
-    public void StopCorrelating(HttpContext httpContext)
+    public void StopCorrelating(IHttpListenerContext context)
     {
-        if (httpContext.Items.TryGetValue(RequestActivityKey, out object? activityObj)
+        if (context.Items.TryGetValue(RequestActivityKey, out object? activityObj)
          && activityObj is IActivity activity)
         {
             activity.Stop();
         }
     }
 
-    private (string? headerName, string correlationId) GetOrCreateCorrelationHeaderAndId(HttpContext httpContext)
+    private (string? headerName, string correlationId) GetOrCreateCorrelationHeaderAndId(IHttpListenerContext httpContext)
     {
-        (string requestHeaderName, string? requestCorrelationId) = httpContext.Request.Headers.GetCorrelationIdHeader(_options.RequestHeaders ?? [CorrelationHttpHeaders.CorrelationId]);
+        (string requestHeaderName, string? requestCorrelationId) = httpContext.GetCorrelationIdHeader(_options.RequestHeaders ?? [CorrelationHttpHeaders.CorrelationId]);
         if (requestCorrelationId is not null)
         {
             LogRequestHeaderFound(_logger, requestHeaderName, requestCorrelationId, null);

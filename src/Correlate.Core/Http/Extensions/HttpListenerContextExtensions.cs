@@ -1,8 +1,10 @@
-﻿namespace Correlate.Http.Extensions;
+﻿using Correlate.Http.Server;
 
-internal static class HeaderDictionaryExtensions
+namespace Correlate.Http.Extensions;
+
+internal static class HttpListenerContextExtensions
 {
-    internal static KeyValuePair<string, string?> GetCorrelationIdHeader<THeaderValue>(this IDictionary<string, THeaderValue> httpHeaders, IReadOnlyCollection<string> acceptedHeaders)
+    internal static KeyValuePair<string, string?> GetCorrelationIdHeader(this IHttpListenerContext context, IReadOnlyCollection<string> acceptedHeaders)
     {
         if (acceptedHeaders is null)
         {
@@ -19,15 +21,13 @@ internal static class HeaderDictionaryExtensions
 
         foreach (string requestHeaderName in acceptedHeaders)
         {
-            if (!httpHeaders.TryGetValue(requestHeaderName, out THeaderValue? value))
+            if (!context.TryGetRequestHeader(requestHeaderName, out string? value))
             {
                 continue;
             }
 
             headerName = requestHeaderName;
-            correlationId = value is IEnumerable<string> multiValue
-                ? multiValue.LastOrDefault()
-                : value?.ToString();
+            correlationId = value;
             if (!string.IsNullOrWhiteSpace(correlationId))
             {
                 break;

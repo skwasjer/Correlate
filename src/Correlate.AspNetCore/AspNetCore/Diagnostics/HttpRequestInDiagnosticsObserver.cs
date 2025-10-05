@@ -64,12 +64,12 @@ internal sealed class HttpRequestInDiagnosticsObserver : IObserver<KeyValuePair<
 
         // Add our correlate request feature.
         httpContext.Features.Set(correlateFeature);
-        correlateFeature.StartCorrelating(httpContext);
+        correlateFeature.StartCorrelating(new HttpListenerContext(httpContext));
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static void HandleHttpRequestInStop(HttpContext? httpContext)
     {
-        httpContext?.Features.Get<ICorrelateFeature>()?.StopCorrelating(httpContext);
+        httpContext?.Features.Get<ICorrelateFeature>()?.StopCorrelating(new HttpListenerContext(httpContext));
     }
 }
