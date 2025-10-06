@@ -1,13 +1,11 @@
-﻿using Correlate.Http;
-using Correlate.Http.Extensions;
-using Microsoft.AspNetCore.Http;
+﻿using Correlate.Http.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Correlate.AspNetCore;
+namespace Correlate.Http.Server;
 
-internal sealed class CorrelateFeature
-    : ICorrelateFeature
+internal sealed class DefaultHttpListener
+    : IHttpListener
 {
     // Previously (pre v5), our log messages were emitted with Correlate.AspNetCore.Middleware category
     // because we depended on a middleware implementation which got injected an ILogger<>.
@@ -22,19 +20,19 @@ internal sealed class CorrelateFeature
     private static readonly Action<ILogger, string, string, Exception?> LogResponseHeaderAdded =
         LoggerMessage.Define<string, string>(LogLevel.Trace, 0xC001, "Setting response header '{HeaderName}' to correlation id '{CorrelationId}'.");
 
-    internal static readonly string RequestActivityKey = $"{typeof(CorrelateFeature).FullName}, {nameof(RequestActivityKey)}";
+    internal static readonly string RequestActivityKey = $"{typeof(DefaultHttpListener).FullName}, {nameof(RequestActivityKey)}";
 
     private readonly IActivityFactory _activityFactory;
     private readonly ICorrelationIdFactory _correlationIdFactory;
     private readonly ILogger _logger;
-    private readonly CorrelateOptions _options;
+    private readonly HttpListenerOptions _options;
 
-    public CorrelateFeature
+    public DefaultHttpListener
     (
         ILoggerFactory loggerFactory,
         ICorrelationIdFactory correlationIdFactory,
         IActivityFactory activityFactory,
-        IOptions<CorrelateOptions> options
+        IOptions<HttpListenerOptions> options
     )
     {
         if (loggerFactory is null)
@@ -51,14 +49,14 @@ internal sealed class CorrelateFeature
         _options = options?.Value ?? throw new ArgumentException("The 'Value' returns null.", nameof(options));
     }
 
-    public void StartCorrelating(HttpContext httpContext)
+    public void HandleBeginRequest(IHttpListenerContext context)
     {
-        (string? responseHeaderName, string correlationId) = GetOrCreateCorrelationHeaderAndId(httpContext);
+        (string? responseHeaderName, string?[]? headerValues, string correlationId) = GetOrCreateCorrelationHeaderAndId(context);
 
         IActivity activity = _activityFactory.CreateActivity();
         activity.Start(correlationId);
         // Save the activity so we can clean it up later.
-        httpContext.Items[RequestActivityKey] = activity;
+        context.Items[RequestActivityKey] = activity;
 
         // No response header needs to be attached, so done.
         if (responseHeaderName is null)
@@ -66,40 +64,44 @@ internal sealed class CorrelateFeature
             return;
         }
 
-        httpContext.Response.OnStarting(() =>
+        context.OnStartingResponse(() =>
         {
             // If already set, ignore.
-            if (httpContext.Response.Headers.TryAdd(responseHeaderName, correlationId))
+            if (context.TryAddResponseHeader(responseHeaderName, headerValues))
             {
                 LogResponseHeaderAdded(_logger, responseHeaderName, correlationId, null);
             }
-
-            return Task.CompletedTask;
         });
     }
 
-    public void StopCorrelating(HttpContext httpContext)
+    public void HandleEndRequest(IHttpListenerContext context)
     {
-        if (httpContext.Items.TryGetValue(RequestActivityKey, out object? activityObj)
+        if (context.Items.TryGetValue(RequestActivityKey, out object? activityObj)
          && activityObj is IActivity activity)
         {
             activity.Stop();
         }
     }
 
-    private (string? headerName, string correlationId) GetOrCreateCorrelationHeaderAndId(HttpContext httpContext)
+    private (string? headerName, string?[]? headerValues, string correlationId) GetOrCreateCorrelationHeaderAndId(IHttpListenerContext httpContext)
     {
-        (string requestHeaderName, string? requestCorrelationId) = httpContext.Request.Headers.GetCorrelationIdHeader(_options.RequestHeaders ?? [CorrelationHttpHeaders.CorrelationId]);
-        if (requestCorrelationId is not null)
+        KeyValuePair<string, string?[]?> kvp = httpContext.GetCorrelationIdHeader(_options.RequestHeaders ?? [CorrelationHttpHeaders.CorrelationId]);
+        string headerName = kvp.Key;
+        string?[]? headerValues = kvp.Value;
+        string? correlationId;
+        if (headerValues?.Length > 0)
         {
-            LogRequestHeaderFound(_logger, requestHeaderName, requestCorrelationId, null);
+            correlationId = string.Join(",", headerValues);
+            LogRequestHeaderFound(_logger, headerName, correlationId, null);
+        }
+        else
+        {
+            correlationId = _correlationIdFactory.Create();
+            headerValues = [correlationId];
         }
 
-        return (
-            _options.IncludeInResponse
-                ? requestHeaderName
-                : null,
-            requestCorrelationId ?? _correlationIdFactory.Create()
-            );
+        return _options.IncludeInResponse
+            ? (headerName, headerValues, correlationId)
+            : (null, null, correlationId);
     }
 }

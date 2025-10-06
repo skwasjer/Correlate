@@ -52,3 +52,18 @@ namespace Correlate
     public delegate void OnError(Correlate.ErrorContext errorContext);
     public delegate void OnError<T>(Correlate.ErrorContext<T> errorContext);
 }
+namespace Correlate.Http.Server
+{
+    public interface IHttpListener
+    {
+        void HandleBeginRequest(Correlate.Http.Server.IHttpListenerContext context);
+        void HandleEndRequest(Correlate.Http.Server.IHttpListenerContext context);
+    }
+    public interface IHttpListenerContext
+    {
+        System.Collections.Generic.IDictionary<object, object?> Items { get; }
+        void OnStartingResponse(System.Action callback);
+        bool TryAddResponseHeader(string key, string?[]? values);
+        bool TryGetRequestHeader(string key, out string?[]? values);
+    }
+}

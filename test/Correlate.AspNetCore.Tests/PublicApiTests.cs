@@ -1,4 +1,4 @@
-﻿using Correlate.AspNetCore;
+﻿using Correlate.AspNetCore.Diagnostics;
 using Correlate.Testing.Specs;
 
 namespace Correlate;
@@ -6,7 +6,7 @@ namespace Correlate;
 public sealed class PublicApiTests : PublicApiSpec
 {
     public PublicApiTests()
-        : base(typeof(ICorrelateFeature))
+        : base(typeof(AspNetDiagnosticsObserver))
     {
     }
 }

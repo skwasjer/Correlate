@@ -1,4 +1,5 @@
 ﻿using Correlate.AspNetCore;
+using Correlate.Http.Server;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -19,6 +20,14 @@ public static class ServiceCollectionExtensions
     {
         services
             .Configure(configureOptions);
+
+        services
+            .AddOptions<HttpListenerOptions>()
+            .Configure<IOptions<CorrelateOptions>>((opts, co) =>
+            {
+                opts.IncludeInResponse = co.Value.IncludeInResponse;
+                opts.RequestHeaders = co.Value.RequestHeaders;
+            });
 
         services.AddOptions<CorrelationManagerOptions>()
             .Configure((CorrelationManagerOptions cmo, IOptions<CorrelateOptions> co) =>

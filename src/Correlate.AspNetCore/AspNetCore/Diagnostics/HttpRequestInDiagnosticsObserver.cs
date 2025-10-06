@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using Correlate.Http.Server;
 using Microsoft.AspNetCore.Http;
 
 namespace Correlate.AspNetCore.Diagnostics;
@@ -10,11 +11,11 @@ internal sealed class HttpRequestInDiagnosticsObserver : IObserver<KeyValuePair<
     internal const string ActivityStartKey = ActivityName + ".Start";
     internal const string ActivityStopKey = ActivityName + ".Stop";
 
-    private readonly ICorrelateFeature _correlateFeature;
+    private readonly IHttpListener _listener;
 
-    public HttpRequestInDiagnosticsObserver(ICorrelateFeature correlateFeature)
+    public HttpRequestInDiagnosticsObserver(IHttpListener listener)
     {
-        _correlateFeature = correlateFeature;
+        _listener = listener;
     }
 
     [ExcludeFromCodeCoverage]
@@ -35,7 +36,7 @@ internal sealed class HttpRequestInDiagnosticsObserver : IObserver<KeyValuePair<
         if (value.Key == ActivityStartKey)
         {
             HttpContext? httpContext = Unsafe.As<HttpContext>(value.Value);
-            HandleHttpRequestInStart(httpContext, _correlateFeature);
+            HandleHttpRequestInStart(httpContext, _listener);
         }
         else if (value.Key == ActivityStopKey)
         {
@@ -55,21 +56,21 @@ internal sealed class HttpRequestInDiagnosticsObserver : IObserver<KeyValuePair<
     // NoInlining because we want to preserve the call stack for these core methods.
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static void HandleHttpRequestInStart(HttpContext? httpContext, ICorrelateFeature correlateFeature)
+    private static void HandleHttpRequestInStart(HttpContext? httpContext, IHttpListener listener)
     {
         if (httpContext is null)
         {
             return;
         }
 
-        // Add our correlate request feature.
-        httpContext.Features.Set(correlateFeature);
-        correlateFeature.StartCorrelating(httpContext);
+        // Add our correlate request handler as a feature.
+        httpContext.Features.Set(listener);
+        listener.HandleBeginRequest(new HttpListenerContext(httpContext));
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static void HandleHttpRequestInStop(HttpContext? httpContext)
     {
-        httpContext?.Features.Get<ICorrelateFeature>()?.StopCorrelating(httpContext);
+        httpContext?.Features.Get<IHttpListener>()?.HandleEndRequest(new HttpListenerContext(httpContext));
     }
 }
