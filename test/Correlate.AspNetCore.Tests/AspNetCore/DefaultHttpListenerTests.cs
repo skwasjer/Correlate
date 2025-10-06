@@ -7,10 +7,10 @@ using Microsoft.Extensions.Primitives;
 
 namespace Correlate.AspNetCore;
 
-public sealed class CorrelateFeatureTests : IDisposable
+public sealed class DefaultHttpListenerTests : IDisposable
 {
     private readonly DefaultHttpContext _httpContext;
-    private readonly CorrelateFeature _sut;
+    private readonly DefaultHttpListener _sut;
     private readonly TestResponseFeature _responseFeature;
     private readonly IActivity _activityMock;
     private readonly IActivityFactory _activityFactoryMock;
@@ -22,7 +22,7 @@ public sealed class CorrelateFeatureTests : IDisposable
 
     private static readonly string CorrelationId = Guid.NewGuid().ToString("D");
 
-    public CorrelateFeatureTests()
+    public DefaultHttpListenerTests()
     {
         _httpContext = new DefaultHttpContext();
         _responseFeature = new TestResponseFeature();
@@ -46,7 +46,7 @@ public sealed class CorrelateFeatureTests : IDisposable
         _correlationIdFactory.Create().Returns(CorrelationId);
 
         _options = new CorrelateOptions { RequestHeaders = [CorrelationHttpHeaders.CorrelationId] };
-        _sut = new CorrelateFeature(
+        _sut = new DefaultHttpListener(
             _services.GetRequiredService<ILoggerFactory>(),
             _correlationIdFactory,
             _activityFactoryMock,
@@ -79,7 +79,7 @@ public sealed class CorrelateFeatureTests : IDisposable
         );
 
         // Act
-        _sut.StartCorrelating(_httpListenerContext);
+        _sut.HandleBeginRequest(_httpListenerContext);
         await _responseFeature.FireOnSendingHeadersAsync();
 
         // Assert
@@ -106,7 +106,7 @@ public sealed class CorrelateFeatureTests : IDisposable
         );
 
         // Act
-        _sut.StartCorrelating(_httpListenerContext);
+        _sut.HandleBeginRequest(_httpListenerContext);
         await _responseFeature.FireOnSendingHeadersAsync();
 
         // Assert
@@ -129,7 +129,7 @@ public sealed class CorrelateFeatureTests : IDisposable
     )
     {
         // Act
-        Func<CorrelateFeature> act = () => new CorrelateFeature(loggerFactory, correlationIdFactory, activityFactory, options);
+        Func<DefaultHttpListener> act = () => new DefaultHttpListener(loggerFactory, correlationIdFactory, activityFactory, options);
 
         // Assert
         act.Should()
@@ -155,12 +155,12 @@ public sealed class CorrelateFeatureTests : IDisposable
     [Fact]
     public void Given_that_activity_in_items_was_replaced_with_something_else_when_correlating_has_stopped_it_should_not_throw()
     {
-        _sut.StartCorrelating(_httpListenerContext);
-        _httpContext.Items.Should().ContainKey(CorrelateFeature.RequestActivityKey);
-        _httpContext.Items[CorrelateFeature.RequestActivityKey] = new object();
+        _sut.HandleBeginRequest(_httpListenerContext);
+        _httpContext.Items.Should().ContainKey(DefaultHttpListener.RequestActivityKey);
+        _httpContext.Items[DefaultHttpListener.RequestActivityKey] = new object();
 
         // Act
-        Action act = () => _sut.StopCorrelating(_httpListenerContext);
+        Action act = () => _sut.HandleEndRequest(_httpListenerContext);
 
         // Assert
         act.Should().NotThrow();
@@ -172,12 +172,12 @@ public sealed class CorrelateFeatureTests : IDisposable
     [Fact]
     public void Given_that_activity_is_not_in_items_when_correlating_has_stopped_it_should_not_throw()
     {
-        _sut.StartCorrelating(_httpListenerContext);
-        _httpContext.Items.Should().ContainKey(CorrelateFeature.RequestActivityKey);
+        _sut.HandleBeginRequest(_httpListenerContext);
+        _httpContext.Items.Should().ContainKey(DefaultHttpListener.RequestActivityKey);
         _httpContext.Items.Clear();
 
         // Act
-        Action act = () => _sut.StopCorrelating(_httpListenerContext);
+        Action act = () => _sut.HandleEndRequest(_httpListenerContext);
 
         // Assert
         act.Should().NotThrow();
@@ -214,7 +214,7 @@ public sealed class CorrelateFeatureTests : IDisposable
         );
 
         // Act
-        _sut.StartCorrelating(_httpListenerContext);
+        _sut.HandleBeginRequest(_httpListenerContext);
         await _responseFeature.FireOnSendingHeadersAsync();
 
         // Assert
@@ -235,7 +235,7 @@ public sealed class CorrelateFeatureTests : IDisposable
         using FakeLogContext context = _services.CreateLoggerContext();
 
         // Act
-        _sut.StartCorrelating(_httpListenerContext);
+        _sut.HandleBeginRequest(_httpListenerContext);
         await _responseFeature.FireOnSendingHeadersAsync();
 
         // Assert
@@ -259,11 +259,11 @@ public sealed class CorrelateFeatureTests : IDisposable
     public void When_correlating_has_started_it_should_have_added_activity_to_httpContext_items()
     {
         // Act
-        _sut.StartCorrelating(_httpListenerContext);
+        _sut.HandleBeginRequest(_httpListenerContext);
 
         // Assert
         _httpContext.Items.Should()
-            .ContainKey(CorrelateFeature.RequestActivityKey)
+            .ContainKey(DefaultHttpListener.RequestActivityKey)
             .WhoseValue
             .Should()
             .BeSameAs(_activityMock);
@@ -276,14 +276,14 @@ public sealed class CorrelateFeatureTests : IDisposable
     [Fact]
     public void When_correlating_has_stopped_it_should_have_stopped_activity()
     {
-        _sut.StartCorrelating(_httpListenerContext);
+        _sut.HandleBeginRequest(_httpListenerContext);
 
         // Act
-        _sut.StopCorrelating(_httpListenerContext);
+        _sut.HandleEndRequest(_httpListenerContext);
 
         // Assert
         _httpContext.Items.Should()
-            .ContainKey(CorrelateFeature.RequestActivityKey)
+            .ContainKey(DefaultHttpListener.RequestActivityKey)
             .WhoseValue
             .Should()
             .BeSameAs(_activityMock);
@@ -300,7 +300,7 @@ public sealed class CorrelateFeatureTests : IDisposable
         _options.RequestHeaders.Should().NotBeNullOrEmpty();
 
         // Act
-        _sut.StartCorrelating(_httpListenerContext);
+        _sut.HandleBeginRequest(_httpListenerContext);
         await _responseFeature.FireOnSendingHeadersAsync();
 
         // Assert

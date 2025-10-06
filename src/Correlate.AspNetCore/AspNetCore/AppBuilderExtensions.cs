@@ -23,15 +23,15 @@ public static class AppBuilderExtensions
             throw new ArgumentNullException(nameof(appBuilder));
         }
 
-        if (appBuilder.ServerFeatures.Get<ICorrelateFeature>() is not null)
+        if (appBuilder.ServerFeatures.Get<CorrelateFeatureRegistration>() is not null)
         {
             throw new InvalidOperationException($"{nameof(UseCorrelate)}() should not be called more than once.");
         }
 
         // Register HttpRequestIn observer.
-        CorrelateFeature correlateFeature = ActivatorUtilities.CreateInstance<CorrelateFeature>(appBuilder.ApplicationServices);
-        appBuilder.ServerFeatures.Set<ICorrelateFeature>(correlateFeature);
-        IDisposable observerDisposable = DiagnosticListener.AllListeners.Subscribe(new AspNetDiagnosticsObserver(correlateFeature));
+        DefaultHttpListener listener = ActivatorUtilities.CreateInstance<DefaultHttpListener>(appBuilder.ApplicationServices);
+        appBuilder.ServerFeatures.Set(new CorrelateFeatureRegistration());
+        IDisposable observerDisposable = DiagnosticListener.AllListeners.Subscribe(new AspNetDiagnosticsObserver(listener));
         // Dispose the observer on app shutdown.
         IHostApplicationLifetime applicationLifetime = appBuilder.ApplicationServices.GetRequiredService<IHostApplicationLifetime>();
         applicationLifetime.ApplicationStopping.Register(OnShutdown, observerDisposable);
@@ -43,4 +43,11 @@ public static class AppBuilderExtensions
     {
         (service as IDisposable)?.Dispose();
     }
+
+    /// <summary>
+    /// Marker to detect single registration.
+    /// </summary>
+#pragma warning disable S2094
+    private sealed record CorrelateFeatureRegistration{};
+#pragma warning restore S2094
 }

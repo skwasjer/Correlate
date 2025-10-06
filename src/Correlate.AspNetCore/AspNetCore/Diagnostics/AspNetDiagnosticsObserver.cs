@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using Correlate.Http.Server;
 
 namespace Correlate.AspNetCore.Diagnostics;
 
@@ -13,9 +14,9 @@ internal sealed class AspNetDiagnosticsObserver : IObserver<DiagnosticListener>
     private readonly HttpRequestInDiagnosticsObserver _requestInDiagnosticsObserver;
     private readonly List<IDisposable> _subscriptions = new();
 
-    public AspNetDiagnosticsObserver(ICorrelateFeature correlateFeature)
+    public AspNetDiagnosticsObserver(IHttpListener listener)
     {
-        _requestInDiagnosticsObserver = new HttpRequestInDiagnosticsObserver(correlateFeature);
+        _requestInDiagnosticsObserver = new HttpRequestInDiagnosticsObserver(listener);
     }
 
     public void OnCompleted()

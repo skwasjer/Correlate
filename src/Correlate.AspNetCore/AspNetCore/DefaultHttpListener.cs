@@ -6,8 +6,8 @@ using Microsoft.Extensions.Options;
 
 namespace Correlate.AspNetCore;
 
-internal sealed class CorrelateFeature
-    : ICorrelateFeature
+internal sealed class DefaultHttpListener
+    : IHttpListener
 {
     // Previously (pre v5), our log messages were emitted with Correlate.AspNetCore.Middleware category
     // because we depended on a middleware implementation which got injected an ILogger<>.
@@ -22,14 +22,14 @@ internal sealed class CorrelateFeature
     private static readonly Action<ILogger, string, string, Exception?> LogResponseHeaderAdded =
         LoggerMessage.Define<string, string>(LogLevel.Trace, 0xC001, "Setting response header '{HeaderName}' to correlation id '{CorrelationId}'.");
 
-    internal static readonly string RequestActivityKey = $"{typeof(CorrelateFeature).FullName}, {nameof(RequestActivityKey)}";
+    internal static readonly string RequestActivityKey = $"{typeof(DefaultHttpListener).FullName}, {nameof(RequestActivityKey)}";
 
     private readonly IActivityFactory _activityFactory;
     private readonly ICorrelationIdFactory _correlationIdFactory;
     private readonly ILogger _logger;
     private readonly CorrelateOptions _options;
 
-    public CorrelateFeature
+    public DefaultHttpListener
     (
         ILoggerFactory loggerFactory,
         ICorrelationIdFactory correlationIdFactory,
@@ -51,7 +51,7 @@ internal sealed class CorrelateFeature
         _options = options?.Value ?? throw new ArgumentException("The 'Value' returns null.", nameof(options));
     }
 
-    public void StartCorrelating(IHttpListenerContext context)
+    public void HandleBeginRequest(IHttpListenerContext context)
     {
         (string? responseHeaderName, string correlationId) = GetOrCreateCorrelationHeaderAndId(context);
 
@@ -76,7 +76,7 @@ internal sealed class CorrelateFeature
         });
     }
 
-    public void StopCorrelating(IHttpListenerContext context)
+    public void HandleEndRequest(IHttpListenerContext context)
     {
         if (context.Items.TryGetValue(RequestActivityKey, out object? activityObj)
          && activityObj is IActivity activity)

@@ -54,6 +54,11 @@ namespace Correlate
 }
 namespace Correlate.Http.Server
 {
+    public interface IHttpListener
+    {
+        void HandleBeginRequest(Correlate.Http.Server.IHttpListenerContext context);
+        void HandleEndRequest(Correlate.Http.Server.IHttpListenerContext context);
+    }
     public interface IHttpListenerContext
     {
         System.Collections.Generic.IDictionary<object, object?> Items { get; }
