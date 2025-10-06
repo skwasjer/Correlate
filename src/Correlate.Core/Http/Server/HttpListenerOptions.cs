@@ -3,7 +3,7 @@
 /// <summary>
 /// Options for handling correlation id on incoming requests.
 /// </summary>
-internal sealed class HttpListenerOptions
+public sealed class HttpListenerOptions
 {
     /// <summary>
     /// Gets or sets the request headers to retrieve the correlation id from.

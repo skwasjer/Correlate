@@ -73,3 +73,18 @@ namespace Correlate.Http
         public const string RequestId = "X-Request-ID";
     }
 }
+namespace Correlate.Http.Server
+{
+    public sealed class DefaultHttpListener : Correlate.Http.Server.IHttpListener
+    {
+        public DefaultHttpListener(Microsoft.Extensions.Logging.ILoggerFactory loggerFactory, Correlate.ICorrelationIdFactory correlationIdFactory, Correlate.IActivityFactory activityFactory, Microsoft.Extensions.Options.IOptions<Correlate.Http.Server.HttpListenerOptions> options) { }
+        public void HandleBeginRequest(Correlate.Http.Server.IHttpListenerContext context) { }
+        public void HandleEndRequest(Correlate.Http.Server.IHttpListenerContext context) { }
+    }
+    public sealed class HttpListenerOptions
+    {
+        public HttpListenerOptions() { }
+        public bool IncludeInResponse { get; set; }
+        public System.Collections.Generic.IReadOnlyList<string>? RequestHeaders { get; set; }
+    }
+}

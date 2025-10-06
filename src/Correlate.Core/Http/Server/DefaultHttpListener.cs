@@ -4,7 +4,14 @@ using Microsoft.Extensions.Options;
 
 namespace Correlate.Http.Server;
 
-internal sealed class DefaultHttpListener
+/// <summary>
+/// Represents the default implementation of an HTTP listener that handles correlation and activity tracking
+/// for incoming HTTP requests.
+/// </summary>
+/// <remarks>
+/// This class can be used by any library that wants to handle correlation and activity tracking for incoming HTTP requests. In itself it does not integrate with any specific web framework, but can be used to integrate via for example a diagnostics observer, as middleware component, or (HTTP) message handlers/pipelines, etc.
+/// </remarks>
+public sealed class DefaultHttpListener
     : IHttpListener
 {
     // Previously (pre v5), our log messages were emitted with Correlate.AspNetCore.Middleware category
@@ -27,6 +34,16 @@ internal sealed class DefaultHttpListener
     private readonly ILogger _logger;
     private readonly HttpListenerOptions _options;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DefaultHttpListener"/> class.
+    /// </summary>
+    /// <param name="loggerFactory">The <see cref="ILoggerFactory"/> used to create a logger for logging operations.</param>
+    /// <param name="correlationIdFactory">The <see cref="ICorrelationIdFactory"/> used to generate correlation IDs for requests.</param>
+    /// <param name="activityFactory">The <see cref="IActivityFactory"/> used to create activities for tracking request processing.</param>
+    /// <param name="options">The <see cref="IOptions{TOptions}"/> containing configuration settings for the HTTP listener.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="loggerFactory"/>, <paramref name="correlationIdFactory"/>, or <paramref name="activityFactory"/> is <c>null</c>.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when the <paramref name="loggerFactory"/> fails to create a logger instance.</exception>
+    /// <exception cref="ArgumentException">Thrown when the <paramref name="options"/> parameter contains a <c>null</c> value for its <c>Value</c> property.</exception>
     public DefaultHttpListener
     (
         ILoggerFactory loggerFactory,
@@ -49,8 +66,14 @@ internal sealed class DefaultHttpListener
         _options = options?.Value ?? throw new ArgumentException("The 'Value' returns null.", nameof(options));
     }
 
+    /// <inheritdoc />
     public void HandleBeginRequest(IHttpListenerContext context)
     {
+        if (context is null)
+        {
+            throw new ArgumentNullException(nameof(context));
+        }
+
         (string? responseHeaderName, string?[]? headerValues, string correlationId) = GetOrCreateCorrelationHeaderAndId(context);
 
         IActivity activity = _activityFactory.CreateActivity();
@@ -74,8 +97,14 @@ internal sealed class DefaultHttpListener
         });
     }
 
+    /// <inheritdoc />
     public void HandleEndRequest(IHttpListenerContext context)
     {
+        if (context is null)
+        {
+            throw new ArgumentNullException(nameof(context));
+        }
+
         if (context.Items.TryGetValue(RequestActivityKey, out object? activityObj)
          && activityObj is IActivity activity)
         {
