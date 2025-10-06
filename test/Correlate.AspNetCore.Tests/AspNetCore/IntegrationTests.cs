@@ -2,6 +2,7 @@
 using System.Net.Http.Headers;
 using Correlate.AspNetCore.Fixtures;
 using Correlate.Http;
+using Correlate.Http.Server;
 using Correlate.Testing;
 using Correlate.Testing.FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -18,13 +19,12 @@ public sealed class IntegrationTests : IClassFixture<TestAppFactory<Startup>>, I
 {
     private readonly WebApplicationFactory<Startup> _factory;
     private readonly TestAppFactory<Startup> _rootFactory;
-    private readonly CorrelateOptions _options;
+    private readonly HttpListenerOptions _options;
     private readonly MockHttpHandler _mockHttp;
     private readonly FakeLogCollector _logCollector;
 
     public IntegrationTests(TestAppFactory<Startup> factory)
     {
-        _options = new CorrelateOptions();
         _mockHttp = new MockHttpHandler();
 
         _rootFactory = factory;
@@ -34,10 +34,10 @@ public sealed class IntegrationTests : IClassFixture<TestAppFactory<Startup>>, I
             .ConfigureTestServices(services =>
             {
                 services.AddTransient(_ => _mockHttp);
-                services.AddSingleton(Options.Create(_options));
             })
         );
 
+        _options = _factory.Services.GetRequiredService<IOptions<HttpListenerOptions>>().Value;
         _logCollector = _factory.Services.GetFakeLogCollector();
     }
 

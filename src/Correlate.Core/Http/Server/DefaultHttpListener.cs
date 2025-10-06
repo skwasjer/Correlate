@@ -1,10 +1,8 @@
-﻿using Correlate.Http;
-using Correlate.Http.Extensions;
-using Correlate.Http.Server;
+﻿using Correlate.Http.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Correlate.AspNetCore;
+namespace Correlate.Http.Server;
 
 internal sealed class DefaultHttpListener
     : IHttpListener
@@ -27,14 +25,14 @@ internal sealed class DefaultHttpListener
     private readonly IActivityFactory _activityFactory;
     private readonly ICorrelationIdFactory _correlationIdFactory;
     private readonly ILogger _logger;
-    private readonly CorrelateOptions _options;
+    private readonly HttpListenerOptions _options;
 
     public DefaultHttpListener
     (
         ILoggerFactory loggerFactory,
         ICorrelationIdFactory correlationIdFactory,
         IActivityFactory activityFactory,
-        IOptions<CorrelateOptions> options
+        IOptions<HttpListenerOptions> options
     )
     {
         if (loggerFactory is null)
@@ -87,7 +85,9 @@ internal sealed class DefaultHttpListener
 
     private (string? headerName, string correlationId) GetOrCreateCorrelationHeaderAndId(IHttpListenerContext httpContext)
     {
-        (string requestHeaderName, string? requestCorrelationId) = httpContext.GetCorrelationIdHeader(_options.RequestHeaders ?? [CorrelationHttpHeaders.CorrelationId]);
+        KeyValuePair<string, string?> kvp = httpContext.GetCorrelationIdHeader(_options.RequestHeaders ?? [CorrelationHttpHeaders.CorrelationId]);
+        string requestHeaderName = kvp.Key;
+        string? requestCorrelationId = kvp.Value;
         if (requestCorrelationId is not null)
         {
             LogRequestHeaderFound(_logger, requestHeaderName, requestCorrelationId, null);

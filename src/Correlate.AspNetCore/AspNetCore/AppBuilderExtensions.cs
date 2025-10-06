@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Correlate.AspNetCore.Diagnostics;
+using Correlate.Http.Server;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

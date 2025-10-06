@@ -1,70 +1,56 @@
-﻿using Correlate.Http;
-using Correlate.Testing;
-using Microsoft.AspNetCore.Http.Features;
+﻿using Correlate.Testing;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 
-namespace Correlate.AspNetCore;
+namespace Correlate.Http.Server;
 
 public sealed class DefaultHttpListenerTests : IDisposable
 {
-    private readonly DefaultHttpContext _httpContext;
     private readonly DefaultHttpListener _sut;
-    private readonly TestResponseFeature _responseFeature;
     private readonly IActivity _activityMock;
     private readonly IActivityFactory _activityFactoryMock;
-    private readonly CorrelateOptions _options;
-    private readonly ICorrelationIdFactory _correlationIdFactory;
-    private readonly ServiceProvider _services;
+    private readonly HttpListenerOptions _options;
+    private readonly ICorrelationIdFactory _correlationIdFactoryMock;
     private readonly FakeLogCollector _logCollector;
-    private readonly HttpListenerContext _httpListenerContext;
+    private readonly HttpListenerContextStub _httpListenerContextStub;
+    private readonly LoggerFactory _loggerFactory;
 
     private static readonly string CorrelationId = Guid.NewGuid().ToString("D");
 
     public DefaultHttpListenerTests()
     {
-        _httpContext = new DefaultHttpContext();
-        _responseFeature = new TestResponseFeature();
-        _httpContext.Features.Set<IHttpResponseFeature>(_responseFeature);
-
-        _httpListenerContext = new HttpListenerContext(_httpContext);
-
-        _services = new ServiceCollection()
-            .AddLogging(
-                builder => builder
-                    .SetMinimumLevel(LogLevel.Trace)
-                    .AddFakeLogging()
-                    .AddDebug())
-            .BuildServiceProvider();
+        _httpListenerContextStub = new HttpListenerContextStub();
 
         _activityMock = Substitute.For<IActivity>();
         _activityFactoryMock = Substitute.For<IActivityFactory>();
         _activityFactoryMock.CreateActivity().Returns(_activityMock);
 
-        _correlationIdFactory = Substitute.For<ICorrelationIdFactory>();
-        _correlationIdFactory.Create().Returns(CorrelationId);
+        _correlationIdFactoryMock = Substitute.For<ICorrelationIdFactory>();
+        _correlationIdFactoryMock.Create().Returns(CorrelationId);
 
-        _options = new CorrelateOptions { RequestHeaders = [CorrelationHttpHeaders.CorrelationId] };
+        _logCollector = new FakeLogCollector();
+        _loggerFactory = new LoggerFactory();
+        _loggerFactory.AddProvider(new FakeLoggerProvider(_logCollector));
+
+        _options = new HttpListenerOptions { RequestHeaders = [CorrelationHttpHeaders.CorrelationId] };
         _sut = new DefaultHttpListener(
-            _services.GetRequiredService<ILoggerFactory>(),
-            _correlationIdFactory,
+            _loggerFactory,
+            _correlationIdFactoryMock,
             _activityFactoryMock,
             Options.Create(_options));
-
-        _logCollector = _services.GetFakeLogCollector();
     }
 
     public void Dispose()
     {
-        _services.Dispose();
-        _responseFeature.Dispose();
+        _loggerFactory.Dispose();
     }
 
     [Theory]
     [InlineData(null)]
     [InlineData("X-Custom-Header")]
-    public async Task Given_that_correlating_has_started_when_firing_to_send_headers_it_should_add_correlationId_header_to_response(string? requestHeader)
+    public void Given_that_correlating_has_started_when_firing_to_send_headers_it_should_add_correlationId_header_to_response(string? requestHeader)
     {
         _options.IncludeInResponse.Should().BeTrue();
         _options.RequestHeaders.Should().NotBeNullOrEmpty();
@@ -79,12 +65,12 @@ public sealed class DefaultHttpListenerTests : IDisposable
         );
 
         // Act
-        _sut.HandleBeginRequest(_httpListenerContext);
-        await _responseFeature.FireOnSendingHeadersAsync();
+        _sut.HandleBeginRequest(_httpListenerContextStub);
+        _httpListenerContextStub.FireOnStartingResponse();
 
         // Assert
-        _httpContext.Response.Headers.Should().Contain(expectedHeader);
-        _correlationIdFactory.Received(1).Create();
+        _httpListenerContextStub.ResponseHeaders.Should().Contain(expectedHeader);
+        _correlationIdFactoryMock.Received(1).Create();
         _activityFactoryMock.Received(1).CreateActivity();
         _activityMock.Received(1).Start(CorrelationId);
     }
@@ -92,13 +78,12 @@ public sealed class DefaultHttpListenerTests : IDisposable
     [Theory]
     [InlineData(CorrelationHttpHeaders.CorrelationId)]
     [InlineData(CorrelationHttpHeaders.RequestId)]
-    public async Task Given_that_request_contains_correlationId_header_in_allowed_list_when_correlating_has_started_it_should_have_used_that_correlationId(string headerName)
+    public void Given_that_request_contains_correlationId_header_in_allowed_list_when_correlating_has_started_it_should_have_used_that_correlationId(string headerName)
     {
         _options.RequestHeaders = [CorrelationHttpHeaders.CorrelationId, CorrelationHttpHeaders.RequestId];
 
         string correlationId = Guid.NewGuid().ToString("D");
-        _httpContext.Features.Get<IHttpRequestFeature>()!
-            .Headers[headerName] = correlationId;
+        _httpListenerContextStub.RequestHeaders[headerName] = correlationId;
 
         var expectedHeader = new KeyValuePair<string, StringValues>(
             headerName,
@@ -106,12 +91,12 @@ public sealed class DefaultHttpListenerTests : IDisposable
         );
 
         // Act
-        _sut.HandleBeginRequest(_httpListenerContext);
-        await _responseFeature.FireOnSendingHeadersAsync();
+        _sut.HandleBeginRequest(_httpListenerContextStub);
+        _httpListenerContextStub.FireOnStartingResponse();
 
         // Assert
-        _httpContext.Response.Headers.Should().Contain(expectedHeader);
-        _correlationIdFactory.DidNotReceive().Create();
+        _httpListenerContextStub.ResponseHeaders.Should().Contain(expectedHeader);
+        _correlationIdFactoryMock.DidNotReceive().Create();
         _activityFactoryMock.Received(1).CreateActivity();
         _activityMock.Received(1).Start(correlationId);
     }
@@ -123,13 +108,13 @@ public sealed class DefaultHttpListenerTests : IDisposable
         ILoggerFactory loggerFactory,
         ICorrelationIdFactory correlationIdFactory,
         IActivityFactory activityFactory,
-        IOptions<CorrelateOptions> options,
+        object options,
         string expectedParamName,
         Type expectedExceptionType
     )
     {
         // Act
-        Func<DefaultHttpListener> act = () => new DefaultHttpListener(loggerFactory, correlationIdFactory, activityFactory, options);
+        Func<DefaultHttpListener> act = () => new DefaultHttpListener(loggerFactory, correlationIdFactory, activityFactory, (IOptions<HttpListenerOptions>)options);
 
         // Assert
         act.Should()
@@ -144,23 +129,23 @@ public sealed class DefaultHttpListenerTests : IDisposable
         ILoggerFactory loggerFactory = Substitute.For<ILoggerFactory>();
         ICorrelationIdFactory correlationIdFactory = Substitute.For<ICorrelationIdFactory>();
         IActivityFactory activityFactory = Substitute.For<IActivityFactory>();
-        IOptions<CorrelateOptions> options = Substitute.For<IOptions<CorrelateOptions>>();
+        IOptions<HttpListenerOptions> options = Substitute.For<IOptions<HttpListenerOptions>>();
 
-        yield return new object?[] { null, correlationIdFactory, activityFactory, options, nameof(loggerFactory), typeof(ArgumentNullException) };
-        yield return new object?[] { loggerFactory, null, activityFactory, options, nameof(correlationIdFactory), typeof(ArgumentNullException) };
-        yield return new object?[] { loggerFactory, correlationIdFactory, null, options, nameof(activityFactory), typeof(ArgumentNullException) };
-        yield return new object?[] { loggerFactory, correlationIdFactory, activityFactory, null, nameof(options), typeof(ArgumentException) };
+        yield return [null, correlationIdFactory, activityFactory, options, nameof(loggerFactory), typeof(ArgumentNullException)];
+        yield return [loggerFactory, null, activityFactory, options, nameof(correlationIdFactory), typeof(ArgumentNullException)];
+        yield return [loggerFactory, correlationIdFactory, null, options, nameof(activityFactory), typeof(ArgumentNullException)];
+        yield return [loggerFactory, correlationIdFactory, activityFactory, null, nameof(options), typeof(ArgumentException)];
     }
 
     [Fact]
     public void Given_that_activity_in_items_was_replaced_with_something_else_when_correlating_has_stopped_it_should_not_throw()
     {
-        _sut.HandleBeginRequest(_httpListenerContext);
-        _httpContext.Items.Should().ContainKey(DefaultHttpListener.RequestActivityKey);
-        _httpContext.Items[DefaultHttpListener.RequestActivityKey] = new object();
+        _sut.HandleBeginRequest(_httpListenerContextStub);
+        _httpListenerContextStub.Items.Should().ContainKey(DefaultHttpListener.RequestActivityKey);
+        _httpListenerContextStub.Items[DefaultHttpListener.RequestActivityKey] = new object();
 
         // Act
-        Action act = () => _sut.HandleEndRequest(_httpListenerContext);
+        Action act = () => _sut.HandleEndRequest(_httpListenerContextStub);
 
         // Assert
         act.Should().NotThrow();
@@ -172,12 +157,12 @@ public sealed class DefaultHttpListenerTests : IDisposable
     [Fact]
     public void Given_that_activity_is_not_in_items_when_correlating_has_stopped_it_should_not_throw()
     {
-        _sut.HandleBeginRequest(_httpListenerContext);
-        _httpContext.Items.Should().ContainKey(DefaultHttpListener.RequestActivityKey);
-        _httpContext.Items.Clear();
+        _sut.HandleBeginRequest(_httpListenerContextStub);
+        _httpListenerContextStub.Items.Should().ContainKey(DefaultHttpListener.RequestActivityKey);
+        _httpListenerContextStub.Items.Clear();
 
         // Act
-        Action act = () => _sut.HandleEndRequest(_httpListenerContext);
+        Action act = () => _sut.HandleEndRequest(_httpListenerContextStub);
 
         // Assert
         act.Should().NotThrow();
@@ -187,26 +172,26 @@ public sealed class DefaultHttpListenerTests : IDisposable
     }
 
     [Fact]
-    public async Task Given_that_correlating_has_not_started_when_firing_to_send_headers_it_should_not_add_correlationId_header_to_response()
+    public void Given_that_correlating_has_not_started_when_firing_to_send_headers_it_should_not_add_correlationId_header_to_response()
     {
         _options.IncludeInResponse.Should().BeTrue();
         _options.RequestHeaders.Should().NotBeNullOrEmpty();
 
         // Act
-        await _responseFeature.FireOnSendingHeadersAsync();
+        _httpListenerContextStub.FireOnStartingResponse();
 
         // Assert
-        _httpContext.Response.Headers.Should().BeEmpty();
+        _httpListenerContextStub.ResponseHeaders.Should().BeEmpty();
     }
 
     [Fact]
-    public async Task Given_that_response_already_contains_correlation_header_when_firing_to_send_headers_it_should_not_overwrite_the_correlationId_header()
+    public void Given_that_response_already_contains_correlation_header_when_firing_to_send_headers_it_should_not_overwrite_the_correlationId_header()
     {
         _options.IncludeInResponse.Should().BeTrue();
         _options.RequestHeaders.Should().NotBeNullOrEmpty();
 
         const string existingCorrelationId = "existing-id";
-        _responseFeature.Headers.Append(_options.RequestHeaders![0], existingCorrelationId);
+        _httpListenerContextStub.ResponseHeaders[_options.RequestHeaders![0]] = existingCorrelationId;
 
         var expectedHeader = new KeyValuePair<string, StringValues>(
             _options.RequestHeaders[0],
@@ -214,29 +199,29 @@ public sealed class DefaultHttpListenerTests : IDisposable
         );
 
         // Act
-        _sut.HandleBeginRequest(_httpListenerContext);
-        await _responseFeature.FireOnSendingHeadersAsync();
+        _sut.HandleBeginRequest(_httpListenerContextStub);
+        _httpListenerContextStub.FireOnStartingResponse();
 
         // Assert
-        _httpContext.Response.Headers.Should().Contain(expectedHeader);
-        _correlationIdFactory.Received(1).Create();
+        _httpListenerContextStub.ResponseHeaders.Should().Contain(expectedHeader);
+        _correlationIdFactoryMock.Received(1).Create();
         _activityFactoryMock.Received(1).CreateActivity();
         _activityMock.Received(1).Start(Arg.Any<string>());
     }
 
     [Fact]
-    public async Task When_correlating_has_started_it_should_create_logScope_with_correlationId()
+    public void When_correlating_has_started_it_should_create_logScope_with_correlationId()
     {
         _options.IncludeInResponse.Should().BeTrue();
         _options.RequestHeaders.Should().NotBeNullOrEmpty();
         const string expectedLogProperty = CorrelateConstants.CorrelationIdKey;
 
         _logCollector.Clear();
-        using FakeLogContext context = _services.CreateLoggerContext();
+        using FakeLogContext context = _loggerFactory.CreateLogger("Correlate.AspNetCore").CreateLoggerContext();
 
         // Act
-        _sut.HandleBeginRequest(_httpListenerContext);
-        await _responseFeature.FireOnSendingHeadersAsync();
+        _sut.HandleBeginRequest(_httpListenerContextStub);
+        _httpListenerContextStub.FireOnStartingResponse();
 
         // Assert
         IReadOnlyList<FakeLogRecord> logEvents = _logCollector.GetSnapshot(context, true);
@@ -250,7 +235,7 @@ public sealed class DefaultHttpListenerTests : IDisposable
             .WhoseValue.Should()
             .Be(CorrelationId);
 
-        _correlationIdFactory.Received(1).Create();
+        _correlationIdFactoryMock.Received(1).Create();
         _activityFactoryMock.Received(1).CreateActivity();
         _activityMock.Received(1).Start(CorrelationId);
     }
@@ -259,15 +244,15 @@ public sealed class DefaultHttpListenerTests : IDisposable
     public void When_correlating_has_started_it_should_have_added_activity_to_httpContext_items()
     {
         // Act
-        _sut.HandleBeginRequest(_httpListenerContext);
+        _sut.HandleBeginRequest(_httpListenerContextStub);
 
         // Assert
-        _httpContext.Items.Should()
+        _httpListenerContextStub.Items.Should()
             .ContainKey(DefaultHttpListener.RequestActivityKey)
             .WhoseValue
             .Should()
             .BeSameAs(_activityMock);
-        _correlationIdFactory.Received(1).Create();
+        _correlationIdFactoryMock.Received(1).Create();
         _activityFactoryMock.Received(1).CreateActivity();
         _activityMock.Received(1).Start(CorrelationId);
         _activityMock.DidNotReceive().Stop();
@@ -276,36 +261,36 @@ public sealed class DefaultHttpListenerTests : IDisposable
     [Fact]
     public void When_correlating_has_stopped_it_should_have_stopped_activity()
     {
-        _sut.HandleBeginRequest(_httpListenerContext);
+        _sut.HandleBeginRequest(_httpListenerContextStub);
 
         // Act
-        _sut.HandleEndRequest(_httpListenerContext);
+        _sut.HandleEndRequest(_httpListenerContextStub);
 
         // Assert
-        _httpContext.Items.Should()
+        _httpListenerContextStub.Items.Should()
             .ContainKey(DefaultHttpListener.RequestActivityKey)
             .WhoseValue
             .Should()
             .BeSameAs(_activityMock);
-        _correlationIdFactory.Received(1).Create();
+        _correlationIdFactoryMock.Received(1).Create();
         _activityFactoryMock.Received(1).CreateActivity();
         _activityMock.Received(1).Start(CorrelationId);
         _activityMock.Received(1).Stop();
     }
 
     [Fact]
-    public async Task When_response_header_should_not_be_included_and_context_has_started_response_should_not_contain_header()
+    public void When_response_header_should_not_be_included_and_context_has_started_response_should_not_contain_header()
     {
         _options.IncludeInResponse = false;
         _options.RequestHeaders.Should().NotBeNullOrEmpty();
 
         // Act
-        _sut.HandleBeginRequest(_httpListenerContext);
-        await _responseFeature.FireOnSendingHeadersAsync();
+        _sut.HandleBeginRequest(_httpListenerContextStub);
+        _httpListenerContextStub.FireOnStartingResponse();
 
         // Assert
-        _httpContext.Response.Headers.Should().BeEmpty();
-        _correlationIdFactory.Received(1).Create();
+        _httpListenerContextStub.ResponseHeaders.Should().BeEmpty();
+        _correlationIdFactoryMock.Received(1).Create();
         _activityFactoryMock.Received(1).CreateActivity();
         _activityMock.Received(1).Start(Arg.Any<string>());
     }
