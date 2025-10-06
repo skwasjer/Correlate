@@ -21,15 +21,15 @@ internal sealed class HttpListenerContextStub : IHttpListenerContext
         _callback = callback;
     }
 
-    bool IHttpListenerContext.TryGetRequestHeader(string key, out string? value)
+    bool IHttpListenerContext.TryGetRequestHeader(string key, out string?[]? values)
     {
-        bool result = RequestHeaders.TryGetValue(key, out StringValues values);
-        value = values.Count > 0 ? values[0] : null;
+        bool result = RequestHeaders.TryGetValue(key, out StringValues sv);
+        values = sv;
         return result;
     }
 
-    bool IHttpListenerContext.TryAddResponseHeader(string key, string? value)
+    bool IHttpListenerContext.TryAddResponseHeader(string key, string?[]? values)
     {
-        return ResponseHeaders.TryAdd(key, value);
+        return ResponseHeaders.TryAdd(key, values);
     }
 }

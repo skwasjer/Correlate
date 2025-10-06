@@ -23,20 +23,20 @@ internal sealed class HttpListenerContext(HttpContext httpContext) : IHttpListen
         });
     }
 
-    public bool TryGetRequestHeader(string key, out string? value)
+    public bool TryGetRequestHeader(string key, out string?[]? values)
     {
         if (!httpContext.Request.Headers.TryGetValue(key, out StringValues headerValues))
         {
-            value = null;
+            values = null;
             return false;
         }
 
-        value = headerValues;
+        values = headerValues;
         return true;
     }
 
-    public bool TryAddResponseHeader(string key, string? value)
+    public bool TryAddResponseHeader(string key, string?[]? values)
     {
-        return httpContext.Response.Headers.TryAdd(key, value?.Split(','));
+        return httpContext.Response.Headers.TryAdd(key, values);
     }
 }

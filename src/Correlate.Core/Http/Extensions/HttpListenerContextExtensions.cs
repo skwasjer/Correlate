@@ -4,7 +4,7 @@ namespace Correlate.Http.Extensions;
 
 internal static class HttpListenerContextExtensions
 {
-    internal static KeyValuePair<string, string?> GetCorrelationIdHeader(this IHttpListenerContext context, IReadOnlyCollection<string> acceptedHeaders)
+    internal static KeyValuePair<string, string?[]?> GetCorrelationIdHeader(this IHttpListenerContext context, IReadOnlyCollection<string> acceptedHeaders)
     {
         if (acceptedHeaders is null)
         {
@@ -13,28 +13,28 @@ internal static class HttpListenerContextExtensions
 
         if (acceptedHeaders.Count == 0)
         {
-            return new KeyValuePair<string, string?>(CorrelationHttpHeaders.CorrelationId, null);
+            return new KeyValuePair<string, string?[]?>(CorrelationHttpHeaders.CorrelationId, null);
         }
 
-        string? correlationId = null;
+        string?[]? correlationId = null;
         string? headerName = null;
 
         foreach (string requestHeaderName in acceptedHeaders)
         {
-            if (!context.TryGetRequestHeader(requestHeaderName, out string? value))
+            if (!context.TryGetRequestHeader(requestHeaderName, out string?[]? value))
             {
                 continue;
             }
 
             headerName = requestHeaderName;
             correlationId = value;
-            if (!string.IsNullOrWhiteSpace(correlationId))
+            if (correlationId?.Length > 0)
             {
                 break;
             }
         }
 
-        return new KeyValuePair<string, string?>(
+        return new KeyValuePair<string, string?[]?>(
             headerName ?? acceptedHeaders.First(),
             correlationId
         );

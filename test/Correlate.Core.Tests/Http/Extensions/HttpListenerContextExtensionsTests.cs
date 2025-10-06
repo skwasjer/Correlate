@@ -23,10 +23,10 @@ public sealed class HttpListenerContextExtensionsTests
         _sut.RequestHeaders.Add(requestHeaderKey, CorrelationId);
 
         // Act
-        KeyValuePair<string, string?> header = _sut.GetCorrelationIdHeader(["first-header", "second-header", "third-header"]);
+        KeyValuePair<string, string?[]?> header = _sut.GetCorrelationIdHeader(["first-header", "second-header", "third-header"]);
 
         // Assert
-        header.Should().BeEquivalentTo(new KeyValuePair<string, string>(requestHeaderKey, CorrelationId));
+        header.Should().BeEquivalentTo(new KeyValuePair<string, string?[]?>(requestHeaderKey, [CorrelationId]));
     }
 
     [Fact]
@@ -35,10 +35,10 @@ public sealed class HttpListenerContextExtensionsTests
         _sut.RequestHeaders.Add(TestHeaderName, CorrelationId);
 
         // Act
-        KeyValuePair<string, string?> header = _sut.GetCorrelationIdHeader([TestHeaderName]);
+        KeyValuePair<string, string?[]?> header = _sut.GetCorrelationIdHeader([TestHeaderName]);
 
         // Assert
-        header.Should().BeEquivalentTo(new KeyValuePair<string, string>(TestHeaderName, CorrelationId));
+        header.Should().BeEquivalentTo(new KeyValuePair<string, string?[]?>(TestHeaderName, [CorrelationId]));
     }
 
     [Fact]
@@ -47,10 +47,10 @@ public sealed class HttpListenerContextExtensionsTests
         _sut.RequestHeaders.Add(CorrelationHttpHeaders.CorrelationId, CorrelationId);
 
         // Act
-        KeyValuePair<string, string?> header = _sut.GetCorrelationIdHeader([CorrelationHttpHeaders.CorrelationId]);
+        KeyValuePair<string, string?[]?> header = _sut.GetCorrelationIdHeader([CorrelationHttpHeaders.CorrelationId]);
 
         // Assert
-        header.Should().BeEquivalentTo(new KeyValuePair<string, string>(CorrelationHttpHeaders.CorrelationId, CorrelationId));
+        header.Should().BeEquivalentTo(new KeyValuePair<string, string?[]?>(CorrelationHttpHeaders.CorrelationId, [CorrelationId]));
     }
 
     [Fact]
@@ -59,20 +59,20 @@ public sealed class HttpListenerContextExtensionsTests
         _sut.RequestHeaders.Should().BeEmpty();
 
         // Act
-        KeyValuePair<string, string?> header = _sut.GetCorrelationIdHeader([TestHeaderName]);
+        KeyValuePair<string, string?[]?> header = _sut.GetCorrelationIdHeader([TestHeaderName]);
 
         // Assert
-        header.Should().BeEquivalentTo(new KeyValuePair<string, string?>(TestHeaderName, null));
+        header.Should().BeEquivalentTo(new KeyValuePair<string, string?[]?>(TestHeaderName, null));
     }
 
     [Fact]
     public void When_using_empty_accepted_headers_should_throw()
     {
         _sut.RequestHeaders.Add(CorrelationHttpHeaders.CorrelationId, CorrelationId);
-        var expectedHeader = new KeyValuePair<string, string?>(CorrelationHttpHeaders.CorrelationId, null);
+        var expectedHeader = new KeyValuePair<string, string?[]?>(CorrelationHttpHeaders.CorrelationId, null);
 
         // Act
-        KeyValuePair<string, string?> header = _sut.GetCorrelationIdHeader([]);
+        KeyValuePair<string, string?[]?> header = _sut.GetCorrelationIdHeader([]);
 
         // Assert
         header.Should().BeEquivalentTo(expectedHeader, "it should not take correlation id from header dictionary but still return header key");

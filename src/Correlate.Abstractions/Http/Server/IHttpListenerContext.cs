@@ -20,16 +20,16 @@ public interface IHttpListenerContext
     /// Attempts to retrieve the value of a specified request header.
     /// </summary>
     /// <param name="key">The name of the header to retrieve.</param>
-    /// <param name="value">When this method returns, contains the value of the specified header if it exists; otherwise, <c>null</c>.</param>
+    /// <param name="values"></param>
     /// <returns><c>true</c> if the specified header exists and its value was successfully retrieved; otherwise, <c>false</c>.</returns>
-    bool TryGetRequestHeader(string key, out string? value);
+    bool TryGetRequestHeader(string key, out string?[]? values);
 
     /// <summary>
     /// Attempts to add a header to the HTTP response.
     /// </summary>
     /// <param name="key">The name of the header to add.</param>
-    /// <param name="value">The value of the header to add.</param>
+    /// <param name="values"></param>
     /// <returns><c>true</c> if the header was successfully added; otherwise, <c>false</c>.</returns>
     /// <remarks>If the header already exists, this method does not overwrite the existing value.</remarks>
-    bool TryAddResponseHeader(string key, string? value);
+    bool TryAddResponseHeader(string key, string?[]? values);
 }

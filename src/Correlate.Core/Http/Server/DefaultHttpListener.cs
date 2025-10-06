@@ -51,7 +51,7 @@ internal sealed class DefaultHttpListener
 
     public void HandleBeginRequest(IHttpListenerContext context)
     {
-        (string? responseHeaderName, string correlationId) = GetOrCreateCorrelationHeaderAndId(context);
+        (string? responseHeaderName, string?[]? headerValues, string correlationId) = GetOrCreateCorrelationHeaderAndId(context);
 
         IActivity activity = _activityFactory.CreateActivity();
         activity.Start(correlationId);
@@ -67,7 +67,7 @@ internal sealed class DefaultHttpListener
         context.OnStartingResponse(() =>
         {
             // If already set, ignore.
-            if (context.TryAddResponseHeader(responseHeaderName, correlationId))
+            if (context.TryAddResponseHeader(responseHeaderName, headerValues))
             {
                 LogResponseHeaderAdded(_logger, responseHeaderName, correlationId, null);
             }
@@ -83,21 +83,25 @@ internal sealed class DefaultHttpListener
         }
     }
 
-    private (string? headerName, string correlationId) GetOrCreateCorrelationHeaderAndId(IHttpListenerContext httpContext)
+    private (string? headerName, string?[]? headerValues, string correlationId) GetOrCreateCorrelationHeaderAndId(IHttpListenerContext httpContext)
     {
-        KeyValuePair<string, string?> kvp = httpContext.GetCorrelationIdHeader(_options.RequestHeaders ?? [CorrelationHttpHeaders.CorrelationId]);
-        string requestHeaderName = kvp.Key;
-        string? requestCorrelationId = kvp.Value;
-        if (requestCorrelationId is not null)
+        KeyValuePair<string, string?[]?> kvp = httpContext.GetCorrelationIdHeader(_options.RequestHeaders ?? [CorrelationHttpHeaders.CorrelationId]);
+        string headerName = kvp.Key;
+        string?[]? headerValues = kvp.Value;
+        string? correlationId;
+        if (headerValues?.Length > 0)
         {
-            LogRequestHeaderFound(_logger, requestHeaderName, requestCorrelationId, null);
+            correlationId = string.Join(",", headerValues);
+            LogRequestHeaderFound(_logger, headerName, correlationId, null);
+        }
+        else
+        {
+            correlationId = _correlationIdFactory.Create();
+            headerValues = [correlationId];
         }
 
-        return (
-            _options.IncludeInResponse
-                ? requestHeaderName
-                : null,
-            requestCorrelationId ?? _correlationIdFactory.Create()
-            );
+        return _options.IncludeInResponse
+            ? (headerName, headerValues, correlationId)
+            : (null, null, correlationId);
     }
 }

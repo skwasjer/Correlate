@@ -20,18 +20,18 @@ public sealed class HttpListenerContextTests
     }
 
     [Theory]
-    [InlineData("X-Single", new[] { "Value1" }, "Value1")]
-    [InlineData("X-Multiple", new[] { "Value1", "Value2" }, "Value1,Value2")]
-    public void Given_that_request_header_exists_when_getting_it_should_return_true_and_expected_value(string key, string[] values, string? expectedValue)
+    [InlineData("X-Single", new[] { "Value1" })]
+    [InlineData("X-Multiple", new[] { "Value1", "Value2" })]
+    public void Given_that_request_header_exists_when_getting_it_should_return_true_and_expected_value(string key, string[] values)
     {
         _requestFeature.Headers[key] = values;
 
         // Act
-        bool result = _sut.TryGetRequestHeader(key, out string? actualValue);
+        bool result = _sut.TryGetRequestHeader(key, out string?[]? actualValue);
 
         // Assert
         result.Should().BeTrue();
-        actualValue.Should().Be(expectedValue);
+        actualValue.Should().BeEquivalentTo(values, opts => opts.WithStrictOrdering());
     }
 
     [Fact]
@@ -40,7 +40,7 @@ public sealed class HttpListenerContextTests
         _requestFeature.Headers.Clear();
 
         // Act
-        bool result = _sut.TryGetRequestHeader("non-existing", out string? actualValue);
+        bool result = _sut.TryGetRequestHeader("non-existing", out string?[]? actualValue);
 
         // Assert
         result.Should().BeFalse();
@@ -56,26 +56,26 @@ public sealed class HttpListenerContextTests
         _responseFeature.Headers[key] = existingValue;
 
         // Act
-        bool result = _sut.TryAddResponseHeader(key, value);
+        bool result = _sut.TryAddResponseHeader(key, [value]);
 
         // Assert
         result.Should().BeFalse();
         _responseFeature.Headers[key].Should().BeEquivalentTo(existingValue);
     }
 
-    [Fact]
-    public void Given_that_response_header_does_not_exist_when_adding_it_should_return_true_and_add()
+    [Theory]
+    [InlineData("X-Single", new[] { "Value1" })]
+    [InlineData("X-Multiple", new[] { "Value1", "Value2" })]
+    public void Given_that_response_header_does_not_exist_when_adding_it_should_return_true_and_add(string key, string[] values)
     {
-        const string key = "X-Single";
-        const string value = "Value1";
         _responseFeature.Headers.Clear();
 
         // Act
-        bool result = _sut.TryAddResponseHeader(key, value);
+        bool result = _sut.TryAddResponseHeader(key, values);
 
         // Assert
         result.Should().BeTrue();
-        _responseFeature.Headers[key].Should().BeEquivalentTo(value);
+        _responseFeature.Headers[key].Should().BeEquivalentTo(values);
     }
 
     [Fact]

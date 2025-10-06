@@ -63,7 +63,7 @@ namespace Correlate.Http.Server
     {
         System.Collections.Generic.IDictionary<object, object?> Items { get; }
         void OnStartingResponse(System.Action callback);
-        bool TryAddResponseHeader(string key, string? value);
-        bool TryGetRequestHeader(string key, out string? value);
+        bool TryAddResponseHeader(string key, string?[]? values);
+        bool TryGetRequestHeader(string key, out string?[]? values);
     }
 }
