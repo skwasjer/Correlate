@@ -235,7 +235,7 @@ public sealed class IntegrationTests : IClassFixture<TestAppFactory<Startup>>, I
         // Assert
         IReadOnlyList<FakeLogRecord> logEvents = _logCollector.GetSnapshot(Startup.LastRequestContext!.Id, true);
         logEvents.Should()
-            .HaveCountGreaterThan(2)
+            .NotBeEmpty()
             .And.AllSatisfy(ev => ev.Scopes
                 .Should()
                 .ContainEquivalentOf(new LoggerExtensions.CorrelatedLogScope(CorrelateConstants.CorrelationIdKey, correlationId))

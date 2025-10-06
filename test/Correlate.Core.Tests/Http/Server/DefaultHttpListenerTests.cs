@@ -294,4 +294,28 @@ public sealed class DefaultHttpListenerTests : IDisposable
         _activityFactoryMock.Received(1).CreateActivity();
         _activityMock.Received(1).Start(Arg.Any<string>());
     }
+
+    [Fact]
+    public void Given_that_context_is_null_when_beginning_it_should_throw()
+    {
+        IHttpListenerContext? context = null;
+
+        // Act
+        Action act = () => _sut.HandleBeginRequest(context!);
+
+        // Assert
+        act.Should().Throw<ArgumentNullException>().WithParameterName(nameof(context));
+    }
+
+    [Fact]
+    public void Given_that_context_is_null_when_ending_it_should_throw()
+    {
+        IHttpListenerContext? context = null;
+
+        // Act
+        Action act = () => _sut.HandleEndRequest(context!);
+
+        // Assert
+        act.Should().Throw<ArgumentNullException>().WithParameterName(nameof(context));
+    }
 }
