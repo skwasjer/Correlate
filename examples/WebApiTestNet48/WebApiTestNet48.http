@@ -9,3 +9,9 @@ GET http://localhost:53460/api/foo
 X-Correlation-ID: your-correlation-id-value
 ###
 
+# @name: Route does not exist
+
+GET http://localhost:53460/api/not-found
+X-Correlation-ID: your-correlation-id-err
+###
+

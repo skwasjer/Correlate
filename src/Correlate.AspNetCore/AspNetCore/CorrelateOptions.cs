@@ -1,4 +1,8 @@
-﻿namespace Correlate.AspNetCore;
+﻿#if NET48_OR_GREATER
+namespace Correlate.AspNet;
+#else
+namespace Correlate.AspNetCore;
+#endif
 
 /// <summary>
 /// Options for handling correlation id on incoming requests.

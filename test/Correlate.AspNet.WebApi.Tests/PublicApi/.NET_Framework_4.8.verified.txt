@@ -1,0 +1,30 @@
+﻿[assembly: System.Reflection.AssemblyMetadata("RepositoryUrl", "https://github.com/skwasjer/Correlate")]
+[assembly: System.Runtime.Versioning.TargetFramework(".NETFramework,Version=v4.8", FrameworkDisplayName=".NET Framework 4.8")]
+namespace Correlate.AspNet
+{
+    public sealed class CorrelateHttpModule : System.Web.IHttpModule
+    {
+        public CorrelateHttpModule() { }
+    }
+    public sealed class CorrelateOptions : Correlate.CorrelationManagerOptions
+    {
+        public CorrelateOptions() { }
+        public bool IncludeInResponse { get; set; }
+        public System.Collections.Generic.IReadOnlyList<string>? RequestHeaders { get; set; }
+    }
+}
+namespace Correlate.DependencyInjection
+{
+    public sealed class DefaultDependencyResolver : System.IDisposable, System.Web.Http.Dependencies.IDependencyResolver, System.Web.Http.Dependencies.IDependencyScope
+    {
+        public DefaultDependencyResolver(System.IServiceProvider serviceProvider) { }
+        public System.Web.Http.Dependencies.IDependencyScope BeginScope() { }
+        public void Dispose() { }
+        public object? GetService(System.Type serviceType) { }
+        public System.Collections.Generic.IEnumerable<object?> GetServices(System.Type serviceType) { }
+    }
+    public static class ServiceCollectionExtensions
+    {
+        public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddCorrelate(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, System.Action<Correlate.AspNet.CorrelateOptions> configureOptions) { }
+    }
+}
