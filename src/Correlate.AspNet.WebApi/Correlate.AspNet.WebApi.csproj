@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <RootNamespace>Correlate</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Description>Provides an ASP.NET (classic/.NET Framework) HTTP module to correlate requests between microservices using correlation ID request headers.</Description>
+    <PackageProjectUrl>https://github.com/skwasjer/Correlate</PackageProjectUrl>
+    <PackageTags>correlationid, correlation, correlate, causation, aspnet, middleware, httpclient, httpclientfactory</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Correlate.AspNetCore\AspNetCore\CorrelateOptions.cs" Link="AspNet\CorrelateOptions.cs" />
+    <Compile Include="..\Correlate.AspNetCore\DependencyInjection\ServiceCollectionExtensions.cs" Link="DependencyInjection\ServiceCollectionExtensions.cs" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Reference Include="System.Web" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNet.WebApi" Version="5.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+	  <ProjectReference Include="..\Correlate.DependencyInjection\Correlate.DependencyInjection.csproj" />
+	</ItemGroup>
+
+</Project>

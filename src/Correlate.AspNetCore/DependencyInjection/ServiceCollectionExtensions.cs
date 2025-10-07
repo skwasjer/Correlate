@@ -1,7 +1,11 @@
-﻿using Correlate.AspNetCore;
-using Correlate.Http.Server;
+﻿using Correlate.Http.Server;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+#if NET48_OR_GREATER
+using Correlate.AspNet;
+#else
+using Correlate.AspNetCore;
+#endif
 
 namespace Correlate.DependencyInjection;
 
