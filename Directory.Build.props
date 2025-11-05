@@ -22,7 +22,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='net9.0'">
-    <PackageVersion_Microsoft_Extensions>9.0.0</PackageVersion_Microsoft_Extensions>
+    <PackageVersion_Microsoft_Extensions>9.0.10</PackageVersion_Microsoft_Extensions>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'!='net9.0' And '$(TargetFramework)'!='net10.0'">
