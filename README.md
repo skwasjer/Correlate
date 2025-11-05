@@ -83,9 +83,6 @@ Secondly, all responses will receive a matching response header.
 
 Thirdly, for all outbound HTTP calls that are sent via the `HttpClient` provided to `MyService` instances, a `X-Correlation-ID` request header is added.
 
-### Classic ASP.NET (IIS) integration.
-See: [`src/Correlate.AspNet.WebApi/README.md`](src/Correlate.AspNet.WebApi/README.md)
-
 ## Logging
 
 Before a request flows down the pipeline, a log scope is created with a `CorrelationId` property, containing the correlation id. As such, every log event that is logged during the entire request context will be enriched with the `CorrelationId` property.
@@ -193,6 +190,7 @@ services.AddSingleton<ICorrelationIdFactory, RequestIdentifierCorrelationIdFacto
 | - | - | - | - |
 | [Rebus](https://github.com/rebus-org/Rebus) | Service&#160;bus | [Rebus.Correlate](https://github.com/skwasjer/Rebus.Correlate) | Rebus integration of Correlate to correlate message flow via any supported Rebus transport. |
 | [Hangfire](https://www.hangfire.io/) | Job&#160;scheduler | [Hangfire.Correlate](https://github.com/skwasjer/Hangfire.Correlate) | Hangfire integration of Correlate to add correlation id support to Hangfire background/scheduled jobs. |
+| [Classic ASP.NET](https://github.com/hartmark/Correlate/tree/main/src/Correlate.AspNet.WebApi) | IIS HTTP module | [Correlate.AspNet.WebApi](https://www.nuget.org/packages/Correlate.AspNet.WebApi) | Classic ASP.NET (IIS) integration. |
 
 ## Alternatives for more advanced Distributed Tracing
 
