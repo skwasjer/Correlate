@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Microsoft_Extensions_Diagnostics_Testing Condition="'$(TargetFramework)'=='net9.0'">9.0.0</Microsoft_Extensions_Diagnostics_Testing>
+    <Microsoft_Extensions_Diagnostics_Testing Condition="'$(TargetFramework)'=='net9.0'">9.10.0</Microsoft_Extensions_Diagnostics_Testing>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'!='net9.0' And '$(TargetFramework)'!='net10.0'">
