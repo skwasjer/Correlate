@@ -190,6 +190,7 @@ services.AddSingleton<ICorrelationIdFactory, RequestIdentifierCorrelationIdFacto
 | - | - | - | - |
 | [Rebus](https://github.com/rebus-org/Rebus) | Service&#160;bus | [Rebus.Correlate](https://github.com/skwasjer/Rebus.Correlate) | Rebus integration of Correlate to correlate message flow via any supported Rebus transport. |
 | [Hangfire](https://www.hangfire.io/) | Job&#160;scheduler | [Hangfire.Correlate](https://github.com/skwasjer/Hangfire.Correlate) | Hangfire integration of Correlate to add correlation id support to Hangfire background/scheduled jobs. |
+| [Classic ASP.NET](https://github.com/hartmark/Correlate/tree/main/src/Correlate.AspNet.WebApi) | IIS HTTP module | [Correlate.AspNet.WebApi](https://www.nuget.org/packages/Correlate.AspNet.WebApi) | Classic ASP.NET (IIS) integration. |
 
 ## Alternatives for more advanced Distributed Tracing
 
