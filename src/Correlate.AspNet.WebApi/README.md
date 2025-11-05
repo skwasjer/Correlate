@@ -1,3 +1,4 @@
+# Classic ASP.NET (IIS) integration.
 An ASP.NET (classic/.net framework) implementation to correlate activities between decoupled components (eg. microservices) via a HTTP header.
 
 ## Usage
@@ -8,16 +9,11 @@ This package provides a managed IIS HTTP module to automatically handle the corr
   <system.webServer>
     <validation validateIntegratedModeConfiguration="false" />
     <modules>
-      <add name="CorrelateHttpModule" type="Correlate.AspNet.CorrelateHttpModule, Correlate.AspNet.WebApi" />
+      <add name="CorrelateHttpModule" type="Correlate.AspNet.CorrelateHttpModule, Correlate.AspNet.WebApi, Version=6.1.0.0, Culture=neutral, PublicKeyToken=null" />
     </modules>
   </system.webServer>
-  <system.web>
-    <httpModules>
-      <add name="CorrelateHttpModule" type="Correlate.AspNet.CorrelateHttpModule, Correlate.AspNet.WebApi" />
-    </httpModules>
-  </system.web>
 ```
-
+*note*: You need to specify a fully qualified name for `CorrelateHttpModule`.<br>
 If you already have a `<modules>/<httpModules>` section in your `web.config`, you can simply just add the line with `CorrelateHttpModule`.
 
 ## Dependencies

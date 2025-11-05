@@ -83,6 +83,9 @@ Secondly, all responses will receive a matching response header.
 
 Thirdly, for all outbound HTTP calls that are sent via the `HttpClient` provided to `MyService` instances, a `X-Correlation-ID` request header is added.
 
+### Classic ASP.NET (IIS) integration.
+See: [`src/Correlate.AspNet.WebApi/README.md`](src/Correlate.AspNet.WebApi/README.md)
+
 ## Logging
 
 Before a request flows down the pipeline, a log scope is created with a `CorrelationId` property, containing the correlation id. As such, every log event that is logged during the entire request context will be enriched with the `CorrelationId` property.
