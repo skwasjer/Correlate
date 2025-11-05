@@ -13,7 +13,8 @@ This package provides a managed IIS HTTP module to automatically handle the corr
     </modules>
   </system.webServer>
 ```
-*note*: You need to specify a fully qualified name for `CorrelateHttpModule`.<br>
+> You need to specify a fully qualified name for `CorrelateHttpModule`.
+
 If you already have a `<modules>/<httpModules>` section in your `web.config`, you can simply just add the line with `CorrelateHttpModule`.
 
 ## Dependencies
