@@ -18,7 +18,7 @@
 
   <PropertyGroup>
     <!-- Microsoft.Extensions.* -->
-    <PackageVersion_Microsoft_Extensions>10.0.0-preview.7.25380.108</PackageVersion_Microsoft_Extensions>
+    <PackageVersion_Microsoft_Extensions>10.0.0</PackageVersion_Microsoft_Extensions>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='net9.0'">
