@@ -12,7 +12,7 @@ namespace Correlate.Benchmarks;
 [BenchmarkDotNet.Diagnostics.Windows.Configs.InliningDiagnoser(false, new[] { "Correlate.AspNetCore" })]
 #endif
 [StopOnFirstError]
-[MarkdownExporter]
+[MarkdownExporterAttribute.GitHub]
 public class AspNetCoreBenchmark
 {
     private WebApplication? _app;

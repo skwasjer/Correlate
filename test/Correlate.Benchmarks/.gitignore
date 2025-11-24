@@ -1,1 +1,4 @@
-/BenchmarkDotNet.Artifacts
+#/BenchmarkDotNet.Artifacts
+/BenchmarkDotNet.Artifacts/results/*.csv
+/BenchmarkDotNet.Artifacts/results/*.html
+/BenchmarkDotNet.Artifacts/results/*.R
