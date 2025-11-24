@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net10.0;net9.0;net8.0;net6.0;net48</TargetFrameworks>
+    <TargetFrameworks>net10.0;net8.0;net6.0;net48</TargetFrameworks>
     <TargetFrameworks Condition="'$(NetPreview)'=='true'">$(TargetFrameworks);net11.0</TargetFrameworks>
     <IsTestProject>false</IsTestProject>
   </PropertyGroup>
@@ -10,11 +10,7 @@
     <Microsoft_Extensions_Diagnostics_Testing>9.8.0</Microsoft_Extensions_Diagnostics_Testing>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <Microsoft_Extensions_Diagnostics_Testing Condition="'$(TargetFramework)'=='net9.0'">9.0.0</Microsoft_Extensions_Diagnostics_Testing>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)'!='net9.0' And '$(TargetFramework)'!='net10.0'">
+  <PropertyGroup Condition="'$(TargetFramework)'!='net10.0'">
     <Microsoft_Extensions_Diagnostics_Testing>8.9.1</Microsoft_Extensions_Diagnostics_Testing>
   </PropertyGroup>
 

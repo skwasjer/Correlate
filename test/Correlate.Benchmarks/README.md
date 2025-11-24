@@ -20,5 +20,5 @@ Intel Core i7-8700K CPU 3.70GHz (Coffee Lake), 1 CPU, 12 logical and 6 physical 
 To run the benchmark:
 ```
 cd ./test/Correlate.Benchmarks
-dotnet run -c Release -f net10.0 --runtimes net10_0 net90 net80
+dotnet run -c Release -f net10.0 --runtimes net10.0 net80
 ```
