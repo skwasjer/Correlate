@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.1" />
     <ProjectReference Include="..\..\src\Correlate.DependencyInjection\Correlate.DependencyInjection.csproj" />
     <ProjectReference Include="..\Correlate.Testing\Correlate.Testing.csproj" />
   </ItemGroup>
